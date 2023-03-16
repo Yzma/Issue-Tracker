@@ -1,14 +1,23 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+// import styles from "@/styles/Home.module.css";
+import layoutStyles from "@/styles/usersLayout.module.css";
+import Header from "@/components/Header";
+import ProfileContainer from '@/components/ProfileContainer';
+import ProjectSection from '@/components/ProjectSection';
+import { useRouter } from "next/router";
 
-import { useRouter } from 'next/router'
-
-
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function UserProfile() {
+  //fake data for now
+  const username = "Julian Paredes";
+  const bio = "Full stack developer student at Lighthouse Labs";
+  const projects = [
+    { id: 1, name: "Tweeter App", description: "Twitter clone app" },
+    { id: 2, name: "Scheduler App", description: "Scheduler Appointment App" },
+  ];
 
   return (
     <>
@@ -18,11 +27,15 @@ export default function UserProfile() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <p>User profile view here</p>
+      <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
+        <Header />
+        <div className={layoutStyles.profileContainer}>
+          <ProfileContainer username={username} bio={bio} />
+        </div>
+        <div className={layoutStyles.projectSection}>
+        <ProjectSection projects={projects} />
+        </div>
       </main>
     </>
-  )
+  );
 }
-
-
