@@ -2,10 +2,12 @@ import NextAuth from "next-auth"
 
 import GitHubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
+
+import CustomPrismaAdapter from "@/lib/prisma/prisma-adapter";
+import prisma from "@/lib/prisma/prisma"
 
 export const authOptions = {
-
+  adapter: CustomPrismaAdapter(prisma),
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID,
@@ -21,35 +23,23 @@ export const authOptions = {
           response_type: "code"
         }
       }
-    }),
-    CredentialsProvider({
-      // The name to display on the sign in form (e.g. "Sign in with...")
-      name: "Credentials",
-      // `credentials` is used to generate a form on the sign in page.
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
-      credentials: {
-        email: { label: "Email", type: "text"},
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
-  
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null
-  
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-        }
-      }
     })
   ],
+
+  callbacks: {
+    async session({ session, token, user }) {
+      // console.log('callback session')
+      // console.log('session', session)
+      // console.log('token', token)
+      // console.log('user', user)
+
+      session.user.id = user.id
+      session.user.settings = {
+        colorScheme: user.settings.colorScheme
+      }
+      return session
+    }
+  },
 }
 
 export default NextAuth(authOptions)
