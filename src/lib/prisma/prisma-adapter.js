@@ -5,7 +5,6 @@ export default function CustomPrismaAdapter(p) {
     ...PrismaAdapter(p),
 
     createUser: (data) => { 
-      console.log('DATA: ', data)
       return p.user.create({ 
         data: {
           ...data,

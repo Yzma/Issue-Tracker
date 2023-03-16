@@ -28,10 +28,10 @@ export const authOptions = {
 
   callbacks: {
     async session({ session, token, user }) {
-      console.log('callback session')
-      console.log('session', session)
-      console.log('token', token)
-      console.log('user', user)
+      // console.log('callback session')
+      // console.log('session', session)
+      // console.log('token', token)
+      // console.log('user', user)
 
       session.user.id = user.id
       session.user.settings = {
