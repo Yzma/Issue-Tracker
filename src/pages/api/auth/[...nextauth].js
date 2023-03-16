@@ -3,11 +3,11 @@ import NextAuth from "next-auth"
 import GitHubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google";
 
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import CustomPrismaAdapter from "@/lib/prisma/prisma-adapter";
 import prisma from "@/lib/prisma/prisma"
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: CustomPrismaAdapter(prisma),
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID,
@@ -38,27 +38,6 @@ export const authOptions = {
       
       return session
     }
-  },
-
-  // createUser  {
-  //   user: {
-  //     id: 'clfbg5ec20000qqm85dngy4ww',
-  //     name: 'Andrew Caruso',
-  //     email: 'andrew.caruso03@gmail.com',
-  //     emailVerified: null,
-  //     image: 'https://lh3.googleusercontent.com/a/AGNmyxYbCLK6bsg6MjnwlAdlrQL0uH_wTLbjbNpfNNsJ=s96-c'
-  //   }
-  // }
-
-  events: {
-    async createUser(message) {
-      console.log('createUser ', message)
-      await prisma.userSettings.create({
-        data: {
-          userId: message.user.id
-        },
-      });
-    },
   },
 }
 
