@@ -32,10 +32,11 @@ export const authOptions = {
       console.log('session', session)
       console.log('token', token)
       console.log('user', user)
-      // Send properties to the client, like an access_token and user id from a provider.
-      // session.accessToken = token.accessToken
-      // session.user.id = token.id
-      
+
+      session.user.id = user.id
+      session.user.settings = {
+        colorScheme: user.settings.colorScheme
+      }
       return session
     }
   },
