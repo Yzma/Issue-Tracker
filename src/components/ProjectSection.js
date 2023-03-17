@@ -8,7 +8,10 @@ const ProjectSection = ({ projects }) => {
       <ul className={styles.projectList}>
         {projects.map((project) => (
           <li key={project.id} className={styles.projectItem}>
-            <h3>{project.name}</h3>
+            <div className={styles.projectItemHeader}>
+              <h3>{project.name}</h3>
+              <p className={styles.updateDate}>Last updated: {project.updated_at}</p>
+            </div>
             <p>{project.description}</p>
           </li>
         ))}
