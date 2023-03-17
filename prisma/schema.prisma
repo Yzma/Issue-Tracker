@@ -28,10 +28,33 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
+  username      String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  namespace   Namespace? @relation(fields: [namespaceId], references: [id])
+  namespaceId String?    @unique
+
   settings UserSettings?
+}
+
+model Organization {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  namespace   Namespace? @relation(fields: [namespaceId], references: [id])
+  namespaceId String?    @unique
+}
+
+model Namespace {
+  id   String @id @default(cuid())
+  name String @unique @default(cuid())
+
+  user         User?
+  organization Organization?
 }
 
 model Account {
