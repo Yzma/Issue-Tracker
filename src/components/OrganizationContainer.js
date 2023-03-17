@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from "../styles/ProfileContainer.module.css";
+import styles from "../styles/OrganizationContainer.module.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 

@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import layoutStyles from '@/styles/OrgLayout.module.css'
 import Header from "@/components/Header";
 import { useRouter } from 'next/router'
 import OrganizationContainer from '@/components/OrganizationContainer';
-
+import OrgProjectSection from '@/components/OrgProjectSection'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,13 +25,13 @@ export default function Org() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
+      <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
       <Header />
-      <div>
+      <div className={layoutStyles.profileContainer}>
         <OrganizationContainer orgName={orgName} bio={bio}/>
         </div>
-        <div>
-        {/* <OrganizationContainer projects={projects} /> */}
+        <div className={layoutStyles.projectSection}>
+        <OrgProjectSection projects={projects} />
         </div>
       </main>
     </>
