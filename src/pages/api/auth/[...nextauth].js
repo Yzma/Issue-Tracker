@@ -9,6 +9,8 @@ import prisma from "@/lib/prisma/prisma"
 import { setCookie } from 'cookies-next';
 import jwt from 'jsonwebtoken';
 
+import { NEW_USER_COOKIE } from '@/lib/constants'
+
 const DEFAULT_MAX_AGE = 24 * 60 * 60 // 1 day
 
 //https://next-auth.js.org/configuration/callbacks#jwt-callback - at the bottom of the page
@@ -51,14 +53,14 @@ export const authOptions = (req, res) => {
           console.log("SET COOKIE")
 
           return new Promise((resolve, reject) => {
-            jwt.sign({ id: user.id }, process.env.NEXTAUTH_SECRET, function(err, token) {
+            jwt.sign({ id: user.id }, process.env.NEXTAUTH_SECRET, (err, token) => {
               if(err) {
                 return reject(err)
               }
               return resolve(token)
             })
           }).then(token => {
-            setCookie(process.env.NEW_USER_COOKIE, token, { req, res, maxAge: DEFAULT_MAX_AGE })
+            setCookie(NEW_USER_COOKIE, token, { req, res, maxAge: DEFAULT_MAX_AGE })
             return { redirect: '/finish', stayLoggedIn: true }
           }).catch(err => {
             console.error("Error signing JSON Web token", err)
