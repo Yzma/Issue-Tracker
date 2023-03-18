@@ -7,9 +7,9 @@ import CustomPrismaAdapter from "@/lib/prisma/prisma-adapter"
 import prisma from "@/lib/prisma/prisma"
 
 import { setCookie } from 'cookies-next';
+import jwt from 'jsonwebtoken';
 
-import * as jose from 'jose'
-const DEFAULT_MAX_AGE = 30 * 24 * 60 * 60 // 30 days
+const DEFAULT_MAX_AGE = 24 * 60 * 60 // 1 day
 
 //https://next-auth.js.org/configuration/callbacks#jwt-callback - at the bottom of the page
 // The session object is not persisted server side, even when using database sessions - only data such as the session token, the user, and the expiry time is stored in the session table.
@@ -49,9 +49,21 @@ export const authOptions = (req, res) => {
         // FIRST TIME LOGIN
         if (!user.namespace) {
           console.log("SET COOKIE")
-          // TODO: Encrypt this
-          setCookie(process.env.NEW_USER_COOKIE, user.id, { req, res, maxAge: 60 * 6 * 24 })
-          return { redirect: '/finish', stayLoggedIn: true }
+
+          return new Promise((resolve, reject) => {
+            jwt.sign({ id: user.id }, process.env.NEXTAUTH_SECRET, function(err, token) {
+              if(err) {
+                return reject(err)
+              }
+              return resolve(token)
+            })
+          }).then(token => {
+            setCookie(process.env.NEW_USER_COOKIE, token, { req, res, maxAge: DEFAULT_MAX_AGE })
+            return { redirect: '/finish', stayLoggedIn: true }
+          }).catch(err => {
+            console.error("Error signing JSON Web token", err)
+            return { redirect: '/500', stayLoggedIn: false } // Something went wrong here
+          })
         }
    
         return { redirect: `/${user.namespace.name}`, stayLoggedIn: true }
