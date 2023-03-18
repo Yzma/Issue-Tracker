@@ -17,7 +17,7 @@ const Header = () => {
             <a href="/issues">Issues</a>
           </li>
           <li>
-            <a href="/organizations">Organizations</a>
+            <a href="/orgs">Organizations</a>
           </li>
           {/* Add login/logout logic or links here */}
           <li>
