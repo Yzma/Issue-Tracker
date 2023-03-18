@@ -1,0 +1,27 @@
+.tabsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.tab {
+  background-color: #457b9d;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.3s;
+}
+
+.tab:hover {
+  background-color: #1d3557;
+}
+
+.active {
+  background-color: #1d3557;
+}

@@ -1,14 +1,17 @@
 import React from "react";
 import styles from '../styles/Header.module.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { faBug } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
   return (
     <header className={styles.header}>
-      <FontAwesomeIcon icon={faGithub} size="2x" />
+      <div className={styles.logoContainer}>
+        <FontAwesomeIcon icon={faBug} size="2x" />
+        <p>Bug-Zapper</p>
+      </div>
       <nav className={styles.nav}>
-
         <ul>
           <li>
             <a href="/issues">Issues</a>
@@ -18,10 +21,10 @@ const Header = () => {
           </li>
           {/* Add login/logout logic or links here */}
           <li>
-            <a href="/login">Login</a>
+            <a href="/login">Login/Logout</a>
           </li>
           <li>
-            <a href="/logout">Logout</a>
+          <FontAwesomeIcon icon={faPlus}/>
           </li>
         </ul>
       </nav>
