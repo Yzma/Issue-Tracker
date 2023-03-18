@@ -64,7 +64,7 @@ model Namespace {
 model Project {
   id          String  @id @default(cuid())
   name        String  @default(cuid())
-  description String  @default(cuid())
+  description String  @db.Text() @default(cuid())
   private     Boolean
 
   createdAt DateTime @default(now())
@@ -73,7 +73,21 @@ model Project {
   namespaceId    String
   namespace      Namespace @relation(fields: [namespaceId], references: [id])
 
+  labels Label[]
+
   @@unique([namespaceId, name])
+}
+
+model Label {
+  id           String  @id @default(cuid())
+  name         String  @db.VarChar(255)
+  description  String? @db.VarChar(255)
+  color        String  @db.VarChar(6)
+  
+  projectId    String
+  project      Project @relation(fields: [projectId], references: [id])
+
+  @@unique([name, projectId])
 }
 
 model Account {
