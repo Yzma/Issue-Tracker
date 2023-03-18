@@ -28,3 +28,8 @@
   margin-right: 20px;
 }
 
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
