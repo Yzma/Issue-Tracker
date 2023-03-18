@@ -80,7 +80,7 @@ model OrganizationInvitation {
   inviteeId   String
   inviteeUser User   @relation("invites", fields: [inviteeId], references: [id])
 
-  organizationId String?       @unique
+  organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
   @@unique([invitedId, organizationId])
@@ -115,7 +115,7 @@ model Issue {
 
   issueNumber Int @default(autoincrement())
 
-  userId String @unique
+  userId String
   user   User   @relation(fields: [userId], references: [id])
 
   projectId String
