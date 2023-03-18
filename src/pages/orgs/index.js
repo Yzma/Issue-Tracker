@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Inter } from "next/font/google";
 import layoutStyles from "@/styles/OrgLayout.module.css";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { useRouter } from "next/router";
 import OrganizationContainer from "@/components/OrganizationContainer";
 import OrgProjectSection from "@/components/OrgProjectSection";
@@ -55,6 +56,7 @@ export default function Org() {
             <UserSection users={users} />
           )}
         </div>
+        <Footer />
       </main>
     </>
   );
