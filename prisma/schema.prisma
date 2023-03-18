@@ -35,6 +35,8 @@ model User {
 
   namespace Namespace?
   settings  UserSettings?
+
+  issues Issue[]
 }
 
 model Organization {
@@ -73,9 +75,33 @@ model Project {
   namespaceId    String
   namespace      Namespace @relation(fields: [namespaceId], references: [id])
 
+  issues Issue[]
   labels Label[]
 
   @@unique([namespaceId, name])
+}
+
+model Issue {
+  id          String  @id @default(cuid())
+  name        String  @default(cuid())
+  description String  @db.Text() @default(cuid())
+  open        Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  issueNumber Int @default(autoincrement())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  projectId    String
+  project      Project @relation(fields: [projectId], references: [id])
+
+  labels Label[]
+
+  @@index([userId, projectId, issueNumber])
+  @@unique([projectId, issueNumber])
 }
 
 model Label {
@@ -86,6 +112,8 @@ model Label {
   
   projectId    String
   project      Project @relation(fields: [projectId], references: [id])
+
+  issues       Issue[]
 
   @@unique([name, projectId])
 }
