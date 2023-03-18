@@ -36,7 +36,8 @@ model User {
   namespace Namespace?
   settings  UserSettings?
 
-  issues Issue[]
+  issues   Issue[]
+  comments Comment[]
 
   organizationInvitations        OrganizationInvitation[] @relation("invited")
   pendingOrganizationInvitations OrganizationInvitation[] @relation("invites")
@@ -120,10 +121,24 @@ model Issue {
   projectId String
   project   Project @relation(fields: [projectId], references: [id])
 
-  labels Label[]
+  comments Comment[]
+  labels   Label[]
 
   @@unique([projectId, issueNumber])
-  @@index([userId, projectId, issueNumber])
+}
+
+model Comment {
+  id          String @id @default(cuid())
+  description String @default(cuid()) @db.Text()
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  issueId String
+  issue   Issue  @relation(fields: [issueId], references: [id])
 }
 
 model Label {
