@@ -1,12 +1,28 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from 'next/head';
+import styles from '@/styles/Home.module.css';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Issue from '@/components/issueContainer';
 
-import { useRouter } from 'next/router'
-
-
-const inter = Inter({ subsets: ['latin'] })
+//Fake data for now
+const issuesData = [
+  {
+    title: 'Font Awesome Install Bug',
+    issueNumber: 1,
+    description: 'Unable to rend icons on webpage',
+    status: 'Open',
+    createdAt: '2023-03-01',
+    updatedAt: '2023-03-02',
+  },
+  {
+    title: 'User Login Bug',
+    issueNumber: 2,
+    description: 'User unable to log in',
+    status: 'Closed',
+    createdAt: '2023-03-16',
+    updatedAt: '2023-03-17',
+  },
+];
 
 export default function Issues() {
   return (
@@ -18,10 +34,15 @@ export default function Issues() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <p>List issues here</p>
+        <Header />
+        <div className={styles.issueList}>
+          {issuesData.map((issue, index) => (
+            <Issue key={index} issue={issue} />
+          ))}
+        </div>
+        <Footer />
       </main>
     </>
-  )
+  );
 }
-
 
