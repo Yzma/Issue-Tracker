@@ -4,27 +4,41 @@ export default function CustomPrismaAdapter(p) {
   return {
     ...PrismaAdapter(p),
 
-    createUser: (data) => { 
-      return p.user.create({ 
+    createUser: (data) => {
+      const user = p.user.create({ 
         data: {
           ...data,
           settings: {
             create: {}
           }
         }
-    })},
+      })
+      // await prisma.namespace.create({
+      //   data: {
+      //     name: user.id,
+      //     user: {
+      //       connect: {
+      //         id: user.id
+      //       }
+      //     },
+      //   },
+      // });
+      return user
+    },
 
     getUser: (id) => p.user.findUnique({ 
       where: { id },
       include: {
-        settings: true
+        settings: true,
+        namespace: true
       }
     }),
 
     getUserByEmail: (email) => p.user.findUnique({ 
       where: { email },
       include: {
-        settings: true
+        settings: true,
+        namespace: true
       }
     }),
 
@@ -34,7 +48,8 @@ export default function CustomPrismaAdapter(p) {
         select: {
           user: {
             include: {
-              settings: true
+              settings: true,
+              namespace: true
             }
           }
         }
@@ -48,7 +63,8 @@ export default function CustomPrismaAdapter(p) {
         include: { 
           user: {
             include: {
-              settings: true
+              settings: true,
+              namespace: true
             }
           } 
         }

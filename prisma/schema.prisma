@@ -28,10 +28,35 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
+  username String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  settings UserSettings?
+  namespace Namespace?
+  settings  UserSettings?
+}
+
+model Organization {
+  id String @id @default(cuid())
+
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  namespace Namespace?
+}
+
+model Namespace {
+  id   String @id @default(cuid())
+  name String @unique @default(cuid())
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  organizationId String?       @unique
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model Account {
