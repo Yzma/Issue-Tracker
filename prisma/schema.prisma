@@ -28,15 +28,13 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  username      String?
+  username String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  namespace   Namespace? @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
-  namespaceId String?    @unique
-
-  settings UserSettings?
+  namespace Namespace?
+  settings  UserSettings?
 }
 
 model Organization {
@@ -47,16 +45,18 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  namespace   Namespace? @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
-  namespaceId String?    @unique
+  namespace Namespace?
 }
 
 model Namespace {
   id   String @id @default(cuid())
   name String @unique @default(cuid())
 
-  user         User?
-  organization Organization?
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  organizationId String?       @unique
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model Account {
