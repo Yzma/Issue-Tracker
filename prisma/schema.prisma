@@ -57,6 +57,23 @@ model Namespace {
 
   organizationId String?       @unique
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  projects Project[]
+}
+
+model Project {
+  id          String  @id @default(cuid())
+  name        String  @default(cuid())
+  description String  @default(cuid())
+  private     Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  namespaceId    String
+  namespace      Namespace @relation(fields: [namespaceId], references: [id])
+
+  @@unique([namespaceId, name])
 }
 
 model Account {
