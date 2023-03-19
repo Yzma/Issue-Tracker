@@ -21,6 +21,6 @@ export const ProjectCreationSchema = Yup.object().shape({
     .required('Required'),
   description: Yup.string()
     .max(75, 'Too Long!')
-    .required('Required'),
+    .optional(),
   private: Yup.boolean()
 });
