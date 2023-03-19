@@ -39,10 +39,11 @@ export default function Home() {
       })
       .then((response) => {
         console.log("RESPONSE:", response)
-        setCookie(NEW_USER_COOKIE, "", { maxAge: -1 })
+        // setCookie(NEW_USER_COOKIE, "", { maxAge: -1 })
         router.push("/")
       })
       .catch((error) => {
+        console.log("ERROR:", error.response.data)
         console.log("ERROR:", error)
       })
       .finally(() => {
