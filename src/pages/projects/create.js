@@ -1,5 +1,8 @@
 import Head from "next/head"
 
+import { Formik, Form, Field } from "formik"
+import { ProjectCreationSchema } from "@/lib/yup-schemas"
+
 import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function ProjectCreate() {
@@ -22,63 +25,98 @@ export default function ProjectCreate() {
 
         <hr />
 
-        <form>
-          <div className="mb-3">
-            <label htmlFor="exampleInputEmail1" className="form-label">
-              Project Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="name"
-              aria-describedby="nameHelp"
-            />
-            <div id="name" className="form-text">
-              Great repository names are short and memorable.
-            </div>
-          </div>
-          <div className="mb-3">
-            <label htmlFor="description" className="form-label">
-              Description (optional)
-            </label>
-            <input type="text" className="form-control" id="description" />
-          </div>
+        <Formik
+          initialValues={{ name: "", description: "", private: false }}
+          validationSchema={ProjectCreationSchema}
+          onSubmit={(values, { setSubmitting, setFieldError }) => {
+            setSubmitting(false)
+            console.log(values)
+            // axios
+            //   .post("/api/organization", {
+            //     name: values.name
+            //   })
+            //   .then((response) => {
+            //     console.log("RESPONSE:", response)
+            //     router.push("/")
+            //   })
+            //   .catch((error) => {
+            //     console.log("ERROR:", error)
+            //     setFieldError("name", "name already in use")
+            //   })
+            //   .finally(() => {
+            //     setSubmitting(false)
+            //   })
+          }}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isSubmitting
+            /* and other goodies */
+          }) => (
+            <Form>
+              <div className="mb-3">
+                <label htmlFor="name" className="form-label">
+                  Project Name
+                </label>
+                <Field className="form-control" type="text" name="name" />
+                <div id="name" className="form-text">
+                  Great repository names are short and memorable.
+                </div>
+              </div>
 
-          <hr />
+              <div className="mb-3">
+                <label htmlFor="description" className="form-label">
+                  Description (optional)
+                </label>
+                <Field
+                  className="form-control"
+                  type="text"
+                  name="description"
+                />
+              </div>
 
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="exampleRadios"
-              id="exampleRadios1"
-              value="option1"
-              defaultChecked
-            />
-            <label className="form-check-label" htmlFor="exampleRadios1">
-              Public
-            </label>
-          </div>
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="exampleRadios"
-              id="exampleRadios2"
-              value="option2"
-            />
-            <label className="form-check-label" htmlFor="exampleRadios2">
-              Private
-            </label>
-          </div>
+              <hr />
 
-          <hr />
+              <div className="form-check">
+                <Field className="form-check-input" type="radio" name="private" value="false" checked={true}/>
+                <label className="form-check-label" htmlFor="exampleRadios1">
+                  Public
+                </label>
+              </div>
+              <div className="form-check">
+                <Field className="form-check-input" type="radio" name="private" value="true" />
+                <label className="form-check-label" htmlFor="exampleRadios2">
+                  Private
+                </label>
+              </div>
 
-          <button type="submit" className="btn btn-success">
-            Create Project
-          </button>
-        </form>
+              {errors.name && <div>Name errors:{errors.name}</div>}
+              {errors.description && <div>Description errors: {errors.description}</div>}
+              {errors.private && <div>Private error: {errors.private}</div>}
+
+              <hr />
+
+              <button
+                type="submit"
+                className="btn btn-success"
+                disabled={isSubmitting}
+              >
+                Create Project
+              </button>
+            </Form>
+          )}
+        </Formik>
       </div>
     </>
   )
 }
+
+// export async function getServerSideProps() {
+//   // Pass data to the page via props
+//   return { props: { test: true } }
+// }
