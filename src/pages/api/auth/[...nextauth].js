@@ -60,7 +60,7 @@ export const authOptions = (req, res) => {
     events: {
       async signIn(message) {
         console.log("SIGN IN ")
-        // console.log(message)
+        console.log(message)
         if (!message.user.namespace) {
           return new Promise((resolve, reject) => {
             const sessionToken = message.cookies.pop()
@@ -69,7 +69,7 @@ export const authOptions = (req, res) => {
               id: message.user.id,
               session: sessionToken
             }
-            console.log("toSign = ", toSign)
+            // console.log("toSign = ", toSign)
 
             try {
               return resolve(generateEncryptedJwt("testsub", toSign))
@@ -98,6 +98,8 @@ export const authOptions = (req, res) => {
               return "/500"
             })
         }
+
+        return `/${message.user.namespace.name}`
       }
     }
   }
