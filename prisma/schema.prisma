@@ -60,6 +60,8 @@ model Organization {
   organizationInvitationss OrganizationInvitation[]
 }
 
+// Note: 20230319212545_namespace_has_atleast_one_org_or_user:
+// This ensures that 'userId' or 'organizationId' must be set. A row with both fields set or non set cannot exsist in the table.
 model Namespace {
   id   String @id @default(cuid())
   name String @unique @default(cuid())
