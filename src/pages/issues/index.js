@@ -4,6 +4,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Issue from '@/components/issueContainer';
 import IssueButtons from '@/components/IssueButtons';
+import SearchBar from '@/components/IssueSearchBar'
+import { useState } from 'react';
 
 //Fake data for now
 const issuesData = [
@@ -26,6 +28,15 @@ const issuesData = [
 ];
 
 export default function Issues() {
+  const [filteredIssues, setFilteredIssues] = useState(issuesData);
+
+  const handleSearch = (searchTerm) => {
+    const filtered = issuesData.filter((issue) =>
+      issue.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredIssues(filtered);
+  };
+
   return (
     <>
       <Head>
@@ -36,7 +47,9 @@ export default function Issues() {
       </Head>
       <main className={styles.mainContainer}>
         <Header />
-        <IssueButtons />
+        <div className={styles.topContainer}> {/* Add a container for the top elements */}
+          <IssueButtons />
+        </div>
         <div className={styles.issueListContainer}>
           {issuesData.map((issue, index) => (
             <Issue key={index} issue={issue} />
