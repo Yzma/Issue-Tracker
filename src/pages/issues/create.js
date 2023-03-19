@@ -1,14 +1,28 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head"
 
-import { useRouter } from 'next/router'
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faLock,
+  faEllipsis,
+  faThumbTack,
+  faTrash
+} from "@fortawesome/free-solid-svg-icons"
 
-const inter = Inter({ subsets: ['latin'] })
+import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function IssuesCreate() {
+  const markdown = `A paragraph with *emphasis* and **strong importance**.
+
+> A block quote with ~strikethrough~ and a URL: https://reactjs.org.
+
+* Lists
+* [ ] todo
+* [x] done
+`
+
   return (
     <>
       <Head>
@@ -17,11 +31,93 @@ export default function IssuesCreate() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <p>Issue create form here</p>
+
+      <div className="mt-5" />
+
+      <div className="container">
+        <div className="d-flex justify-content-between">
+          <h2>Title #1</h2>
+
+          <button type="button" className="btn btn-secondary">
+            Edit
+          </button>
+        </div>
+
+        <p>
+          <span className="badge bg-success">Open</span>Opened January 1, 2021
+          by <a href="#">Yzma</a>
+          <br />
+          <span className="badge bg-danger">Closed</span>Closed January 1, 2021
+          by <a href="#">Yzma</a>
+        </p>
+        <hr />
+      </div>
+
+      <main className="container">
+        <div className="row g-5">
+          <div className="col-md-8">
+            <article>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {markdown}
+              </ReactMarkdown>
+            </article>
+
+            <hr />
+
+            <div className="card">
+              <div className="card-header d-flex justify-content-between">
+                Yzma commented 26 minutes ago{" "}
+                <FontAwesomeIcon className="mr-4" icon={faEllipsis} />
+              </div>
+              <div className="card-body">
+                <p className="card-text">Comment body here</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div>
+              <span className="text-secondary h5">Asignees</span>
+              <br />
+              <a>Yzma</a>
+            </div>
+
+            <hr />
+
+            <div>
+              <span className="text-secondary h5">Labels</span>
+              <br />
+              <span className="badge bg-primary">Label 1</span>{" "}
+              <span className="badge bg-warning">Label 2</span>
+            </div>
+
+            <hr />
+
+            <div>
+              <span className="text-secondary h5">Participants</span>
+              <br />
+              <a>Yzma</a>
+            </div>
+
+            <hr />
+
+            <div>
+              <FontAwesomeIcon className="mr-4" icon={faLock} />
+              <a href="#">Close Issue</a>
+            </div>
+
+            <div>
+              <FontAwesomeIcon className="mr-4" icon={faThumbTack} />
+              <a href="#">Pin Issue</a>
+            </div>
+
+            <div>
+              <FontAwesomeIcon className="mr-4" icon={faTrash} />
+              <a href="#">Delete Issue</a>
+            </div>
+          </div>
+        </div>
       </main>
     </>
   )
 }
-
-
