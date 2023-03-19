@@ -13,3 +13,14 @@ export const OrganizationNameCreationSchema = Yup.object().shape({
     .max(25, 'Too Long!')
     .required('Required'),
 });
+
+export const ProjectCreationSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(3, 'Too Short!')
+    .max(25, 'Too Long!')
+    .required('Required'),
+  description: Yup.string()
+    .max(75, 'Too Long!')
+    .required('Required'),
+  private: Yup.boolean()
+});
