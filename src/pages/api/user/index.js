@@ -42,6 +42,9 @@ export default async function handler(req, res) {
 
     const options = token.payload.session.options
     setCookie(NEXT_AUTH_SESSION_COOKIE, token.payload.session.value, { req, res, options })
+
+    // TODO: Next-Auth getServerSession relies on the 'NEXT_AUTH_SESSION_COOKIE' being set, we probably have to implement a custom version of this
+    // to get better optimization and cleaner code
     const session = await getServerSession(req, res, authOptions(req, res))
     if (!session) {
       setCookie(NEXT_AUTH_SESSION_COOKIE, "", { req, res, maxAge: -1 })
@@ -61,7 +64,7 @@ export default async function handler(req, res) {
     //   return res.status(200).json({ error: "success" })
     // }
 
-    return prisma.namespace
+    return await prisma.namespace
       .create({
         data: {
           name,
@@ -72,7 +75,6 @@ export default async function handler(req, res) {
         console.log("API RESULT: ", result)
         // setCookie(NEXT_AUTH_SESSION_COOKIE, decoded.session, { req, res })
         // setCookie(NEW_USER_COOKIE, "", { req, res, maxAge: -1 })
-        const options = token.payload.session.options
         // setCookie(NEXT_AUTH_SESSION_COOKIE, token.payload.session.value, { req, res, options })
         setCookie(NEW_USER_COOKIE, "", { req, res, maxAge: -1 })
         console.log("Are we here?")
