@@ -1,6 +1,7 @@
 import Head from "next/head"
 
-import Header from "@/components/Header"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -13,6 +14,15 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function IssuesCreate() {
+  const markdown = `A paragraph with *emphasis* and **strong importance**.
+
+> A block quote with ~strikethrough~ and a URL: https://reactjs.org.
+
+* Lists
+* [ ] todo
+* [x] done
+`
+
   return (
     <>
       <Head>
@@ -34,14 +44,11 @@ export default function IssuesCreate() {
         </div>
 
         <p>
-          <span className="badge bg-success">Open</span>Opened January 1, 2021 by{" "}
-          
-          <a href="#">Yzma</a>
-
-          <br/>
-          <span className="badge bg-danger">Closed</span>Closed January 1, 2021 by{" "}
-          
-          <a href="#">Yzma</a>
+          <span className="badge bg-success">Open</span>Opened January 1, 2021
+          by <a href="#">Yzma</a>
+          <br />
+          <span className="badge bg-danger">Closed</span>Closed January 1, 2021
+          by <a href="#">Yzma</a>
         </p>
         <hr />
       </div>
@@ -50,7 +57,9 @@ export default function IssuesCreate() {
         <div className="row g-5">
           <div className="col-md-8">
             <article>
-              <p>Text body here</p>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {markdown}
+              </ReactMarkdown>
             </article>
 
             <hr />
