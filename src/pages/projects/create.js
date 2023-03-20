@@ -27,7 +27,12 @@ export default function ProjectCreate() {
         <hr />
 
         <Formik
-          initialValues={{ name: "", description: "", private: false }}
+          initialValues={{
+            name: "",
+            description: "",
+            private: false,
+            owner: ""
+          }}
           validationSchema={ProjectCreationSchema}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
             setSubmitting(false)
@@ -66,20 +71,35 @@ export default function ProjectCreate() {
                 <div className="alert alert-danger" role="alert">
                   <ul>
                     {errors.name && <li>Name: {errors.name}</li>}
-                    {errors.description && <li>Description: {errors.description}</li>}
+                    {errors.description && (
+                      <li>Description: {errors.description}</li>
+                    )}
                     {errors.private && <li>private: {errors.private}</li>}
                   </ul>
                 </div>
               )}
 
-              <div className="mb-3">
-                <label htmlFor="name" className="form-label">
-                  Project Name
-                </label>
-                <Field className="form-control" type="text" name="name" />
-                <div id="name" className="form-text">
-                  Great repository names are short and memorable.
+              <div className="row g-3 align-items-center mb-3">
+
+                <div className="col-2">
+                  <label htmlFor="owner" className="form-label">
+                    Owner
+                  </label>
+                  <Field className="form-select" as="select" name="owner">
+                    <option value="red">Yzma</option>
+                    <option value="green">Org</option>
+                  </Field>
                 </div>
+
+                <div className="col-auto h3 mt-5">/</div>
+                      
+                <div className="col-4">
+                  <label htmlFor="name" className="form-label">
+                    Project Name
+                  </label>
+                  <Field className="form-control" type="text" name="name" />
+                </div>
+
               </div>
 
               <div className="mb-3">
