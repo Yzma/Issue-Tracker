@@ -49,3 +49,20 @@
   font-size: 1rem;
   color: #1d3557;
 }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.header {
+  background-color: #1d3557;
+  font-weight: bold;
+}
+
+.cell {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}

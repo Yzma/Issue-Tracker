@@ -1,0 +1,39 @@
+.container {
+  display: flex;
+  align-items: center;
+}
+
+.searchBar {
+  padding: 10px;
+  border: 1px solid #457b9d;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  margin-right: 0;
+  height: 36px; /* Add a fixed height */
+  box-sizing: border-box; /* Include padding and border in the total height calculation */
+  background-color: white;
+}
+
+.searchButton {
+  background-color: #457b9d;
+  border: none;
+  border-left: 1px solid #457b9d;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 16px; /* Remove top and bottom padding */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  transition-duration: 0.4s;
+  height: 36px; /* Add a fixed height */
+  line-height: 36px; /* Add line-height equal to the height */
+  box-sizing: border-box; /* Include padding and border in the total height calculation */
+}
+
+.searchButton:hover {
+  background-color: #2a6f8e;
+  color: white;
+}
