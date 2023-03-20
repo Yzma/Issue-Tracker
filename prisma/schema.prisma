@@ -40,6 +40,7 @@ model User {
   comments Comment[]
   organizations Organization[]
 
+  organizationMembers      OrganizationMember[]
   organizationInvitations        OrganizationInvitation[] @relation("invited")
   pendingOrganizationInvitations OrganizationInvitation[] @relation("invites")
 }
@@ -57,6 +58,7 @@ model Organization {
 
   namespace Namespace?
 
+  organizationMembers      OrganizationMember[]
   organizationInvitationss OrganizationInvitation[]
 }
 
@@ -89,7 +91,24 @@ model OrganizationInvitation {
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
+  role OreganizationRole @default(User)
+
   @@unique([invitedId, organizationId])
+}
+
+model OrganizationMember {
+  id String @id @default(cuid())
+
+  role OreganizationRole
+  createdAt DateTime @default(now())
+
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
 }
 
 model Project {
@@ -199,4 +218,11 @@ model VerificationToken {
 enum ColorScheme {
   Dark
   Light
+}
+
+enum OreganizationRole {
+  Owner
+  Admin
+  Maintainer
+  User
 }
