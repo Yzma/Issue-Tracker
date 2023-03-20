@@ -1,13 +1,12 @@
 import Head from "next/head"
-import { useRouter } from "next/router";
+import { useRouter } from "next/router"
 
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field } from "formik"
 import { OrganizationNameCreationSchema } from "@/lib/yup-schemas"
 
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
-
 
 export default function OrganizationCreate() {
   const router = useRouter()
@@ -30,7 +29,6 @@ export default function OrganizationCreate() {
           initialValues={{ name: "" }}
           validationSchema={OrganizationNameCreationSchema}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
-
             axios
               .post("/api/organization", {
                 name: values.name
@@ -46,7 +44,6 @@ export default function OrganizationCreate() {
               .finally(() => {
                 setSubmitting(false)
               })
-
           }}
         >
           {({
@@ -61,17 +58,17 @@ export default function OrganizationCreate() {
           }) => (
             <Form>
               <div className="mb-3">
-                
                 <label htmlFor="name" className="form-label">
                   Organization Name
                 </label>
-                <Field name="name" />
-        
-                <div className="form-text">
-                  <p>This will be the name of your account on GitHub.</p>
-                  <p>Your URL will be: https://github.com/{values.name}</p>
-                </div>
+                <Field className="form-control" type="text" name="name" />
               </div>
+
+              <div className="form-text">
+                <p>This will be the name of your account on GitHub.</p>
+                <p>Your URL will be: https://github.com/{values.name}</p>
+              </div>
+
               {errors.name && <div>{errors.name}</div>}
               <hr />
 
