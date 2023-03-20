@@ -1,13 +1,26 @@
+import prisma from "@/lib/prisma/prisma"
+import { getServerSession } from "@/lib/sessions"
+
 import Head from "next/head"
 
 import { Formik, Form, Field } from "formik"
 import { ProjectCreationSchema } from "@/lib/yup-schemas"
 
+import { useSession } from "next-auth/react"
+
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
 
-export default function ProjectCreate() {
+export default function ProjectCreate(props) {
+  console.log("Props: ", props)
+  const { data: session } = useSession()
+  const map = props.organizations.map((e) => (
+    <option key={e.organization.name} value={e.organization.name}>
+      {e.organization.name}
+    </option>
+  ))
+
   return (
     <>
       <Head>
@@ -27,19 +40,26 @@ export default function ProjectCreate() {
         <hr />
 
         <Formik
-          initialValues={{ name: "", description: "", private: false }}
+          initialValues={{
+            name: "",
+            description: "",
+            private: false,
+            owner: ""
+          }}
           validationSchema={ProjectCreationSchema}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
-            setSubmitting(false)
-            console.log(values)
+            values.private = values.private == "true" ? true : false
+
             axios
               .post("/api/projects", {
                 name: values.name,
                 description: values.description,
-                private: values.private
+                private: values.private,
+                owner: values.owner
               })
               .then((response) => {
                 console.log("RESPONSE:", response)
+                // TODO: Redirect to new project page
                 // router.push("/")
               })
               .catch((error) => {
@@ -66,19 +86,34 @@ export default function ProjectCreate() {
                 <div className="alert alert-danger" role="alert">
                   <ul>
                     {errors.name && <li>Name: {errors.name}</li>}
-                    {errors.description && <li>Description: {errors.description}</li>}
+                    {errors.description && (
+                      <li>Description: {errors.description}</li>
+                    )}
                     {errors.private && <li>private: {errors.private}</li>}
                   </ul>
                 </div>
               )}
 
-              <div className="mb-3">
-                <label htmlFor="name" className="form-label">
-                  Project Name
-                </label>
-                <Field className="form-control" type="text" name="name" />
-                <div id="name" className="form-text">
-                  Great repository names are short and memorable.
+              <div className="row g-3 align-items-center mb-3">
+                <div className="col-2">
+                  <label htmlFor="owner" className="form-label">
+                    Owner
+                  </label>
+                  <Field className="form-select" as="select" name="owner">
+                    <option key={session?.namespace} value={session?.namespace}>
+                      {session?.namespace}
+                    </option>
+                    {map}
+                  </Field>
+                </div>
+
+                <div className="col-auto h3 mt-5">/</div>
+
+                <div className="col-4">
+                  <label htmlFor="name" className="form-label">
+                    Project Name
+                  </label>
+                  <Field className="form-control" type="text" name="name" />
                 </div>
               </div>
 
@@ -142,7 +177,34 @@ export default function ProjectCreate() {
   )
 }
 
-// export async function getServerSideProps() {
-//   // Pass data to the page via props
-//   return { props: { test: true } }
-// }
+export async function getServerSideProps(context) {
+  const session = await getServerSession(context.req, context.res)
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false
+      }
+    }
+  }
+
+  const organizations = await prisma.organizationMember.findMany({
+    where: {
+      userId: session.user.id,
+      role: "Owner"
+    },
+    select: {
+      organization: {
+        select: {
+          name: true
+        }
+      }
+    }
+  })
+
+  return {
+    props: {
+      organizations: organizations
+    }
+  }
+}

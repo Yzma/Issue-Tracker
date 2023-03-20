@@ -23,4 +23,10 @@ export const ProjectCreationSchema = Yup.object().shape({
     .max(75, 'Too Long!')
     .optional(),
   private: Yup.boolean()
+  .oneOf([true, false], 'Field must be checked').required(),
+  // TODO: This is a duplicate of NamespaceNameCreationSchema - look at docs to see if that can be changed
+  owner: Yup.string() 
+    .min(3, 'Too Short!')
+    .max(25, 'Too Long!')
+    .required('Required'),
 });
