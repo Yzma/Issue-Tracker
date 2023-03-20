@@ -1,21 +1,28 @@
-import React from 'react';
+import React from "react";
 import styles from "../styles/OrgProjectSection.module.css";
 
 const ProjectSection = ({ projects }) => {
   return (
     <section className={styles.container}>
       <h2>Projects</h2>
-      <ul className={styles.projectList}>
-        {projects.map((project) => (
-          <li key={project.id} className={styles.projectItem}>
-            <div className={styles.projectItemHeader}>
-              <h3>{project.name}</h3>
-              <p className={styles.updateDate}>Last updated: {project.updated_at}</p>
-            </div>
-            <p>{project.description}</p>
-          </li>
-        ))}
-      </ul>
+      <table className={styles.table}>
+        <thead>
+          <tr className={styles.header}>
+            <th className={styles.cell}>Name</th>
+            <th className={styles.cell}>Description</th>
+            <th className={styles.cell}>Last Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.map((project) => (
+            <tr key={project.id}>
+              <td className={styles.cell}>{project.name}</td>
+              <td className={styles.cell}>{project.description}</td>
+              <td className={styles.cell}>{project.updated_at}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 };
