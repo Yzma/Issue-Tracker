@@ -3,6 +3,8 @@ import Head from "next/head"
 import { Formik, Form, Field } from "formik"
 import { ProjectCreationSchema } from "@/lib/yup-schemas"
 
+import axios from "axios"
+
 import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function ProjectCreate() {
@@ -30,21 +32,23 @@ export default function ProjectCreate() {
           onSubmit={(values, { setSubmitting, setFieldError }) => {
             setSubmitting(false)
             console.log(values)
-            // axios
-            //   .post("/api/organization", {
-            //     name: values.name
-            //   })
-            //   .then((response) => {
-            //     console.log("RESPONSE:", response)
-            //     router.push("/")
-            //   })
-            //   .catch((error) => {
-            //     console.log("ERROR:", error)
-            //     setFieldError("name", "name already in use")
-            //   })
-            //   .finally(() => {
-            //     setSubmitting(false)
-            //   })
+            axios
+              .post("/api/projects", {
+                name: values.name,
+                description: values.description,
+                private: values.private
+              })
+              .then((response) => {
+                console.log("RESPONSE:", response)
+                // router.push("/")
+              })
+              .catch((error) => {
+                console.log("ERROR:", error.response.data)
+                console.log("ERROR:", error)
+              })
+              .finally(() => {
+                setSubmitting(false)
+              })
           }}
         >
           {({
@@ -59,7 +63,7 @@ export default function ProjectCreate() {
           }) => (
             <Form>
               {(errors.name || errors.description || errors.private) && (
-                <div class="alert alert-danger" role="alert">
+                <div className="alert alert-danger" role="alert">
                   <ul>
                     {errors.name && <li>Name: {errors.name}</li>}
                     {errors.description && <li>Description: {errors.description}</li>}
