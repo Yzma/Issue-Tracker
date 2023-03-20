@@ -1,25 +1,17 @@
-import React from 'react';
-import styles from '@/styles/IssueContainer.module.css';
+import React from "react";
+import styles from "@/styles/IssueContainer.module.css";
 
 const Issue = ({ issue }) => {
   return (
-    <div className={styles.issueContainer}>
-      <h3>{issue.title}</h3>
-      <p>
-        <strong>Issue #{issue.issueNumber}</strong>
-      </p>
-      <p className={styles.description}>{issue.description}</p>
-      <strong>Description:{issue.description}</strong>
-      <p>
-        <strong>Status:</strong> {issue.status}
-      </p>
-      <p>
-        <strong>Created at:</strong> {issue.createdAt}
-      </p>
-      <p>
-        <strong>Updated:</strong> {issue.updatedAt}
-      </p>
-    </div>
+    <tr>
+      <td className={styles.cell}>{issue.name}</td>
+      <td className={styles.cell}>
+        {issue.labels.map((label) => label.name).join(", ")}
+      </td>
+      <td className={styles.cell}>{issue.open ? "Open" : "Closed"}</td> {/* Add this table cell */}
+      <td className={styles.cell}>{issue.createdAt}</td>
+      <td className={styles.cell}>{issue.updatedAt}</td>
+    </tr>
   );
 };
 

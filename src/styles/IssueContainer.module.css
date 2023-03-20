@@ -62,3 +62,20 @@
   min-height: 100vh;
   padding-top: 100px;
 }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.header {
+  background-color: #457b9d;
+  font-weight: bold;
+}
+
+.cell {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
