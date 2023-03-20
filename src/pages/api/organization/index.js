@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma/prisma"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/pages/api/auth/[...nextauth]"
 
+import { OrganizationRole } from "@/lib/constants"
 import { OrganizationNameCreationSchema } from "@/lib/yup-schemas"
 
 export default async function handler(req, res) {
@@ -26,6 +27,12 @@ export default async function handler(req, res) {
         data: {
           name,
           userId: session.user.id,
+          organizationMembers: {
+            create: {
+              userId: session.user.id,
+              role: OrganizationRole.OWNER
+            }
+          },
           namespace: {
             create: {
               name
