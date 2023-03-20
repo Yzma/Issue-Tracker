@@ -48,8 +48,8 @@ export default function ProjectCreate(props) {
           }}
           validationSchema={ProjectCreationSchema}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
-            setSubmitting(false)
-            console.log(values)
+            values.private = values.private == "true" ? true : false
+
             axios
               .post("/api/projects", {
                 name: values.name,
