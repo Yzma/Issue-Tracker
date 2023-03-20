@@ -36,11 +36,11 @@ model User {
   namespace Namespace?
   settings  UserSettings?
 
-  issues   Issue[]
-  comments Comment[]
+  issues        Issue[]
+  comments      Comment[]
   organizations Organization[]
 
-  organizationMembers      OrganizationMember[]
+  organizationMembers            OrganizationMember[]
   organizationInvitations        OrganizationInvitation[] @relation("invited")
   pendingOrganizationInvitations OrganizationInvitation[] @relation("invites")
 }
@@ -91,7 +91,7 @@ model OrganizationInvitation {
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
-  role OreganizationRole @default(User)
+  role OrganizationRole @default(User)
 
   @@unique([invitedId, organizationId])
 }
@@ -99,11 +99,11 @@ model OrganizationInvitation {
 model OrganizationMember {
   id String @id @default(cuid())
 
-  role OreganizationRole
-  createdAt DateTime @default(now())
+  role      OrganizationRole
+  createdAt DateTime         @default(now())
 
-  userId   String
-  user     User   @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
@@ -220,7 +220,7 @@ enum ColorScheme {
   Light
 }
 
-enum OreganizationRole {
+enum OrganizationRole {
   Owner
   Admin
   Maintainer
