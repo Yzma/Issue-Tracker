@@ -6,12 +6,16 @@ import { ProjectCreationSchema } from "@/lib/yup-schemas"
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-
     const { name, description, private: isPrivate, owner } = req.body
 
     let schemaResult
     try {
-      schemaResult = await ProjectCreationSchema.validate({ name, description, private: isPrivate, owner })
+      schemaResult = await ProjectCreationSchema.validate({
+        name,
+        description,
+        private: isPrivate,
+        owner
+      })
     } catch (e) {
       console.log("Invalid arguments for project creation: ", e)
       return res.status(400).json({ error: "Invalid arguments" })
@@ -32,42 +36,50 @@ export default async function handler(req, res) {
       }
     })
 
-    if(!namespaceOwner) {
+    if (!namespaceOwner) {
       return res.status(400).json({ error: "Not a valid namespace" })
     }
 
-    if(namespaceOwner.userId) {
-
+    if (namespaceOwner.userId) {
       // TODO: Look to improve readability here
-      if(namespaceOwner.name != session.namespace && namespaceOwner.userId != session.user.id) {
-        return res.status(400).json({ error: "User is not who they say they are" })
+      if (
+        namespaceOwner.name != session.namespace &&
+        namespaceOwner.userId != session.user.id
+      ) {
+        return res
+          .status(400)
+          .json({ error: "User is not who they say they are" })
       }
-
-    } else if(namespaceOwner.organizationId) {
-
+    } else if (namespaceOwner.organizationId) {
       const foundOrganization = await prisma.organization.findUnique({
         where: {
           id: namespaceOwner.organizationId
         }
       })
 
-      if(!foundOrganization) {
+      if (!foundOrganization) {
         console.log("ERROR: Organization not found when ")
-        return res.status(400).json({ error: "Debug: This should never happen" })
+        return res
+          .status(400)
+          .json({ error: "Debug: This should never happen" })
       }
 
       // TODO: This is probably redundant
-      if(namespaceOwner.name != foundOrganization.name && namespaceOwner.organizationId != foundOrganization.id) {
-        return res.status(400).json({ error: "Organization is not who they say they are" })
+      if (
+        namespaceOwner.name != foundOrganization.name &&
+        namespaceOwner.organizationId != foundOrganization.id
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Organization is not who they say they are" })
       }
-
     } else {
       // Note: There is a constraint on the database top not allow this to happen so this check will probably be removed in the future
       console.log("ERROR: Namespace does not have a user or and organization")
       return res.status(400).json({ error: "Debug: This should never happen" })
     }
 
-   console.log("namespaceOwner", namespaceOwner)
+    console.log("namespaceOwner", namespaceOwner)
 
     return await prisma.project
       .create({

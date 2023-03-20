@@ -95,7 +95,6 @@ export default function ProjectCreate(props) {
               )}
 
               <div className="row g-3 align-items-center mb-3">
-
                 <div className="col-2">
                   <label htmlFor="owner" className="form-label">
                     Owner
@@ -109,14 +108,13 @@ export default function ProjectCreate(props) {
                 </div>
 
                 <div className="col-auto h3 mt-5">/</div>
-                      
+
                 <div className="col-4">
                   <label htmlFor="name" className="form-label">
                     Project Name
                   </label>
                   <Field className="form-control" type="text" name="name" />
                 </div>
-
               </div>
 
               <div className="mb-3">
@@ -180,7 +178,7 @@ export default function ProjectCreate(props) {
 }
 
 export async function getServerSideProps(context) {
-  const session = await getServerSession(context.req,context.res)
+  const session = await getServerSession(context.req, context.res)
   if (!session) {
     return {
       redirect: {
