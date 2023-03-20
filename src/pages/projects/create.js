@@ -54,10 +54,12 @@ export default function ProjectCreate(props) {
               .post("/api/projects", {
                 name: values.name,
                 description: values.description,
-                private: values.private
+                private: values.private,
+                owner: values.owner
               })
               .then((response) => {
                 console.log("RESPONSE:", response)
+                // TODO: Redirect to new project page
                 // router.push("/")
               })
               .catch((error) => {
