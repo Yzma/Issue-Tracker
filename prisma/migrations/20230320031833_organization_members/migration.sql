@@ -1,13 +1,13 @@
 -- CreateEnum
-CREATE TYPE "OreganizationRole" AS ENUM ('Owner', 'Admin', 'Maintainer', 'User');
+CREATE TYPE "OrganizationRole" AS ENUM ('Owner', 'Admin', 'Maintainer', 'User');
 
 -- AlterTable
-ALTER TABLE "OrganizationInvitation" ADD COLUMN     "role" "OreganizationRole" NOT NULL DEFAULT 'User';
+ALTER TABLE "OrganizationInvitation" ADD COLUMN     "role" "OrganizationRole" NOT NULL DEFAULT 'User';
 
 -- CreateTable
 CREATE TABLE "OrganizationMember" (
     "id" TEXT NOT NULL,
-    "role" "OreganizationRole" NOT NULL,
+    "role" "OrganizationRole" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
