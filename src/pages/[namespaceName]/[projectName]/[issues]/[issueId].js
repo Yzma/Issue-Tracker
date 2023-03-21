@@ -8,21 +8,13 @@ import {
   faLock,
   faEllipsis,
   faThumbTack,
-  faTrash
+  faTrash,
+  faGear
 } from "@fortawesome/free-solid-svg-icons"
 
 import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function IssuesView(props) {
-  const markdown = `A paragraph with *emphasis* and **strong importance**.
-
-> A block quote with ~strikethrough~ and a URL: https://reactjs.org.
-
-* Lists
-* [ ] todo
-* [x] done
-`
-
   const issue = props.issuesData
   console.log(issue)
   return (
@@ -46,13 +38,18 @@ export default function IssuesView(props) {
         </div>
 
         <p>
-          {issue.open && <>
-            <span className="badge bg-success">Open</span>Opened January 1, 2021 by <a href="#">Yzma</a>
-          </>}
-          {!issue.open && <>
-            <span className="badge bg-danger">Closed</span>Closed January 1, 2021 by <a href="#">Yzma</a>
-          </>}
-
+          {issue.open && (
+            <>
+              <span className="badge bg-success">Open</span>Opened January 1,
+              2021 by <a href="#">Yzma</a>
+            </>
+          )}
+          {!issue.open && (
+            <>
+              <span className="badge bg-danger">Closed</span>Closed January 1,
+              2021 by <a href="#">Yzma</a>
+            </>
+          )}
         </p>
         <hr />
       </div>
@@ -69,7 +66,7 @@ export default function IssuesView(props) {
             <hr />
 
             <div className="card">
-              <div className="card-header d-flex justify-content-between">
+              <div className="card-header d-flex justify-content-between align-items-center">
                 Yzma commented 26 minutes ago{" "}
                 <FontAwesomeIcon className="mr-4" icon={faEllipsis} />
               </div>
@@ -81,16 +78,26 @@ export default function IssuesView(props) {
 
           <div className="col-md-4">
             <div>
-              <span className="text-secondary h5">Asignees</span>
-              <br />
+              <div className="d-flex justify-content-between">
+                <span className="text-secondary h5">Asignees </span>
+                <FontAwesomeIcon
+                  className="mr-4 align-self-center align-middle"
+                  icon={faGear}
+                />
+              </div>
               <a>Yzma</a>
             </div>
 
             <hr />
 
             <div>
-              <span className="text-secondary h5">Labels</span>
-              <br />
+              <div className="d-flex justify-content-between align-self-center">
+                <span className="text-secondary h5">Labels </span>
+                <FontAwesomeIcon
+                  className="mr-4 align-self-center align-middle"
+                  icon={faGear}
+                />
+              </div>
               <span className="badge bg-primary">Label 1</span>{" "}
               <span className="badge bg-warning">Label 2</span>
             </div>
@@ -119,23 +126,22 @@ export default function IssuesView(props) {
 }
 
 export async function getServerSideProps(context) {
-
   const { namespaceName, projectName, issueId } = context.query
 
-  console.log('issueId', issueId)
+  console.log("issueId", issueId)
   const issuesData = await prisma.issue.findFirst({
     where: {
       issueNumber: parseInt(issueId)
     },
 
     include: {
-      labels: true,
-    },
-  });
+      labels: true
+    }
+  })
 
   console.log(issuesData)
 
-  if(!issuesData) {
+  if (!issuesData) {
     return {
       redirect: {
         destination: "/",
@@ -149,8 +155,8 @@ export async function getServerSideProps(context) {
       issuesData: {
         ...issuesData,
         createdAt: issuesData.createdAt.toISOString(),
-        updatedAt: issuesData.updatedAt.toISOString(),
-      },
-    },
-  };
+        updatedAt: issuesData.updatedAt.toISOString()
+      }
+    }
+  }
 }
