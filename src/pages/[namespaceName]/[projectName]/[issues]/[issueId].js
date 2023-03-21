@@ -23,7 +23,7 @@ export default function IssuesView(props) {
 * [x] done
 `
 
-  const issue = props.issuesData[0]
+  const issue = props.issuesData
   console.log(issue)
   return (
     <>
@@ -128,11 +128,12 @@ export default function IssuesView(props) {
 
 export async function getServerSideProps(context) {
 
-  const { namespaceName, projectName, issueNumber } = context.query
+  const { namespaceName, projectName, issueId } = context.query
 
-  const issuesData = await prisma.issue.findMany({
+  console.log('issueId', issueId)
+  const issuesData = await prisma.issue.findFirst({
     where: {
-      issueNumber: 4
+      issueNumber: parseInt(issueId)
     },
 
     include: {
@@ -140,13 +141,24 @@ export async function getServerSideProps(context) {
     },
   });
 
+  console.log(issuesData)
+
+  if(!issuesData) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false
+      }
+    }
+  }
+
   return {
     props: {
-      issuesData: issuesData.map((issue) => ({
-        ...issue,
-        createdAt: issue.createdAt.toISOString(),
-        updatedAt: issue.updatedAt.toISOString(),
-      })),
+      issuesData: {
+        ...issuesData,
+        createdAt: issuesData.createdAt.toISOString(),
+        updatedAt: issuesData.updatedAt.toISOString(),
+      },
     },
   };
 }
