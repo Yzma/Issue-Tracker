@@ -8,13 +8,14 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
 
     const { namespaceName, projectName } = req.query
-    const { name, description } = req.body
+    const { name, description, labels } = req.body
 
     let schemaResult
     try {
       schemaResult = await IssueCreationSchema.validate({
         name,
-        description
+        description,
+        labels
       })
     } catch (e) {
       console.log("Invalid arguments for issue creation: ", e)
@@ -29,47 +30,6 @@ export default async function handler(req, res) {
     }
 
     console.log("Session", JSON.stringify(session, null, 2))
-
-    // model Project {
-    //   name        String  @default(cuid())
-    //   description String  @default(cuid()) @db.Text()
-    //   private     Boolean
-    
-    //   namespaceId String
-    //   namespace   Namespace @relation(fields: [namespaceId], references: [id])
-    
-    //   issues Issue[]
-    //   labels Label[]
-    // @@unique([namespaceId, name])
-    // }
-
-    // model Issue {
-    //   name        String  @default(cuid())
-    //   description String  @default(cuid()) @db.Text()
-
-    //   userId String
-    //   user   User   @relation(fields: [userId], references: [id])
-    
-    //   projectId String
-    //   project   Project @relation(fields: [projectId], references: [id])
-    
-    //   labels   Label[]
-    // }
-
-    // model OrganizationMember {
-    //   id String @id @default(cuid())
-    
-    //   role      OrganizationRole
-    //   createdAt DateTime         @default(now())
-    
-    //   userId String
-    //   user   User   @relation(fields: [userId], references: [id])
-    
-    //   organizationId String
-    //   organization   Organization @relation(fields: [organizationId], references: [id])
-    
-    //   @@unique([userId, organizationId])
-    // }
 
     const foundNamespace = await prisma.namespace.findUnique({
       where: {
@@ -128,13 +88,22 @@ export default async function handler(req, res) {
 
     console.log("foundProject: ", foundProject)
 
+    const mapped = labels.map(e => {
+      return {
+        id: e
+      }
+    })
+
     return await prisma.issue
       .create({
         data: {
           name,
           description,
           userId: session.user.id,
-          projectId: foundProject[0].id
+          projectId: foundProject[0].id,
+          labels: {
+            connect: mapped
+          }
         }
       })
       .then((result) => {
