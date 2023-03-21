@@ -21,6 +21,9 @@ export default function ProjectCreate(props) {
     </option>
   ))
 
+  // TODO: Look into this, there should be a better way
+  if (!session) return
+
   return (
     <>
       <Head>
@@ -44,7 +47,7 @@ export default function ProjectCreate(props) {
             name: "",
             description: "",
             private: false,
-            owner: ""
+            owner: session?.namespace
           }}
           validationSchema={ProjectCreationSchema}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
