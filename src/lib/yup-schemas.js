@@ -30,3 +30,29 @@ export const ProjectCreationSchema = Yup.object().shape({
     .max(25, 'Too Long!')
     .required('Required'),
 });
+
+export const LabelCreationSchema = Yup.object({
+  name: Yup.string()
+    .min(1, 'Too Short!')
+    .max(100, 'Too Long!')
+    .required('Required'),
+  description: Yup.string()
+    .min(1, 'Too Short!')
+    .max(150, 'Too Long!')
+    .optional('Optional'),
+  color: Yup.string()
+    .length(6)
+    .required('Required'),
+});
+
+export const IssueCreationSchema = Yup.object({
+  name: Yup.string()
+    .min(1, 'Too Short!')
+    .max(100, 'Too Long!')
+    .required('Required'),
+  description: Yup.string()
+    .min(1, 'Too Short!')
+    .max(2048, 'Too Long!')
+    .required('Required'),
+  labels: Yup.array().of(LabelCreationSchema).optional('Optional')
+});
