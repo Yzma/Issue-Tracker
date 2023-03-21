@@ -1,3 +1,4 @@
+
 .issueContainer {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -61,4 +62,52 @@
   align-items: center;
   min-height: 100vh;
   padding-top: 100px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cell {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.issueListWrapper {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  padding-top: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.header {
+  background-color: #1d3557;
+  font-weight: bold;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.cell {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  color: black;
+}
+
+.table thead th {
+  background-color: #1d3557;
+  color: white;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }

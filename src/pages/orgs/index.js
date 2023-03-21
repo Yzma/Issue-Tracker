@@ -40,7 +40,6 @@ export default function Org() {
   return (
     <>
       <Head>
-        {/* ... */}
       </Head>
       <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
         <Header />

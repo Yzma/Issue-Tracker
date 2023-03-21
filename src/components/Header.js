@@ -19,7 +19,6 @@ const Header = () => {
           <li>
             <a href="/orgs">Organizations</a>
           </li>
-          {/* Add login/logout logic or links here */}
           <li>
             <a href="/login">Login/Logout</a>
           </li>
