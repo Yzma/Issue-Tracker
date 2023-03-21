@@ -206,7 +206,7 @@ async function main() {
   const aliceProjectIssue = await prisma.issue.create({
     data: {
       name: "Title",
-      description: `#Title
+      description: `# Title
       Test body`,
       userId: alice.id,
       projectId: aliceProject.id,
@@ -224,7 +224,7 @@ async function main() {
   const aliceProjectIssue2 = await prisma.issue.create({
     data: {
       name: "Title 2",
-      description: `#Title
+      description: `# Title
       Test body 2`,
       userId: alice.id,
       projectId: aliceProject.id,
@@ -242,7 +242,7 @@ async function main() {
   const aliceOrgProjectIssue2 = await prisma.issue.create({
     data: {
       name: "Title 2",
-      description: `#Title
+      description: `# Title
       Test body 2`,
       userId: alice.id,
       projectId: aliceOrgProject.id,
