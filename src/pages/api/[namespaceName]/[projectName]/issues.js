@@ -56,6 +56,21 @@ export default async function handler(req, res) {
     //   labels   Label[]
     // }
 
+    // model OrganizationMember {
+    //   id String @id @default(cuid())
+    
+    //   role      OrganizationRole
+    //   createdAt DateTime         @default(now())
+    
+    //   userId String
+    //   user   User   @relation(fields: [userId], references: [id])
+    
+    //   organizationId String
+    //   organization   Organization @relation(fields: [organizationId], references: [id])
+    
+    //   @@unique([userId, organizationId])
+    // }
+
     const foundNamespace = await prisma.namespace.findUnique({
       where: {
         name: namespaceName
@@ -66,12 +81,44 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Not a valid namespace" })
     }
 
-    const foundProject = await prisma.project.findUnique({
-      where: {
-        namespaceId_name: {
-          name: projectName,
-          namespaceId: foundNamespace.id
+    if (foundNamespace.userId) {
+      // TODO: Look to improve readability here
+      if (foundNamespace.userId != session.user.id) {
+        return res.status(400).json({ error: "User is not who they say they are" })
+      }
+
+    } else if (foundNamespace.organizationId) {
+
+      const foundOrganizationMember = await prisma.organizationMember.findUnique({
+        where: {
+          userId_organizationId: {
+            userId: session.user.id,
+            organizationId: foundNamespace.organizationId
+          }
         }
+      })
+  
+      if (!foundOrganizationMember) {
+        return res.status(400).json({ error: "Not in the organization" })
+      }
+
+      console.log("foundOrganizationMember", foundOrganizationMember)
+
+      if (foundOrganizationMember.role != "Owner") {
+        return res.status(400).json({ error: "User isn't an owner" })
+      }
+
+    } else {
+      // Note: There is a constraint on the database top not allow this to happen so this check will probably be removed in the future
+      console.log("ERROR: Namespace does not have a user or and organization")
+      return res.status(400).json({ error: "Debug: This should never happen" })
+    }
+
+    console.log("foundNamespace: ", foundNamespace)
+
+    const foundProject = await prisma.project.findMany({
+      where: {
+        name: projectName
       }
     })
 
@@ -79,7 +126,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Not a valid project" })
     }
 
-    console.log("foundNamespace: ", foundNamespace)
     console.log("foundProject: ", foundProject)
 
     return await prisma.issue
@@ -88,7 +134,7 @@ export default async function handler(req, res) {
           name,
           description,
           userId: session.user.id,
-          projectId: foundProject.id
+          projectId: foundProject[0].id
         }
       })
       .then((result) => {
