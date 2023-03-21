@@ -19,7 +19,7 @@ export default function LabelPage(props) {
     setSearchTerm(searchTerm);
   };
 
-  const filteredLabels = labels.filter((label) =>
+  const filteredLabels = props.labelData.filter((label) =>
     label.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -36,7 +36,7 @@ export default function LabelPage(props) {
         <div className={layoutStyles.labelsContainer}>
           <LabelSearchBar onSearch={handleSearch} />
 
-          <LabelList labels={props.labelData} />
+          <LabelList labels={filteredLabels} />
         </div>
         <Footer />
       </main>
