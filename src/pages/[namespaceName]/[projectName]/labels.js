@@ -1,21 +1,27 @@
 import Head from "next/head";
-import { Inter } from "next/font/google";
 import layoutStyles from "@/styles/usersLayout.module.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LabelList from "@/components/LabelList";
 import LabelSearchBar from "@/components/LabelSearchBar";
+import { useState } from "react";
 
 import prisma from "@/lib/prisma/prisma";
+
 
 export default function LabelPage(props) {
 
   console.log(props)
 
+  const [searchTerm, setSearchTerm] = useState(""); 
+
   const handleSearch = (searchTerm) => {
-    console.log("Searching:", searchTerm);
-    // Implement search logic here
+    setSearchTerm(searchTerm);
   };
+
+  const filteredLabels = props.labelData.filter((label) =>
+    label.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -29,7 +35,8 @@ export default function LabelPage(props) {
         <Header />
         <div className={layoutStyles.labelsContainer}>
           <LabelSearchBar onSearch={handleSearch} />
-          <LabelList labels={props.labelData} />
+
+          <LabelList labels={filteredLabels} />
         </div>
         <Footer />
       </main>
@@ -56,3 +63,4 @@ export async function getServerSideProps(context) {
     props: { labelData }
   };
 }
+
