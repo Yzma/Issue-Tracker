@@ -13,7 +13,7 @@ const IssueSearchBar = ({ onSearch }) => {
     <input
       className={styles.searchInput}
       type="text"
-      placeholder="Search Title"
+      placeholder="Search Label"
       value={searchTerm}
       onChange={handleChange}
     />
