@@ -80,6 +80,8 @@ model Namespace {
 model OrganizationInvitation {
   id String @id @default(cuid())
 
+  createdAt DateTime @default(now())
+
   // The user that's being invited
   invitedId   String
   invitedUser User   @relation("invited", fields: [invitedId], references: [id])
