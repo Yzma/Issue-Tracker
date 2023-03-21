@@ -13,7 +13,7 @@ export default function IssuesCreate(props) {
   const router = useRouter()
   const { organizationName } = router.query
 
-  console.log(props)
+  console.log(organizationName)
 
   return (
     <>
@@ -45,7 +45,7 @@ export default function IssuesCreate(props) {
                 validationSchema={NamespaceNameCreationSchema}
                 onSubmit={(values, { setSubmitting, setFieldError }) => {
                   axios
-                    .post(`/api/orgs/${namespaceName}/invites`, {
+                    .post(`/api/organization/${organizationName}/invites`, {
                       name: values.name,
                     })
                     .then((response) => {
