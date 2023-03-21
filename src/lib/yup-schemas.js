@@ -54,5 +54,5 @@ export const IssueCreationSchema = Yup.object({
     .min(1, 'Too Short!')
     .max(2048, 'Too Long!')
     .required('Required'),
-  labels: Yup.array().of(LabelCreationSchema).optional('Optional')
+  labels: Yup.array().of(Yup.string()).optional('Optional')
 });
