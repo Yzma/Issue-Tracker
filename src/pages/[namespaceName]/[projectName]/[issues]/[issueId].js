@@ -98,14 +98,6 @@ export default function IssuesView(props) {
             <hr />
 
             <div>
-              <span className="text-secondary h5">Participants</span>
-              <br />
-              <a>Yzma</a>
-            </div>
-
-            <hr />
-
-            <div>
               <FontAwesomeIcon className="mr-4" icon={faLock} />
               <a href="#">Close Issue</a>
             </div>
