@@ -13,7 +13,7 @@ export default function IssuesCreate(props) {
   const router = useRouter()
   const { organizationName } = router.query
 
-  console.log(organizationName)
+  console.log(props)
 
   return (
     <>
@@ -46,7 +46,7 @@ export default function IssuesCreate(props) {
                 onSubmit={(values, { setSubmitting, setFieldError }) => {
                   axios
                     .post(`/api/organization/${organizationName}/invites`, {
-                      name: values.name,
+                      name: values.name
                     })
                     .then((response) => {
                       console.log("RESPONSE:", response)
@@ -96,27 +96,89 @@ export default function IssuesCreate(props) {
             </article>
           </div>
         </div>
+
+        <div>
+          <div className="mb-4 mt-5">
+            <h1>Outgoing Invites ({props.outgoingInvites.length})</h1>
+          </div>
+
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">User</th>
+                <th scope="col">Invited By</th>
+                <th scope="col">Invited At</th>
+                <th scope="col">Role</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {props.outgoingInvites.map((invite, index) => (
+                <tr key={index}>
+                  <th scope="row">{index + 1}</th>
+                  <td>
+                    <a href={`/${invite.invitedUser.username}`}>
+                      {invite.invitedUser.username}
+                    </a>
+                  </td>
+                  <td>
+                    <a href={`/${invite.inviteeUser.username}`}>
+                      {invite.inviteeUser.username}
+                    </a>
+                  </td>
+                  <td>{invite.createdAt}</td>
+                  <td>{invite.role}</td>
+                  <td>
+                    <button type="button" className="btn btn-danger">
+                      Cancel
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </main>
     </>
   )
 }
 
-// export async function getServerSideProps(context) {
-//   const { namespaceName, projectName } = context.query
-//   const labels = await prisma.label.findMany({
-//     where: {
-//       project: {
-//         name: projectName,
-//         namespace: {
-//           name: namespaceName
-//         }
-//       }
-//     }
-//   });
+export async function getServerSideProps(context) {
+  const { organizationName } = context.query
+  const outgoingInvites = await prisma.organizationInvitation.findMany({
+    where: {
+      organization: {
+        name: organizationName
+      }
+    },
+    select: {
+      createdAt: true,
+      role: true,
+      invitedUser: {
+        select: {
+          username: true
+        }
+      },
+      inviteeUser: {
+        select: {
+          username: true
+        }
+      }
+    }
+  })
+  console.log(outgoingInvites)
 
-//   return {
-//     props: {
-//       labels: labels
-//     },
-//   };
-// }
+  const mapped = outgoingInvites.map((e) => {
+    return {
+      ...e,
+      createdAt: e.createdAt.toISOString()
+    }
+  })
+
+  return {
+    props: {
+      outgoingInvites: mapped
+    }
+  }
+}
