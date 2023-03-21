@@ -56,3 +56,10 @@ export const IssueCreationSchema = Yup.object({
     .required('Required'),
   labels: Yup.array().of(Yup.string()).optional('Optional')
 });
+
+export const CommentCreationSchema = Yup.object({
+  description: Yup.string()
+    .min(1, 'Too Short!')
+    .max(2048, 'Too Long!')
+    .required('Required')
+});
