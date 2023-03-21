@@ -13,7 +13,7 @@ import {
 
 import "bootstrap/dist/css/bootstrap.min.css"
 
-export default function IssuesView() {
+export default function IssuesView(props) {
   const markdown = `A paragraph with *emphasis* and **strong importance**.
 
 > A block quote with ~strikethrough~ and a URL: https://reactjs.org.
@@ -23,6 +23,8 @@ export default function IssuesView() {
 * [x] done
 `
 
+  const issue = props.issuesData[0]
+  console.log(issue)
   return (
     <>
       <Head>
@@ -36,7 +38,7 @@ export default function IssuesView() {
 
       <div className="container">
         <div className="d-flex justify-content-between">
-          <h2>Title #1</h2>
+          <h2>{issue.name}</h2>
 
           <button type="button" className="btn btn-secondary">
             Edit
@@ -44,11 +46,13 @@ export default function IssuesView() {
         </div>
 
         <p>
-          <span className="badge bg-success">Open</span>Opened January 1, 2021
-          by <a href="#">Yzma</a>
-          <br />
-          <span className="badge bg-danger">Closed</span>Closed January 1, 2021
-          by <a href="#">Yzma</a>
+          {issue.open && <>
+            <span className="badge bg-success">Open</span>Opened January 1, 2021 by <a href="#">Yzma</a>
+          </>}
+          {!issue.open && <>
+            <span className="badge bg-danger">Closed</span>Closed January 1, 2021 by <a href="#">Yzma</a>
+          </>}
+
         </p>
         <hr />
       </div>
@@ -58,7 +62,7 @@ export default function IssuesView() {
           <div className="col-md-8">
             <article>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {markdown}
+                {issue.description}
               </ReactMarkdown>
             </article>
 
@@ -120,4 +124,29 @@ export default function IssuesView() {
       </main>
     </>
   )
+}
+
+export async function getServerSideProps(context) {
+
+  const { namespaceName, projectName, issueNumber } = context.query
+
+  const issuesData = await prisma.issue.findMany({
+    where: {
+      issueNumber: 4
+    },
+
+    include: {
+      labels: true,
+    },
+  });
+
+  return {
+    props: {
+      issuesData: issuesData.map((issue) => ({
+        ...issue,
+        createdAt: issue.createdAt.toISOString(),
+        updatedAt: issue.updatedAt.toISOString(),
+      })),
+    },
+  };
 }
