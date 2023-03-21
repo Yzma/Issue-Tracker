@@ -94,14 +94,18 @@ export default function IssuesCreate() {
                     <Field className="form-control" type="text" name="name" />
 
                     <div className="mb-3">
-                      <label htmlFor="description" className="form-label">
-                        Description (optional)
-                      </label>
-                      <Field
-                        className="form-control"
-                        type="textfield"
-                        name="description"
-                      />
+                      <div className="form-group">
+                        <label htmlFor="description" className="form-label">
+                          Description (optional)
+                        </label>
+                        <Field
+                          className="form-control"
+                          type="textarea"
+                          as={"textarea"}
+                          name="description"
+                          rows="3"
+                        />
+                      </div>
                     </div>
 
                     {errors.name && <div>Name errors:{errors.name}</div>}
