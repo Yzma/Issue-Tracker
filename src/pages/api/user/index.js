@@ -53,24 +53,28 @@ export default async function handler(req, res) {
 
     console.log("Session", JSON.stringify(session, null, 2))
 
-    // if (true) {
-    //   console.log(token)
-    //   console.log()
-    //   console.log("Stringify", JSON.stringify(token))
-    //   const options = token.payload.session.options
-    //   setCookie(NEXT_AUTH_SESSION_COOKIE, token.payload.session.value, { req, res, options })
-    //   setCookie(NEW_USER_COOKIE, "", { req, res, maxAge: -1 })
-    //   console.log("Are we here?")
-    //   return res.status(200).json({ error: "success" })
-    // }
-
-    return await prisma.namespace
-      .create({
+    return await prisma.user
+      .update({
+        where: {
+          id: session.user.id
+        },
         data: {
-          name,
-          userId: session.user.id
+          username: name,
+          namespace: {
+            create: {
+              name: name
+            }
+          }
         }
       })
+      // return await prisma.namespace
+      //   .create({
+      //     data: {
+      //       username: name,
+      //       name: name,
+      //       userId: session.user.id
+      //     }
+      //   })
       .then((result) => {
         console.log("API RESULT: ", result)
         // setCookie(NEXT_AUTH_SESSION_COOKIE, decoded.session, { req, res })
