@@ -1,5 +1,5 @@
 import Head from "next/head"
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router"
 
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -12,15 +12,9 @@ import axios from "axios"
 import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function IssuesCreate() {
-
-
   const router = useRouter()
   const { namespaceName, projectName } = router.query
   console.log(namespaceName, projectName)
-
-  // TODO: This will have to be moved into a different path, change this later
-  // const namespaceName = "Alice"
-  // const projectName = "AliceProject"
 
   return (
     <>
@@ -52,7 +46,6 @@ export default function IssuesCreate() {
                 }}
                 validationSchema={IssueCreationSchema}
                 onSubmit={(values, { setSubmitting, setFieldError }) => {
-         
                   axios
                     .post(`/api/${namespaceName}/${projectName}/issues`, {
                       name: values.name,
@@ -98,11 +91,7 @@ export default function IssuesCreate() {
                     <label htmlFor="owner" className="form-label">
                       Title
                     </label>
-                    <Field
-                      className="form-control"
-                      type="text"
-                      name="name"
-                    />
+                    <Field className="form-control" type="text" name="name" />
 
                     <div className="mb-3">
                       <label htmlFor="description" className="form-label">
@@ -163,7 +152,6 @@ export default function IssuesCreate() {
             </div>
 
             <hr />
-
           </div>
         </div>
       </main>
