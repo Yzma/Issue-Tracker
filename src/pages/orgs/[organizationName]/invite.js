@@ -13,8 +13,6 @@ export default function IssuesCreate(props) {
   const router = useRouter()
   const { organizationName } = router.query
 
-  console.log(props)
-
   return (
     <>
       <Head>
@@ -139,10 +137,12 @@ export default function IssuesCreate(props) {
             </tbody>
           </table>
         </div>
+
       </main>
     </>
   )
 }
+
 
 export async function getServerSideProps(context) {
   const { organizationName } = context.query
