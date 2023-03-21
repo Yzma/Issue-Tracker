@@ -1,24 +1,17 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
 import layoutStyles from "@/styles/usersLayout.module.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LabelList from "@/components/LabelList";
 import LabelSearchBar from "@/components/LabelSearchBar";
-import { useRouter } from "next/router";
 import { useState } from "react";
-const inter = Inter({ subsets: ["latin"] });
 
-export default function LabelPage() {
-  // fake data for now
-  const labels = [
-    { name: "bug", description: "Something is not working" },
-    {
-      name: "documentation",
-      description: "Improvements or additions to documentation",
-    },
-  ];
+import prisma from "@/lib/prisma/prisma";
+
+
+export default function LabelPage(props) {
+
+  console.log(props)
 
   const [searchTerm, setSearchTerm] = useState(""); 
 
@@ -42,11 +35,32 @@ export default function LabelPage() {
         <Header />
         <div className={layoutStyles.labelsContainer}>
           <LabelSearchBar onSearch={handleSearch} />
-          <LabelList labels={filteredLabels} />
+
+          <LabelList labels={props.labelData} />
         </div>
         <Footer />
       </main>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  const { namespaceName, projectName } = context.query
+  const labelData = await prisma.label.findMany({
+    where: {
+      project: {
+        name: projectName,
+        namespace: {
+          name: namespaceName
+        }
+      }
+    }
+  });
+
+  console.log(labelData)
+
+  return {
+    props: { labelData }
+  };
 }
 

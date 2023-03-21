@@ -1,3 +1,4 @@
+import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
@@ -7,15 +8,36 @@ import remarkGfm from "remark-gfm"
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
 
+import Dropdown from 'react-bootstrap/Dropdown';
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faGear
+} from "@fortawesome/free-solid-svg-icons"
+
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
 
-export default function IssuesCreate() {
+export default function IssuesCreate(props) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
+
+  const [labels, setLabels] = useState([])
   console.log(namespaceName, projectName)
 
+  // TODO: Schema doesn't validate label ids - figure out a way to check them
+  const onLabelClick = (label) => {
+    console.log(label)
+    if(labels.find(e => e.id === label.id)) {
+      const filter = labels.filter(item => item.id !== label.id)
+      setLabels(filter)
+    } else {
+      setLabels([...labels, label])
+    }
+  }
+
+  console.log(props.labels)
   return (
     <>
       <Head>
@@ -42,14 +64,17 @@ export default function IssuesCreate() {
               <Formik
                 initialValues={{
                   name: "",
-                  description: ""
+                  description: "",
+                  labels: []
                 }}
                 validationSchema={IssueCreationSchema}
                 onSubmit={(values, { setSubmitting, setFieldError }) => {
+                  const labelIds = labels.map(e => e.id)
                   axios
                     .post(`/api/${namespaceName}/${projectName}/issues`, {
                       name: values.name,
-                      description: values.description
+                      description: values.description,
+                      labels: labelIds
                     })
                     .then((response) => {
                       console.log("RESPONSE:", response)
@@ -133,26 +158,46 @@ export default function IssuesCreate() {
 
           <div className="col-md-4">
             <div>
-              <span className="text-secondary h5">Asignees</span>
-              <br />
+              <div className="d-flex justify-content-between">
+                <span className="text-secondary h5">Asignees </span>
+                <FontAwesomeIcon
+                  className="mr-4 align-self-center align-middle"
+                  icon={faGear}
+                />
+              </div>
               <a>Yzma</a>
             </div>
 
             <hr />
 
             <div>
-              <span className="text-secondary h5">Labels</span>
-              <br />
-              <span className="badge bg-primary">Label 1</span>{" "}
-              <span className="badge bg-warning">Label 2</span>
-            </div>
+              <div className="d-flex justify-content-between align-self-center">
+                <span className="text-secondary h5">Labels </span>
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    Change me
+                  </Dropdown.Toggle>
 
-            <hr />
-
-            <div>
-              <span className="text-secondary h5">Participants</span>
-              <br />
-              <a>Yzma</a>
+                  <Dropdown.Menu>
+                    {props.labels.map((label, index) => (
+                      <Dropdown.Item
+                        key={index}
+                        lable-id={label.id}
+                        onClick={() => onLabelClick(label)}
+                      >
+                        {label.name}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
+                {/* <FontAwesomeIcon
+                  className="mr-4 align-self-center align-middle"
+                  icon={faGear}
+                /> */}
+              </div>
+              {labels.map((label, index) => (
+                <span key={index} className="badge bg-primary">{label.name}</span>
+              ))}
             </div>
 
             <hr />
@@ -161,4 +206,24 @@ export default function IssuesCreate() {
       </main>
     </>
   )
+}
+
+export async function getServerSideProps(context) {
+  const { namespaceName, projectName } = context.query
+  const labels = await prisma.label.findMany({
+    where: {
+      project: {
+        name: projectName,
+        namespace: {
+          name: namespaceName
+        }
+      }
+    }
+  });
+
+  return {
+    props: {
+      labels: labels
+    },
+  };
 }
