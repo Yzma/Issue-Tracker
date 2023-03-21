@@ -131,11 +131,12 @@ export async function getServerSideProps(context) {
   console.log("issueId", issueId)
   const issuesData = await prisma.issue.findFirst({
     where: {
-      issueNumber: parseInt(issueId)
+      id: issueId
     },
 
     include: {
-      labels: true
+      labels: true,
+      comments: true
     }
   })
 
