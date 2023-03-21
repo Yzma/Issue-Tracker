@@ -30,6 +30,7 @@ export default function MyInvites(props) {
                 <th scope="col">Invited By</th>
                 <th scope="col">Invited At</th>
                 <th scope="col">Role</th>
+                <th scope="col"></th>
               </tr>
             </thead>
             <tbody>
@@ -37,9 +38,10 @@ export default function MyInvites(props) {
                 <tr key={index}>
                   <th scope="row">{index}</th>
                   <td><a href={`/${invite.organization.name}`}>{invite.organization.name}</a></td>
-                  <td><a href={`/${invite.inviteeUser.name}`}>{invite.inviteeUser.name}</a></td>
+                  <td><a href={`/${invite.inviteeUser.username}`}>{invite.inviteeUser.username}</a></td>
                   <td>{invite.createdAt}</td>
                   <td>{invite.role}</td>
+                  <td><button type="button" class="btn btn-success">Accept</button> <button type="button" class="btn btn-danger">Decline</button></td>
                 </tr>
               ))}
             </tbody>
@@ -73,7 +75,7 @@ export async function getServerSideProps(context) {
       createdAt: true,
       inviteeUser: {
         select: {
-          name: true
+          username: true
         }
       },
       organization: {
