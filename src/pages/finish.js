@@ -3,7 +3,6 @@ import { useRouter } from "next/router"
 import Head from "next/head"
 
 import { useSession } from "next-auth/react"
-import { setCookie } from "cookies-next"
 
 import { Inter } from "next/font/google"
 import styles from "@/styles/Home.module.css"
@@ -12,7 +11,7 @@ import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
 
 import axios from "axios"
-import { NEW_USER_COOKIE } from '@/lib/constants'
+
 const inter = Inter({ subsets: ["latin"] })
 
 export default function Home() {
@@ -39,8 +38,7 @@ export default function Home() {
       })
       .then((response) => {
         console.log("RESPONSE:", response)
-        // setCookie(NEW_USER_COOKIE, "", { maxAge: -1 })
-        router.push("/")
+        router.push(`/${name}`)
       })
       .catch((error) => {
         console.log("ERROR:", error.response.data)

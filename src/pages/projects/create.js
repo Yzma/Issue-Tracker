@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma/prisma"
 import { getServerSession } from "@/lib/sessions"
 
+import { useRouter } from "next/router"
 import Head from "next/head"
 
 import { Formik, Form, Field } from "formik"
@@ -13,6 +14,7 @@ import axios from "axios"
 import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function ProjectCreate(props) {
+  const router = useRouter()
   console.log("Props: ", props)
   const { data: session } = useSession()
   const map = props.organizations.map((e) => (
@@ -62,11 +64,9 @@ export default function ProjectCreate(props) {
               })
               .then((response) => {
                 console.log("RESPONSE:", response)
-                // TODO: Redirect to new project page
-                // router.push("/")
+                router.push(`/${values.owner}/${values.name}`)
               })
               .catch((error) => {
-                console.log("ERROR:", error.response.data)
                 console.log("ERROR:", error)
               })
               .finally(() => {

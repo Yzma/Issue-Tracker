@@ -78,8 +78,9 @@ export default function IssuesCreate(props) {
                     })
                     .then((response) => {
                       console.log("RESPONSE:", response)
-                      // TODO: Redirect to new project page
-                      // router.push("/")
+                      // TODO: Ensure proper data is returned on route, this could probably break easily...
+                      console.log("id: ", response.data.result.id)
+                      router.push(`/${namespaceName}/${projectName}/issues/${response.data.result.id}`)
                     })
                     .catch((error) => {
                       console.log("ERROR:", error.response.data)
