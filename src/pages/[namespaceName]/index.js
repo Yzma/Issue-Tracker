@@ -1,11 +1,11 @@
 import Head from "next/head";
-import { Inter } from "next/font/google";
 
 import layoutStyles from "@/styles/usersLayout.module.css";
 import Header from "@/components/Header";
 import ProfileContainer from '@/components/ProfileContainer';
 import ProjectSection from '@/components/ProjectSection';
 
+import prisma from "@/lib/prisma/prisma";
 
 export default function UserProfile() {
   //fake data for now
@@ -38,23 +38,67 @@ export default function UserProfile() {
 }
 
 // TODO: Determine if it's a user or org and render accordantly
-// export async function getServerSideProps(context) {
-//   const { namespaceName, projectName } = context.query
-//   const labelData = await prisma.label.findMany({
-//     where: {
-//       project: {
-//         name: projectName,
-//         namespace: {
-//           name: namespaceName
-//         }
-//       }
-//     }
-//   });
+export async function getServerSideProps(context) {
+  const { namespaceName } = context.query
 
-//   console.log(labelData)
+  const namespace = await prisma.namespace.findUnique({
+    where: {
+      name: namespaceName
+    },
 
-//   return {
-//     props: { labelData }
-//   };
-// }
+    include: {
+      projects: true
+    }
+  })
 
+  if (!namespace) {
+    return {
+      redirect: {
+        destination: "/404",
+        permanent: false
+      }
+    }
+  }
+
+  let result
+
+  if (namespace.userId) {
+    result = await prisma.user.findUnique({
+      where: {
+        username: namespaceName
+      }
+    })
+  } else {
+    result = await prisma.organization.findUnique({
+      where: {
+        name: namespaceName
+      }
+    })
+  }
+
+  console.log("namespace", namespace)
+  console.log("res", result)
+
+  const mappedNamespace = {
+    ...namespace,
+    projects: namespace.projects.map((project) => ({
+      ...project,
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString()
+    }))
+  }
+
+  const mappedEntity = {
+    ...result,
+    createdAt: result.createdAt.toISOString(),
+    updatedAt: result.updatedAt.toISOString()
+  }
+
+  return {
+    props: {
+      type: namespace.userId ? "User" : "Organization",
+      namespace: mappedNamespace,
+      data: mappedEntity
+    }
+  }
+}
