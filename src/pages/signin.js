@@ -8,6 +8,9 @@ import Head from "next/head";
 import styles from "@/styles/Signin.module.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 
 function signin({ providers }) {
   return (
@@ -24,13 +27,14 @@ function signin({ providers }) {
           <div className={styles.innerContainer}>
             <h2>Please sign in below:</h2>
             {Object.values(providers).map((provider) => {
+              const icon = provider.name === "GitHub" ? faGithub : faGoogle;
               return (
                 <div key={provider.name}>
                   <button
                     className={styles.button}
                     onClick={() => signIn(provider.id)}
                   >
-                    Sign in with {provider.name}
+                    <FontAwesomeIcon icon={icon} /> Sign in with {provider.name}
                   </button>
                 </div>
               );
@@ -66,22 +70,3 @@ export async function getServerSideProps(context) {
 }
 
 export default signin;
-
-// import { providers, signIn, getSession, csrfToken } from "next-auth/client";
-// export async function getServerSideProps(context) {
-//   const { req } = context;
-//   const session = await getSession({ req });
-
-//   if (session) {
-//     return {
-//       redirect: { destination: "/" },
-//     };
-//   }
-
-//   return {
-//     props: {
-//       providers: await providers(context),
-//       csrfToken: await csrfToken(context),
-//     },
-//   };
-// }
