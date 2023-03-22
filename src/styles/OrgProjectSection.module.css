@@ -30,17 +30,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: #1d3557;
+  color: #ffffff;
+  border-radius: 5px;
+  padding: 5px;
 }
 
 .projectItem h3 {
   margin: 0;
   font-size: 1.5rem;
-  color: #1d3557;
+  color: #ffffff;
 }
 
 .updateDate {
   font-size: 0.9rem;
-  color: #4a4a4a;
+  color: #ffffff;
   margin: 0;
 }
 
@@ -56,13 +60,41 @@
   margin-top: 20px;
 }
 
-.header {
+.header th:first-child {
   background-color: #1d3557;
   font-weight: bold;
+  color: #ffffff;
+  border-radius: 5px 0 0 0;
+  padding: 8px;
+}
+
+.header th {
+  background-color: #1d3557;
+  font-weight: bold;
+  color: #ffffff;
+  padding: 8px;
+}
+
+.header th:last-child {
+  border-radius: 0 5px 0 0;
 }
 
 .cell {
   padding: 8px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+  color: black;
+  background-color: white;
+}
+
+.table tr:last-child .cell:first-child {
+  border-bottom-left-radius: 5px;
+}
+
+.table tr:last-child .cell:last-child {
+  border-bottom-right-radius: 5px;
+}
+
+.table tr:last-child .cell {
+  border-bottom: none;
 }

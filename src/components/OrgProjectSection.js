@@ -18,7 +18,7 @@ const ProjectSection = ({ projects }) => {
             <tr key={project.id}>
               <td className={styles.cell}>{project.name}</td>
               <td className={styles.cell}>{project.description}</td>
-              <td className={styles.cell}>{project.updated_at}</td>
+              <td className={styles.cell}>{new Date(project.updatedAt).toLocaleDateString()}</td>
             </tr>
           ))}
         </tbody>
@@ -28,3 +28,4 @@ const ProjectSection = ({ projects }) => {
 };
 
 export default ProjectSection;
+
