@@ -7,6 +7,7 @@ import { OrganizationNameCreationSchema } from "@/lib/yup-schemas"
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
+import Header from "@/components/Header"
 
 export default function OrganizationCreate() {
   const router = useRouter()
@@ -18,7 +19,9 @@ export default function OrganizationCreate() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="mt-5" />
+      <div className="mt-5 pt-5" />
+
+      <Header />
 
       <div className="container">
         <h2>Create a new Organization</h2>

@@ -12,6 +12,7 @@ import { useSession } from "next-auth/react"
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
+import Header from "@/components/Header"
 
 export default function ProjectCreate(props) {
   const router = useRouter()
@@ -34,7 +35,8 @@ export default function ProjectCreate(props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="mt-5" />
+      <Header />
+      <div className="mt-5 pt-5" />
 
       <div className="container">
         <h2>Create a new Project</h2>

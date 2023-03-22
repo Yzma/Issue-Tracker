@@ -9,6 +9,7 @@ import prisma from "@/lib/prisma/prisma"
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 
 import "bootstrap/dist/css/bootstrap.min.css"
+import Header from "@/components/Header"
 
 export default function IssuesCreate(props) {
   const router = useRouter()
@@ -43,7 +44,9 @@ export default function IssuesCreate(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="mt-5" />
+      <Header />
+
+      <div className="mt-5 pt-5" />
 
       <div className="container">
         <div className="d-flex justify-content-between">
