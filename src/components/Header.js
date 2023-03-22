@@ -24,7 +24,7 @@ const Header = () => {
             <a href="/orgs">Organizations</a>
           </li>
           <li>
-            <a href={session?.namespace}>{session?.namespace}</a>
+            <a href={`/${session?.namespace}`}>{session?.namespace}</a>
           </li>
           <li>
             {session ? (
