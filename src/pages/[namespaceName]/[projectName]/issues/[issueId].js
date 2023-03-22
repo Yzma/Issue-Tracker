@@ -1,7 +1,11 @@
 import Head from "next/head"
+import { useRouter } from "next/router"
 
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+
+import { Formik, Form, Field } from "formik"
+import { IssueCreationSchema } from "@/lib/yup-schemas"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -12,9 +16,16 @@ import {
   faGear
 } from "@fortawesome/free-solid-svg-icons"
 
+import prisma from "@/lib/prisma/prisma"
+import axios from "axios"
+
 import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function IssuesView(props) {
+
+  const router = useRouter()
+  const { namespaceName, projectName, issueId } = router.query
+
   const issue = props.issuesData
   console.log(issue)
   return (
@@ -65,15 +76,91 @@ export default function IssuesView(props) {
 
             <hr />
 
-            <div className="card">
-              <div className="card-header d-flex justify-content-between align-items-center">
-                Yzma commented 26 minutes ago{" "}
-                <FontAwesomeIcon className="mr-4" icon={faEllipsis} />
+            {/* comments: [
+    {
+      id: 'clfiwk5j9000fqqi8u4pi428b',
+      description: '# Comment',
+      createdAt: '2023-03-21T23:26:45.985Z',
+      updatedAt: '2023-03-21T23:26:45.985Z',
+      userId: 'clfiwhw4q0000qqi8h4bfk9nx',
+      issueId: 'clfivxk2p001sqq8cznh3p7ur'
+    } */}
+            {issue.comments.map((comment, index) => (
+              <div key={index} className="card mb-5">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                  {comment.id} commented {comment.createdAt}(26 minutes ago){" "}
+                  <FontAwesomeIcon className="mr-4" icon={faEllipsis} />
+                </div>
+                <div className="card-body">
+                  
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {comment.description}
+                    </ReactMarkdown>
+                
+                </div>
               </div>
-              <div className="card-body">
-                <p className="card-text">Comment body here</p>
-              </div>
-            </div>
+            ))}
+
+            <Formik
+              initialValues={{
+                description: ""
+              }}
+              // validationSchema={IssueCreationSchema}
+              onSubmit={(values, { setSubmitting, setFieldError }) => {
+                axios
+                  .post(`/api/${namespaceName}/${projectName}/comments`, {
+                    issueId: issueId,
+                    description: values.description
+                  })
+                  .then((response) => {
+                    console.log("RESPONSE:", response)
+                    // TODO: Render to the screen - don't refresh the page
+                  })
+                  .catch((error) => {
+                    console.log("ERROR:", error.response.data)
+                    console.log("ERROR:", error)
+                  })
+                  .finally(() => {
+                    setSubmitting(false)
+                  })
+              }}
+            >
+              {({ errors, isSubmitting }) => (
+                <Form>
+                  {(errors.name || errors.description || errors.private) && (
+                    <div className="alert alert-danger" role="alert">
+                      <ul>
+                        {errors.description && (
+                          <li>Description: {errors.description}</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="card mb-5">
+                    <div className="card-header d-flex justify-content-between align-items-center">
+                      Write a comment
+                    </div>
+                    <div className="card-body">
+                      <Field
+                        className="form-control"
+                        type="textarea"
+                        as={"textarea"}
+                        name="description"
+                        rows="3"
+                      />
+                      <button
+                        type="submit"
+                        className="btn btn-success"
+                        disabled={isSubmitting}
+                      >
+                        Create Issue
+                      </button>
+                    </div>
+                  </div>
+                </Form>
+              )}
+            </Formik>
           </div>
 
           <div className="col-md-4">
@@ -151,10 +238,19 @@ export async function getServerSideProps(context) {
     }
   }
 
+  const mappedComments = issuesData.comments.map(e => {
+    return {
+      ...e,
+      createdAt: issuesData.createdAt.toISOString(),
+      updatedAt: issuesData.updatedAt.toISOString()
+    }
+  }) 
+
   return {
     props: {
       issuesData: {
         ...issuesData,
+        comments: mappedComments,
         createdAt: issuesData.createdAt.toISOString(),
         updatedAt: issuesData.updatedAt.toISOString()
       }
