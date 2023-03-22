@@ -5,6 +5,7 @@ import { Formik, Form, Field } from "formik"
 
 import axios from "axios"
 
+import prisma from "@/lib/prisma/prisma"
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 
 import "bootstrap/dist/css/bootstrap.min.css"
@@ -12,6 +13,26 @@ import "bootstrap/dist/css/bootstrap.min.css"
 export default function IssuesCreate(props) {
   const router = useRouter()
   const { organizationName } = router.query
+
+  console.log(props)
+  const cancelInvite = (inviteId) => {
+    console.log("deleting: ", inviteId)
+    axios
+      .delete(`/api/organization/${organizationName}/invites`, {
+        data: {
+          inviteId: inviteId
+        }
+      })
+      .then((response) => {
+        console.log("RESPONSE:", response)
+        // TODO: Redirect to new project page
+        // router.push("/")
+      })
+      .catch((error) => {
+        console.log("ERROR:", error.response.data)
+        console.log("ERROR:", error)
+      })
+  }
 
   return (
     <>
@@ -128,7 +149,7 @@ export default function IssuesCreate(props) {
                   <td>{invite.createdAt}</td>
                   <td>{invite.role}</td>
                   <td>
-                    <button type="button" className="btn btn-danger">
+                    <button className="btn btn-danger" type="button" onClick={() => cancelInvite(invite.id)}>
                       Cancel
                     </button>
                   </td>
@@ -153,6 +174,7 @@ export async function getServerSideProps(context) {
       }
     },
     select: {
+      id: true,
       createdAt: true,
       role: true,
       invitedUser: {
