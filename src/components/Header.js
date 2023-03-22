@@ -8,6 +8,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 const Header = () => {
   const { data: session } = useSession();
 
+  console.log(session)
   return (
     <header className={styles.header}>
       <div className={styles.logoContainer}>
@@ -21,6 +22,9 @@ const Header = () => {
           </li>
           <li>
             <a href="/orgs">Organizations</a>
+          </li>
+          <li>
+            <a href={session?.namespace}>{session?.namespace}</a>
           </li>
           <li>
             {session ? (
