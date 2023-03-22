@@ -1,22 +1,19 @@
 import Head from "next/head";
-import Image from "next/image";
 import { Inter } from "next/font/google";
-// import styles from "@/styles/Home.module.css";
+
 import layoutStyles from "@/styles/usersLayout.module.css";
 import Header from "@/components/Header";
 import ProfileContainer from '@/components/ProfileContainer';
 import ProjectSection from '@/components/ProjectSection';
-import { useRouter } from "next/router";
 
-const inter = Inter({ subsets: ["latin"] });
 
 export default function UserProfile() {
   //fake data for now
   const username = "Julian Paredes";
   const bio = "Full stack developer student at Lighthouse Labs";
   const projects = [
-    { id: 1, name: "Tweeter App", description: "Twitter clone app", updated_at: "March 17 2023" },
-    { id: 2, name: "Scheduler App", description: "Scheduler Appointment App", updated_at: "March 17 2023" },
+    { id: 1, name: "Tweeter-App", description: "Twitter clone app", updated_at: "March 17 2023" },
+    { id: 2, name: "Scheduler-App", description: "Scheduler Appointment App", updated_at: "March 17 2023" },
   ];
 
   return (
@@ -39,3 +36,25 @@ export default function UserProfile() {
     </>
   );
 }
+
+// TODO: Determine if it's a user or org and render accordantly
+// export async function getServerSideProps(context) {
+//   const { namespaceName, projectName } = context.query
+//   const labelData = await prisma.label.findMany({
+//     where: {
+//       project: {
+//         name: projectName,
+//         namespace: {
+//           name: namespaceName
+//         }
+//       }
+//     }
+//   });
+
+//   console.log(labelData)
+
+//   return {
+//     props: { labelData }
+//   };
+// }
+

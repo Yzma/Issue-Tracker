@@ -20,6 +20,7 @@ import prisma from "@/lib/prisma/prisma"
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
+import Header from "@/components/Header"
 
 export default function IssuesView(props) {
 
@@ -37,8 +38,9 @@ export default function IssuesView(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="mt-5" />
+      <div className="mt-5 pt-5" />
 
+      <Header />
       <div className="container">
         <div className="d-flex justify-content-between">
           <h2>{issue.name}</h2>

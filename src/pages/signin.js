@@ -50,9 +50,10 @@ function signin({ providers }) {
 export async function getServerSideProps(context) {
   const session = await getSession(context);
   if (session) {
+    // TODO: Redirect user to homepage or profile?
     return {
       redirect: {
-        destination: "/", //where to redirect?user?
+        destination: "/",
         permanent: false,
       },
     };

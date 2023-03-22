@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
-
+import Header from "@/components/Header"
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -18,6 +18,7 @@ import {
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
+
 
 export default function IssuesCreate(props) {
   const router = useRouter()
@@ -47,8 +48,8 @@ export default function IssuesCreate(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="mt-5" />
-
+      <div className="mt-5 pt-5" />
+      <Header />
       <div className="container">
         <div className="d-flex justify-content-between">
           <h2>Create new Issue</h2>
