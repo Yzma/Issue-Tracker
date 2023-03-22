@@ -7,9 +7,14 @@ import IssueButtons from "@/components/IssueButtons";
 import SearchBar from "@/components/IssueSearchBar";
 import { useState } from "react";
 import prisma from "@/lib/prisma/prisma";
+import { useRouter } from "next/router"
 
 export default function Issues({ issuesData }) {
   console.log(issuesData)
+
+  const router = useRouter()
+  const { namespaceName, projectName } = router.query
+
   const [filteredIssues, setFilteredIssues] = useState(issuesData);
 
   const handleSearch = (searchTerm) => {
@@ -28,7 +33,7 @@ export default function Issues({ issuesData }) {
       <main className={styles.mainContainer}>
         <Header />
         <div className={styles.topContainer}>
-        <IssueButtons onSearch={handleSearch} /> 
+        <IssueButtons onSearch={handleSearch} path={`/${namespaceName}/${projectName}`}/> 
         </div>
         <div className={styles.issueListContainer}>
           <IssueList issues={filteredIssues} />
