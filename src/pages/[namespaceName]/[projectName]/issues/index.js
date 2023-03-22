@@ -36,7 +36,7 @@ export default function Issues({ issuesData }) {
         <IssueButtons onSearch={handleSearch} path={`/${namespaceName}/${projectName}`}/> 
         </div>
         <div className={styles.issueListContainer}>
-          <IssueList issues={filteredIssues} />
+          <IssueList issues={filteredIssues} routePath={`/${namespaceName}/${projectName}`} />
         </div>
         <Footer />
       </main>
