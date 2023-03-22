@@ -1,7 +1,12 @@
 import React from 'react';
 import styles from "../styles/ProjectSection.module.css";
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 const ProjectSection = ({ projects }) => {
+  const router = useRouter()
+  const { namespaceName } = router.query
+  console.log("test: ", namespaceName)
   return (
     <section className={styles.container}>
       <h2>Projects</h2>
@@ -9,7 +14,7 @@ const ProjectSection = ({ projects }) => {
         {projects.map((project) => (
           <li key={project.id} className={styles.projectItem}>
             <div className={styles.projectItemHeader}>
-              <h3>{project.name}</h3>
+              <h3><Link href={`${namespaceName}/${project.name}`}>{project.name}</Link></h3>
               <p className={styles.updateDate}>Last updated: {project.updated_at}</p>
             </div>
             <p>{project.description}</p>
