@@ -5,6 +5,11 @@ import { useRouter } from "next/router"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
+import MarkdownIt from 'markdown-it';
+
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
 
@@ -17,14 +22,43 @@ import {
 
 import axios from "axios"
 
+import dynamic from 'next/dynamic';
 import "bootstrap/dist/css/bootstrap.min.css"
+import 'react-markdown-editor-lite/lib/index.css';
+
+const MdEditor = dynamic(() => import('react-markdown-editor-lite'), {
+  ssr: true,
+});
+
+const mdParser = new MarkdownIt({ 
+
+});
+
+const canView = {
+  menu: true, 
+  md: true, 
+  html: false, 
+  fullScreen: true, 
+  hideMenu: true 
+}
+// view: {
+//   menu: true,
+//   md: false,
+//   html: false
+// }
 
 export default function IssuesCreate(props) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
   const [labels, setLabels] = useState([])
+  const [text, setText] = useState("")
   console.log(namespaceName, projectName)
+
+  const onMarkdownChange = (html, text, event, desc) => {
+    setText(text)
+    desc = text
+  }
 
   // TODO: Schema doesn't validate label ids - figure out a way to check them
   const onLabelClick = (label) => {
@@ -69,7 +103,7 @@ export default function IssuesCreate(props) {
                 }}
                 validationSchema={IssueCreationSchema}
                 onSubmit={(values, { setSubmitting, setFieldError }) => {
-                  const labelIds = labels.map(e => e.id)
+                  const labelIds = labels.map((e) => e.id)
                   axios
                     .post(`/api/${namespaceName}/${projectName}/issues`, {
                       name: values.name,
@@ -80,7 +114,9 @@ export default function IssuesCreate(props) {
                       console.log("RESPONSE:", response)
                       // TODO: Ensure proper data is returned on route, this could probably break easily...
                       console.log("id: ", response.data.result.id)
-                      router.push(`/${namespaceName}/${projectName}/issues/${response.data.result.id}`)
+                      router.push(
+                        `/${namespaceName}/${projectName}/issues/${response.data.result.id}`
+                      )
                     })
                     .catch((error) => {
                       console.log("ERROR:", error.response.data)
@@ -98,7 +134,8 @@ export default function IssuesCreate(props) {
                   handleChange,
                   handleBlur,
                   handleSubmit,
-                  isSubmitting
+                  isSubmitting,
+                  setFieldValue
                   /* and other goodies */
                 }) => (
                   <Form>
@@ -124,13 +161,47 @@ export default function IssuesCreate(props) {
                         <label htmlFor="description" className="form-label">
                           Description (optional)
                         </label>
-                        <Field
+
+                        <div class="card">
+                          <div class="card-header">
+                            <Tabs
+                              defaultActiveKey="write"
+                              id="uncontrolled-tab-example"
+                              className="mb-3"
+                            >
+                              <Tab eventKey="write" title="Write">
+                                <div class="card-body">
+                                  <MdEditor 
+                                    style={{ height: '500px' }} 
+                                    renderHTML={text => mdParser.render(text)} 
+                                    onChange={({html, text}, event) =>  {
+                                      onMarkdownChange(html, text, event, values.description)
+                                      setFieldValue("description", text)
+                                    }}
+                                    view={{ menu: true, md: true, html: false }}/>
+                                </div>
+                              </Tab>
+
+                              <Tab eventKey="preview" title="Preview">
+                                <div class="card-body">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                  {text}
+                                </ReactMarkdown>
+                                </div>
+                              </Tab>
+
+                            </Tabs>
+                          </div>
+                        </div>
+
+                        {/* <Field
                           className="form-control"
                           type="textarea"
                           as={"textarea"}
                           name="description"
                           rows="3"
-                        />
+                          value={text}
+                        /> */}
                       </div>
                     </div>
 
@@ -197,7 +268,9 @@ export default function IssuesCreate(props) {
                 /> */}
               </div>
               {labels.map((label, index) => (
-                <span key={index} className="badge bg-primary">{label.name}</span>
+                <span key={index} className="badge bg-primary">
+                  {label.name}
+                </span>
               ))}
             </div>
 
