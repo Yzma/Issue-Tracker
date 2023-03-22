@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
-
+import Header from "@/components/Header"
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -18,7 +18,7 @@ import {
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
-import Header from "@/components/Header"
+
 
 export default function IssuesCreate(props) {
   const router = useRouter()

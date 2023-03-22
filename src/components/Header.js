@@ -16,7 +16,7 @@ const Header = () => {
     <header className={styles.header}>
       <div className={styles.logoContainer}>
         <FontAwesomeIcon icon={faBug} size="2x" />
-        <p>Bug-Zapper</p>
+        <Link href="/">Bug-Zapper</Link>
       </div>
       <nav className={styles.nav}>
         <ul>
