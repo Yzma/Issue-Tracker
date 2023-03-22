@@ -5,11 +5,47 @@ import Footer from "@/components/Footer"
 
 import prisma from "@/lib/prisma/prisma"
 import { getServerSession } from "@/lib/sessions"
-
+import axios from "axios"
 import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function MyInvites(props) {
   console.log(props)
+
+  const acceptInvitation = (inviteId) => {
+    console.log("accepting: ", inviteId)
+    axios
+      .post("/api/user/invites", {
+        inviteId: inviteId
+      })
+      .then((response) => {
+        console.log("RESPONSE:", response)
+        // TODO: Redirect to new project page
+        // router.push("/")
+      })
+      .catch((error) => {
+        console.log("ERROR:", error.response.data)
+        console.log("ERROR:", error)
+      })
+  }
+
+  const declineInvitation = (inviteId) => {
+    console.log("declining: ", inviteId)
+    axios
+      .delete("/api/user/invites", {
+        data: {
+          inviteId: inviteId
+        }
+      })
+      .then((response) => {
+        console.log("RESPONSE:", response)
+        // TODO: Redirect to new project page
+        // router.push("/")
+      })
+      .catch((error) => {
+        console.log("ERROR:", error.response.data)
+        console.log("ERROR:", error)
+      })
+  }
 
   return (
     <>
@@ -35,13 +71,13 @@ export default function MyInvites(props) {
             </thead>
             <tbody>
               {props.organizationInvites.map((invite, index) => (
-                <tr key={index}>
+                <tr key={index + 1}>
                   <th scope="row">{index}</th>
                   <td><a href={`/${invite.organization.name}`}>{invite.organization.name}</a></td>
                   <td><a href={`/${invite.inviteeUser.username}`}>{invite.inviteeUser.username}</a></td>
                   <td>{invite.createdAt}</td>
                   <td>{invite.role}</td>
-                  <td><button type="button" className="btn btn-success">Accept</button> <button type="button" className="btn btn-danger">Decline</button></td>
+                  <td><button className="btn btn-success" type="button" onClick={() => acceptInvitation(invite.id)}>Accept</button> <button className="btn btn-danger" type="button" onClick={() => declineInvitation(invite.id)}>Decline</button></td>
                 </tr>
               ))}
             </tbody>
