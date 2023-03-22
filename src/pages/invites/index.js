@@ -41,7 +41,7 @@ export default function MyInvites(props) {
                   <td><a href={`/${invite.inviteeUser.username}`}>{invite.inviteeUser.username}</a></td>
                   <td>{invite.createdAt}</td>
                   <td>{invite.role}</td>
-                  <td><button type="button" class="btn btn-success">Accept</button> <button type="button" class="btn btn-danger">Decline</button></td>
+                  <td><button type="button" className="btn btn-success">Accept</button> <button type="button" className="btn btn-danger">Decline</button></td>
                 </tr>
               ))}
             </tbody>
