@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '@/styles/IssueContainer.module.css';
 import Issue from './IssueContainer';
 
-const IssueList = ({ issues }) => {
+const IssueList = ({ issues, routePath }) => {
   return (
     <div className={styles.issueListWrapper}>
       <table className={styles.table}>
@@ -17,7 +17,7 @@ const IssueList = ({ issues }) => {
         </thead>
         <tbody>
           {issues.map((issue, index) => (
-            <Issue key={index} issue={issue} />
+            <Issue key={index} issue={issue} routePath={routePath} />
           ))}
         </tbody>
       </table>
