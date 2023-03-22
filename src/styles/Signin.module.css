@@ -1,0 +1,27 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.innerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px; 
+  border: 2px solid #457b9d; 
+  border-radius: 10px; 
+  padding: 20px; 
+  background-color: #457b9d;
+}
+
+.button {
+  background-color: #1d3557;
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+}
