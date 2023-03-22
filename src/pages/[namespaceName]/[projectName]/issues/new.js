@@ -47,7 +47,6 @@ const canView = {
 //   html: false
 // }
 
-
 export default function IssuesCreate(props) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
