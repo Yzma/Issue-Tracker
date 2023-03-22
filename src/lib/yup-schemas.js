@@ -1,16 +1,24 @@
 import * as Yup from 'yup';
 
+const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
+const BLACKLIST_NAMES = /^(?!api|_next|favicon|invites|issues|login|logout|orgs|projects|users|404|finish|index)/
+
+const NAMESPACE_STRING = Yup.string()
+  .min(3, 'Too Short!')
+  .max(25, 'Too Long!')
+  .matches(VALID_CHARACTER_REGEX, 'Invalid name')
+  .matches(BLACKLIST_NAMES, 'Invalid name')
+  .required('Required')
+
 export const NamespaceNameCreationSchema = Yup.object({
-  name: Yup.string()
-    .min(3, 'Too Short!')
-    .max(25, 'Too Long!')
-    .required('Required'),
+  name: NAMESPACE_STRING
 });
 
 export const OrganizationNameCreationSchema = Yup.object().shape({
   name: Yup.string()
     .min(3, 'Too Short!')
     .max(25, 'Too Long!')
+    .matches(VALID_CHARACTER_REGEX)
     .required('Required'),
 });
 
@@ -22,13 +30,9 @@ export const ProjectCreationSchema = Yup.object().shape({
   description: Yup.string()
     .max(75, 'Too Long!')
     .optional(),
-  private: Yup.boolean()
-  .oneOf([true, false], 'Field must be checked').required(),
+  private: Yup.boolean().oneOf([true, false], 'Field must be checked').required(),
   // TODO: This is a duplicate of NamespaceNameCreationSchema - look at docs to see if that can be changed
-  owner: Yup.string() 
-    .min(3, 'Too Short!')
-    .max(25, 'Too Long!')
-    .required('Required'),
+  owner: NAMESPACE_STRING
 });
 
 export const LabelCreationSchema = Yup.object({
