@@ -1,62 +1,97 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
 import layoutStyles from "@/styles/OrgLayout.module.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useRouter } from "next/router";
 import OrganizationContainer from "@/components/OrganizationContainer";
 import OrgProjectSection from "@/components/OrgProjectSection";
 import Tabs from "@/components/OrgPageTabs";
-import UserSection from "@/components/OrgUserSection"
+import UserSection from "@/components/OrgUserSection";
 import { useState } from "react";
+import prisma from "@/lib/prisma/prisma";
+import { getServerSession } from "@/lib/sessions"
 
-const inter = Inter({ subsets: ["latin"] });
-
-export default function Org() {
+export default function Org({ organization }) {
   const [activeTab, setActiveTab] = useState("projects");
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
-  const orgName = "Bug Zapper";
-  const bio = "Z";
-  const projects = [
-    {
-      id: 1,
-      name: "Tweeter App",
-      description: "Twitter clone app",
-      updated_at: "March 17 2023",
-    },
-    {
-      id: 2,
-      name: "Scheduler App",
-      description: "Scheduler Appointment App",
-      updated_at: "March 17 2023",
-    },
-  ];
-  const users = ["Julian Paredes", "Andrew Caruso"];
+  const projects = organization.namespace?.projects || [];
+
+  if (!organization) {
+    return <div>Organization not found</div>;
+  }
+
   return (
     <>
-      <Head>
-      </Head>
+      <Head></Head>
       <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
         <Header />
-        <div className={layoutStyles.profileContainer}>
-          <OrganizationContainer orgName={orgName} bio={bio} />
-        </div>
+        {/* <div className={layoutStyles.profileContainer}>
+          <OrganizationContainer
+            orgName={organization.name}
+            organizationMembers={organization.organizationMembers}
+          />
+        </div> */}
         <div className={layoutStyles.projectSection}>
           <Tabs activeTab={activeTab} onTabClick={handleTabClick} />
           {activeTab === "projects" && (
             <OrgProjectSection projects={projects} />
           )}
           {activeTab === "users" && (
-            <UserSection users={users} />
+            <UserSection
+              users={organization.organizationMembers.map(
+                (member) => member.user.name
+              )}
+            />
           )}
         </div>
         <Footer />
       </main>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  const { req } = context;
+  const session = await getServerSession(context.req, context.res)
+
+  console.log(session)
+
+  // if (!session) {
+  //   return {
+  //     redirect: {
+  //       destination: "/api/auth/signin", // goes to sign in page if no one logged in 
+  //       permanent: false,
+  //     },
+  //   };
+  // }
+
+  const organization = await prisma.organization.findFirst({
+    where: {
+      id: "clfha6acb000vs3p26hlr90cl", //org id from db 
+      // id: session.organization.id,
+    },
+    include: {
+      organizationMembers: {
+        include: {
+          user: true,
+        },
+      },
+      namespace: {
+        include: {
+          projects: true,
+        },
+      },
+    },
+  });
+
+  console.log("Organization:", organization);
+
+  return {
+    props: {
+      organization: JSON.parse(JSON.stringify(organization)),
+    },
+  };
 }
