@@ -1,53 +1,22 @@
-import { useState } from "react"
 import { useRouter } from "next/router"
 import Head from "next/head"
 
 import { useSession } from "next-auth/react"
 
-import { Inter } from "next/font/google"
 import styles from "@/styles/Home.module.css"
 
-import Button from "react-bootstrap/Button"
-import Form from "react-bootstrap/Form"
+import { Formik, Form, Field } from "formik"
+import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 
 import axios from "axios"
-
-const inter = Inter({ subsets: ["latin"] })
+import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function Home() {
   const router = useRouter()
 
   const { data: session } = useSession()
-  const [submitting, setSubmitting] = useState(false)
-  const [name, setName] = useState("")
 
   console.log("Session:", session)
-
-  const onSubmit = async (event) => {
-    event.preventDefault()
-
-    if (submitting) {
-      return
-    }
-
-    setSubmitting(true)
-
-    axios
-      .post("/api/user", {
-        name: name
-      })
-      .then((response) => {
-        console.log("RESPONSE:", response)
-        router.push(`/${name}`)
-      })
-      .catch((error) => {
-        console.log("ERROR:", error.response.data)
-        console.log("ERROR:", error)
-      })
-      .finally(() => {
-        setSubmitting(false)
-      })
-  }
 
   return (
     <>
@@ -58,21 +27,54 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <Form onSubmit={onSubmit}>
-          <Form.Group className="mb-3" controlId="formBasicEmail">
-            <Form.Label className={inter.className}>Username here</Form.Label>
-            <br />
-            <Form.Control
-              type="text"
-              placeholder="Enter new username"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </Form.Group>
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
-        </Form>
+        <Formik
+          initialValues={{
+            name: ""
+          }}
+          validationSchema={NamespaceNameCreationSchema}
+          onSubmit={(values, { setSubmitting, setFieldError }) => {
+            axios
+              .post("/api/user", {
+                name: values.name
+              })
+              .then((response) => {
+                console.log("RESPONSE:", response)
+                router.push(`/${values.name}`)
+              })
+              .catch((error) => {
+                console.log("ERROR:", error.response.data)
+                console.log("ERROR:", error)
+              })
+              .finally(() => {
+                setSubmitting(false)
+              })
+          }}
+        >
+          {({ errors, isSubmitting }) => (
+            <Form>
+              {(errors.name || errors.description || errors.private) && (
+                <div className="alert alert-danger" role="alert">
+                  <ul>{errors.name && <li>Name: {errors.name}</li>}</ul>
+                </div>
+              )}
+
+              <label htmlFor="name" className="form-label">
+                Username
+              </label>
+              <Field className="form-control" type="text" name="name" />
+
+              {errors.name && <div>Name errors:{errors.name}</div>}
+
+              <button
+                type="submit"
+                className="btn btn-success"
+                disabled={isSubmitting}
+              >
+                Submit
+              </button>
+            </Form>
+          )}
+        </Formik>
       </main>
     </>
   )
