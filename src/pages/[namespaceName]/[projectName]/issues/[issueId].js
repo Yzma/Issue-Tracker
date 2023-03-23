@@ -122,7 +122,25 @@ export default function IssuesView(props) {
 
   const pinIssue = () => {}
 
-  const deleteIssue = () => {}
+  const deleteIssue = async () => {
+    
+    const data = {
+      issueId: issue.id
+    }
+    console.log("deleting data ", data)
+
+    axios
+      .delete(`/api/${namespaceName}/${projectName}/issues`, {
+        data: data
+      })
+      .then((response) => {
+        console.log("RESPONSE:", response)
+
+      })
+      .catch((error) => {
+        console.log("ERROR:", error)
+      })
+  }
 
   return (
     <>
@@ -148,6 +166,37 @@ export default function IssuesView(props) {
             </Button>
           </Modal.Footer>
         </Modal>
+
+        <Modal show={showCloseIssue} onHide={() => setCloseIssue(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Are you sure you want to close this issue?</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setCloseIssue(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={closeIssue}>
+              Close Issue
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={showDeleteIssue} onHide={() => setDeleteIssue(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Are you sure you want to delete this issue?</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setDeleteIssue(false)}>
+              Close
+            </Button>
+            <Button variant="danger" onClick={deleteIssue}>
+              Delete Issue
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        
 
         <div className="mt-5 pt-5" />
 
@@ -558,7 +607,7 @@ export default function IssuesView(props) {
 
               <div>
                 <FontAwesomeIcon className="mr-4" icon={faLock} />
-                <a href="#" onClick={closeIssue}>
+                <a href="#" onClick={() => setCloseIssue(true)}>
                   Close Issue
                 </a>
               </div>
@@ -572,7 +621,7 @@ export default function IssuesView(props) {
 
               <div>
                 <FontAwesomeIcon className="mr-4" icon={faTrash} />
-                <a href="#" onClick={deleteIssue}>
+                <a href="#" onClick={() => setDeleteIssue(true)}>
                   Delete Issue
                 </a>
               </div>
@@ -633,7 +682,7 @@ export async function getServerSideProps(context) {
   if (!issuesData) {
     return {
       redirect: {
-        destination: "/",
+        destination: "/404",
         permanent: false
       }
     }
