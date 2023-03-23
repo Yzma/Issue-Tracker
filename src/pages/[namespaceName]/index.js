@@ -78,7 +78,72 @@ export async function getServerSideProps(context) {
   };
 }
 
-// TODO: Determine if it's a user or org and render accordantly
+// // TODO: Determine if it's a user or org and render accordantly
+// export async function getServerSideProps(context) {
+//   const { namespaceName } = context.query
+
+//   const namespace = await prisma.namespace.findUnique({
+//     where: {
+//       name: namespaceName
+//     },
+
+//     include: {
+//       projects: true
+//     }
+//   })
+
+//   if (!namespace) {
+//     return {
+//       redirect: {
+//         destination: "/404",
+//         permanent: false
+//       }
+//     }
+//   }
+
+//   let result
+
+//   if (namespace.userId) {
+//     result = await prisma.user.findUnique({
+//       where: {
+//         username: namespaceName
+//       }
+//     })
+//   } else {
+//     result = await prisma.organization.findUnique({
+//       where: {
+//         name: namespaceName
+//       }
+//     })
+//   }
+
+//   console.log("namespace", namespace)
+//   console.log("res", result)
+
+//   const mappedNamespace = {
+//     ...namespace,
+//     projects: namespace.projects.map((project) => ({
+//       ...project,
+//       createdAt: project.createdAt.toISOString(),
+//       updatedAt: project.updatedAt.toISOString()
+//     }))
+//   }
+
+//   const mappedEntity = {
+//     ...result,
+//     createdAt: result.createdAt.toISOString(),
+//     updatedAt: result.updatedAt.toISOString()
+//   }
+
+//   return {
+//     props: {
+//       type: namespace.userId ? "User" : "Organization",
+//       namespace: mappedNamespace,
+//       data: mappedEntity
+//     }
+//   }
+// }
+
 // export async function getServerSideProps(context) {
 //   const { namespaceName } = context.query
 
