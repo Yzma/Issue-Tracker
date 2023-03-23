@@ -5,7 +5,7 @@ async function main() {
   // TODO: OrganizationSettings, Comments
 
   // Clear the database
-  await prisma.$queryRaw`TRUNCATE "User", "Account", "Session", "UserSettings", "Organization", "OrganizationMember", "Namespace", "Issue", "OrganizationInvitation", "Comment", "Project", "Label", "_IssueToLabel";`
+  await prisma.$queryRaw`TRUNCATE "User", "Account", "Session", "UserSettings", "Organization", "OrganizationMember", "Namespace", "Issue", "OrganizationInvitation", "Comment", "Project", "Label", "_IssueToLabel", "Member";`
 
   // Users
   const alice = await prisma.user.upsert({
@@ -80,7 +80,13 @@ async function main() {
         },
         namespace: {
           create: {
-            name: "AliceOrg"
+            name: "AliceOrg",
+            members: {
+              create:[
+                { userId: alice.id, role: "Owner" },
+                { userId: jim.id, role: "User" }
+              ]
+            },
           }
         }
       }
