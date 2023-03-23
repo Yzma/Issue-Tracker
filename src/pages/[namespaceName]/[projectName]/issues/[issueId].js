@@ -6,9 +6,9 @@ import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
 import SSRProvider from "react-bootstrap/SSRProvider"
 
-import TimeAgo from 'react-timeago'
-import englishStrings from 'react-timeago/lib/language-strings/en'
-import buildFormatter from 'react-timeago/lib/formatters/buildFormatter'
+import TimeAgo from "react-timeago"
+import englishStrings from "react-timeago/lib/language-strings/en"
+import buildFormatter from "react-timeago/lib/formatters/buildFormatter"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
@@ -93,7 +93,27 @@ export default function IssuesView(props) {
     </FontAwesomeIcon>
   ))
 
-  const [labels, setLabels] = useState([])
+  const arraysEqual = (a, b) => {
+    if (a === b) return true
+    if (a == null || b == null) return false
+    if (a.length !== b.length) return false
+
+    for (let i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) return false
+    }
+    return true
+  }
+
+  const [defaultLabels, setDefaultLabels] = useState(issue.labels)
+
+  const [labels, setLabels] = useState(issue.labels)
+  const [labelsChanged, setLabelsChanged] = useState(true)
+
+  // if(arraysEqual(labels, defaultLabels)) {
+  //   setLabelsChanged(true)
+  // } else {
+  //   setLabelsChanged(false)
+  // }
   console.log(namespaceName, projectName)
 
   // TODO: Schema doesn't validate label ids - figure out a way to check them
@@ -119,46 +139,22 @@ export default function IssuesView(props) {
   }
 
   const closeIssue = async () => {
-
     axios
-    .put(`/api/${namespaceName}/${projectName}/issues`, {
-      issueId: issueId,
-      open: false
-    })
-    .then((response) => {
-      console.log("RESPONSE:", response)
-
-    })
-    .catch((error) => {
-      console.log("ERROR:", error)
-    })
-    // .finally(() => {
-    //   setSubmitting(false)
-    // })
-
-    // const data = {
-    //   issueId: issue.id,
-    //   open: false
-    // }
-    // console.log("closing issue data ", data)
-
-    // axios
-    //   .put(`/api/${namespaceName}/${projectName}/issues`, {
-    //     data: data
-    //   })
-    //   .then((response) => {
-    //     console.log("RESPONSE:", response)
-
-    //   })
-    //   .catch((error) => {
-    //     console.log("ERROR:", error)
-    //   })
+      .put(`/api/${namespaceName}/${projectName}/issues`, {
+        issueId: issueId,
+        open: false
+      })
+      .then((response) => {
+        console.log("RESPONSE:", response)
+      })
+      .catch((error) => {
+        console.log("ERROR:", error)
+      })
   }
 
   const pinIssue = () => {}
 
   const deleteIssue = async () => {
-    
     const data = {
       issueId: issue.id
     }
@@ -170,7 +166,6 @@ export default function IssuesView(props) {
       })
       .then((response) => {
         console.log("RESPONSE:", response)
-
       })
       .catch((error) => {
         console.log("ERROR:", error)
@@ -231,7 +226,6 @@ export default function IssuesView(props) {
             </Button>
           </Modal.Footer>
         </Modal>
-        
 
         <div className="mt-5 pt-5" />
 
@@ -303,7 +297,7 @@ export default function IssuesView(props) {
 
             {!showEditTitle && <h2>{issue.name}</h2>}
 
-            {(!showEditTitle && session && session.user.id === issue.user.id) && (
+            {!showEditTitle && session && session.user.id === issue.user.id && (
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -341,15 +335,17 @@ export default function IssuesView(props) {
             <div className="col-md-8">
               <article>
                 <div className="d-flex justify-content-end align-self-center">
-                  {(!showEditDescription && session && session.user.id === issue.user.id) && (
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => setShowDescription(true)}
-                    >
-                      Edit
-                    </button>
-                  )}
+                  {!showEditDescription &&
+                    session &&
+                    session.user.id === issue.user.id && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setShowDescription(true)}
+                      >
+                        Edit
+                      </button>
+                    )}
                 </div>
 
                 {showEditDescription ? (
@@ -615,27 +611,109 @@ export default function IssuesView(props) {
               <div>
                 <div className="d-flex justify-content-between align-self-center">
                   <span className="text-secondary h5">Labels </span>
-                  <Dropdown>
-                    <Dropdown.Toggle
-                      as={CustomToggle2}
-                      id="dropdown-custom-components"
-                    >
-                      Custom toggle
-                    </Dropdown.Toggle>
+                  {issue.labels.length === 0 ? (
+                    <div></div>
+                  ) : (
+                    <Dropdown>
+                      <Dropdown.Toggle
+                        as={CustomToggle2}
+                        id="dropdown-custom-components"
+                      >
+                        Custom toggle
+                      </Dropdown.Toggle>
 
-                    <Dropdown.Menu>
-                      {issue.labels.map((label, index) => (
-                        <Dropdown.Item
-                          key={index}
-                          lable-id={label.id}
-                          onClick={() => onLabelClick(label)}
-                        >
-                          {label.name}
-                        </Dropdown.Item>
-                      ))}
-                    </Dropdown.Menu>
-                  </Dropdown>
+                      <Dropdown.Menu>
+                        {issue.labels.map((label, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            lable-id={label.id}
+                            onClick={() => onLabelClick(label)}
+                          >
+                            {label.name}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  )}
                 </div>
+                {issue.labels.length === 0 ? (
+                  <div>This project has no labels yet</div>
+                ) : (
+                  <div>
+                    <Formik
+                      initialValues={{
+                        labels: labels
+                      }}
+                      // validationSchema={IssueCreationSchema}
+                      onSubmit={(values, { setSubmitting, setFieldError }) => {
+         
+                        console.log(labels)
+                        const map = labels.map(e => {
+                          return {id: e.id}
+                        })
+
+                        console.log("map: ", map)
+                        axios
+                          .put(
+                            `/api/${namespaceName}/${projectName}/issues`,
+                            {
+                              issueId: issueId,
+                              labels: map
+                            }
+                          )
+                          .then((response) => {
+                            console.log("RESPONSE:", response)
+                            // TODO: Render to the screen - don't refresh the page
+                          })
+                          .catch((error) => {
+                            console.log("ERROR:", error.response.data)
+                            console.log("ERROR:", error)
+                          })
+                          .finally(() => {
+                            setSubmitting(false)
+                          })
+                      }}
+                    >
+                      {({
+                        errors,
+                        isSubmitting,
+                        values,
+                        setFieldValue,
+                        setValues
+                      }) => (
+                        <Form>
+                          {labels.map((label, index) => (
+                            <span
+                              className="badge"
+                              style={{
+                                color: "white",
+                                background: `#${label.color}`
+                              }}
+                              
+                              key={index}
+                            >
+                              {label.name}
+                            </span>
+                          ))}
+
+                          {!arraysEqual(labels, defaultLabels) && (
+                            <>
+                              <div className="d-flex flex-row-reverse">
+                                <button
+                                  type="submit"
+                                  className="btn btn-success"
+                                  disabled={isSubmitting}
+                                >
+                                  Save Changes
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </Form>
+                      )}
+                    </Formik>
+                  </div>
+                )}
               </div>
 
               <hr />
