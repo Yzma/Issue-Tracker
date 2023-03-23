@@ -1,43 +1,45 @@
-.main {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-}
-
-.profileContainer {
-  flex: 1;
-  margin-right: 2rem;
-}
-
-.projectSection {
-  flex: 2;
-}
-
-.profileContainer {
+.mainContainer {
   display: flex;
   justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  padding-top: 150px;
 }
 
-.profile {
+.profileContainer {
   flex: 1;
   margin-right: 20px;
 }
 
-.projectSection {
-  flex: 2;
+.rightSection {
+  flex: 3;
 }
 
-.mainContent {
-  padding-top: 80px;
-}
-
-.labelsContainer {
+.tabs {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.activeTab {
+  background-color: #1d3557;
+  color: #ffffff;
+}
+
+.tabButton {
+  background-color: #f1faee;
+  border: none;
+  border-radius: 5px;
+  color: #1d3557;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0 10px;
+  padding: 10px 20px;
+}
+
+.tabButton:hover {
+  background-color: #a8dadc;
+}
+
+.contentSection {
+  display: flex;
+  justify-content: center;
 }

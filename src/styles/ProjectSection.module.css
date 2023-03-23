@@ -6,6 +6,9 @@
   border-radius: 8px;
   padding: 20px;
   margin: 20px;
+  width: 80%;
+  min-width: 80%;
+  flex: 1;
 }
 
 .projectList {
@@ -22,7 +25,7 @@
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 15px;
-  width: 180%;
+  width: 100%;
   text-align: left;
 }
 
@@ -48,19 +51,4 @@
   margin: 10px 0 0;
   font-size: 1rem;
   color: #1d3557;
-}
-
-/*createproject button*/
-.createProjectBtn {
-  background-color: #0070f3;
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 10px 0;
-  cursor: pointer;
-  border-radius: 4px;
 }
