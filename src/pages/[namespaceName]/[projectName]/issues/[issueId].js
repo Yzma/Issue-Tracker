@@ -2,6 +2,8 @@
 import Head from "next/head"
 import { useRouter } from "next/router"
 
+import TimeAgo from 'timeago-react';
+
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
 
@@ -22,6 +24,7 @@ import Header from "@/components/Header"
 
 import MarkdownViewer from "@/components/markdown/MarkdownViewer"
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
+import Link from "next/link";
 
 export default function IssuesView(props) {
   const router = useRouter()
@@ -79,7 +82,9 @@ export default function IssuesView(props) {
             {issue.comments.map((comment, index) => (
               <div key={index} className="card mb-5">
                 <div className="card-header d-flex justify-content-between align-items-center">
-                  {comment.id} commented {comment.createdAt}(26 minutes ago){" "}
+                  <div>
+                    <Link href={`/${comment.user.username}`}>{comment.user.username}</Link> commented {<TimeAgo datetime={comment.createdAt} locale='en'/>}{" "}
+                  </div>
                   <FontAwesomeIcon className="mr-4" icon={faEllipsis} />
                 </div>
                 <div className="card-body">
@@ -198,9 +203,29 @@ export async function getServerSideProps(context) {
       id: issueId
     },
 
-    include: {
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      open: true,
+
+      createdAt: true,
+      updatedAt: true,
+      issueNumber: true,
+
       labels: true,
-      comments: true
+      comments: {
+        select: {
+          createdAt: true,
+          updatedAt: true,
+          description: true,
+          user: {
+            select: {
+              username: true
+            }
+          }
+        }
+      }
     }
   })
 
