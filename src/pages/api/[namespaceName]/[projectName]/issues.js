@@ -6,7 +6,6 @@ import { IssueCreationSchema } from "@/lib/yup-schemas"
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-
     const { namespaceName, projectName } = req.query
     const { name, description, labels } = req.body
 
@@ -44,20 +43,21 @@ export default async function handler(req, res) {
     if (foundNamespace.userId) {
       // TODO: Look to improve readability here
       if (foundNamespace.userId != session.user.id) {
-        return res.status(400).json({ error: "User is not who they say they are" })
+        return res
+          .status(400)
+          .json({ error: "User is not who they say they are" })
       }
-
     } else if (foundNamespace.organizationId) {
-
-      const foundOrganizationMember = await prisma.organizationMember.findUnique({
-        where: {
-          userId_organizationId: {
-            userId: session.user.id,
-            organizationId: foundNamespace.organizationId
+      const foundOrganizationMember =
+        await prisma.organizationMember.findUnique({
+          where: {
+            userId_organizationId: {
+              userId: session.user.id,
+              organizationId: foundNamespace.organizationId
+            }
           }
-        }
-      })
-  
+        })
+
       if (!foundOrganizationMember) {
         return res.status(400).json({ error: "Not in the organization" })
       }
@@ -67,7 +67,6 @@ export default async function handler(req, res) {
       if (foundOrganizationMember.role != "Owner") {
         return res.status(400).json({ error: "User isn't an owner" })
       }
-
     } else {
       // Note: There is a constraint on the database top not allow this to happen so this check will probably be removed in the future
       console.log("ERROR: Namespace does not have a user or and organization")
@@ -88,7 +87,7 @@ export default async function handler(req, res) {
 
     console.log("foundProject: ", foundProject)
 
-    const mapped = labels.map(e => {
+    const mapped = labels.map((e) => {
       return {
         id: e
       }
@@ -104,6 +103,56 @@ export default async function handler(req, res) {
           labels: {
             connect: mapped
           }
+        }
+      })
+      .then((result) => {
+        console.log("API RESULT: ", result)
+        return res.status(200).json({ result: result })
+      })
+      .catch((err) => {
+        // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
+        console.log("error: ", err)
+        return res
+          .status(400)
+          .json({ error: "Error creating entry in database" })
+      })
+  } else if (req.method === "DELETE") {
+    const { name, description, issueId } = req.body
+
+    // TODO:
+    // Validate, check if it's the owner
+
+    return await prisma.issue
+      .delete({
+        where: {
+          id: issueId
+        }
+      })
+      .then((result) => {
+        console.log("API RESULT: ", result)
+        return res.status(200).json({ result: result })
+      })
+      .catch((err) => {
+        // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
+        console.log("error: ", err)
+        return res
+          .status(400)
+          .json({ error: "Error creating entry in database" })
+      })
+  } else if (req.method === "PUT") {
+    const { name, description, issueId } = req.body
+
+    // TODO:
+    // Validate, check if it's the owner
+
+    return await prisma.issue
+      .update({
+        where: {
+          id: issueId
+        },
+        data: {
+          name,
+          description
         }
       })
       .then((result) => {
