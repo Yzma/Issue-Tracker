@@ -5,9 +5,11 @@ import { getServerSession } from "@/lib/sessions"
 import { CommentCreationSchema } from "@/lib/yup-schemas"
 
 export default async function handler(req, res) {
+ 
+  const { namespaceName, projectName } = req.query
+
   if (req.method === "POST") {
 
-    const { namespaceName, projectName } = req.query
     const { description, issueId } = req.body
 
     let schemaResult
@@ -82,6 +84,43 @@ export default async function handler(req, res) {
           .status(400)
           .json({ error: "Error creating entry in database" })
       })
+  } else if(req.method === "PUT") {
+
+    // TODO:
+    // Validate, check if it's the owner
+    const { description, commentId } = req.body
+
+    let schemaResult
+    try {
+      schemaResult = await CommentCreationSchema.validate({
+        description,
+      })
+    } catch (e) {
+      console.log("Invalid arguments for issue creation: ", e)
+      return res.status(400).json({ error: "Invalid arguments" })
+    }
+
+    return await prisma.comment
+      .update({
+        where: {
+          id: commentId
+        },
+        data: {
+          description
+        }
+      })
+      .then((result) => {
+        console.log("API RESULT: ", result)
+        return res.status(200).json({ result: result })
+      })
+      .catch((err) => {
+        // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
+        console.log("error: ", err)
+        return res
+          .status(400)
+          .json({ error: "Error creating entry in database" })
+      })
+
   } else {
     res.json({ error: "Not supported" })
   }

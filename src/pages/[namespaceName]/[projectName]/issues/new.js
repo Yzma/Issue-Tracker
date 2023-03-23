@@ -2,23 +2,19 @@ import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
 import Header from "@/components/Header"
-import Dropdown from 'react-bootstrap/Dropdown';
+import Dropdown from "react-bootstrap/Dropdown"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-  faGear
-} from "@fortawesome/free-solid-svg-icons"
+import { faGear } from "@fortawesome/free-solid-svg-icons"
 
 import axios from "axios"
 
 import "bootstrap/dist/css/bootstrap.min.css"
-
 
 export default function IssuesCreate(props) {
   const router = useRouter()
@@ -29,9 +25,8 @@ export default function IssuesCreate(props) {
 
   // TODO: Schema doesn't validate label ids - figure out a way to check them
   const onLabelClick = (label) => {
-    console.log(label)
-    if(labels.find(e => e.id === label.id)) {
-      const filter = labels.filter(item => item.id !== label.id)
+    if (labels.find((e) => e.id === label.id)) {
+      const filter = labels.filter((item) => item.id !== label.id)
       setLabels(filter)
     } else {
       setLabels([...labels, label])
@@ -70,7 +65,7 @@ export default function IssuesCreate(props) {
                 }}
                 validationSchema={IssueCreationSchema}
                 onSubmit={(values, { setSubmitting, setFieldError }) => {
-                  const labelIds = labels.map(e => e.id)
+                  const labelIds = labels.map((e) => e.id)
                   axios
                     .post(`/api/${namespaceName}/${projectName}/issues`, {
                       name: values.name,
@@ -81,7 +76,9 @@ export default function IssuesCreate(props) {
                       console.log("RESPONSE:", response)
                       // TODO: Ensure proper data is returned on route, this could probably break easily...
                       console.log("id: ", response.data.result.id)
-                      router.push(`/${namespaceName}/${projectName}/issues/${response.data.result.id}`)
+                      router.push(
+                        `/${namespaceName}/${projectName}/issues/${response.data.result.id}`
+                      )
                     })
                     .catch((error) => {
                       console.log("ERROR:", error.response.data)
@@ -92,16 +89,7 @@ export default function IssuesCreate(props) {
                     })
                 }}
               >
-                {({
-                  values,
-                  errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  isSubmitting
-                  /* and other goodies */
-                }) => (
+                {({ errors, isSubmitting, setFieldValue }) => (
                   <Form>
                     {(errors.name || errors.description || errors.private) && (
                       <div className="alert alert-danger" role="alert">
@@ -125,13 +113,20 @@ export default function IssuesCreate(props) {
                         <label htmlFor="description" className="form-label">
                           Description (optional)
                         </label>
-                        <Field
-                          className="form-control"
-                          type="textarea"
-                          as={"textarea"}
-                          name="description"
-                          rows="3"
-                        />
+
+                        <MarkdownEditor
+                          onChange={(text) =>
+                            setFieldValue("description", text)
+                          }
+                        >
+                          <button
+                            type="submit"
+                            className="btn btn-success"
+                            disabled={isSubmitting}
+                          >
+                            Create Issue
+                          </button>
+                        </MarkdownEditor>
                       </div>
                     </div>
 
@@ -144,14 +139,6 @@ export default function IssuesCreate(props) {
                     )}
 
                     <hr />
-
-                    <button
-                      type="submit"
-                      className="btn btn-success"
-                      disabled={isSubmitting}
-                    >
-                      Create Issue
-                    </button>
                   </Form>
                 )}
               </Formik>
@@ -192,13 +179,11 @@ export default function IssuesCreate(props) {
                     ))}
                   </Dropdown.Menu>
                 </Dropdown>
-                {/* <FontAwesomeIcon
-                  className="mr-4 align-self-center align-middle"
-                  icon={faGear}
-                /> */}
               </div>
               {labels.map((label, index) => (
-                <span key={index} className="badge bg-primary">{label.name}</span>
+                <span key={index} className="badge bg-primary">
+                  {label.name}
+                </span>
               ))}
             </div>
 
@@ -221,11 +206,11 @@ export async function getServerSideProps(context) {
         }
       }
     }
-  });
+  })
 
   return {
     props: {
       labels: labels
-    },
-  };
+    }
+  }
 }
