@@ -117,7 +117,7 @@ export default async function handler(req, res) {
           .json({ error: "Error creating entry in database" })
       })
   } else if (req.method === "DELETE") {
-    const { name, description, issueId } = req.body
+    const { issueId } = req.body
 
     // TODO:
     // Validate, check if it's the owner
@@ -140,10 +140,12 @@ export default async function handler(req, res) {
           .json({ error: "Error creating entry in database" })
       })
   } else if (req.method === "PUT") {
-    const { name, description, issueId } = req.body
+    const { name, description, open, labels, issueId } = req.body
 
     // TODO:
     // Validate, check if it's the owner
+
+    console.log(req.body)
 
     return await prisma.issue
       .update({
@@ -152,7 +154,11 @@ export default async function handler(req, res) {
         },
         data: {
           name,
-          description
+          description,
+          open,
+          labels: {
+            set: labels
+          }
         }
       })
       .then((result) => {

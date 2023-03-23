@@ -6,9 +6,9 @@ import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
 import SSRProvider from "react-bootstrap/SSRProvider"
 
-import TimeAgo from 'react-timeago'
-import englishStrings from 'react-timeago/lib/language-strings/en'
-import buildFormatter from 'react-timeago/lib/formatters/buildFormatter'
+import TimeAgo from "react-timeago"
+import englishStrings from "react-timeago/lib/language-strings/en"
+import buildFormatter from "react-timeago/lib/formatters/buildFormatter"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
@@ -93,7 +93,27 @@ export default function IssuesView(props) {
     </FontAwesomeIcon>
   ))
 
-  const [labels, setLabels] = useState([])
+  const arraysEqual = (a, b) => {
+    if (a === b) return true
+    if (a == null || b == null) return false
+    if (a.length !== b.length) return false
+
+    for (let i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) return false
+    }
+    return true
+  }
+
+  const [defaultLabels, setDefaultLabels] = useState(issue.labels)
+
+  const [labels, setLabels] = useState(issue.labels)
+  const [labelsChanged, setLabelsChanged] = useState(true)
+
+  // if(arraysEqual(labels, defaultLabels)) {
+  //   setLabelsChanged(true)
+  // } else {
+  //   setLabelsChanged(false)
+  // }
   console.log(namespaceName, projectName)
 
   // TODO: Schema doesn't validate label ids - figure out a way to check them
@@ -118,11 +138,39 @@ export default function IssuesView(props) {
     handleClose()
   }
 
-  const closeIssue = () => {}
+  const closeIssue = async () => {
+    axios
+      .put(`/api/${namespaceName}/${projectName}/issues`, {
+        issueId: issueId,
+        open: false
+      })
+      .then((response) => {
+        console.log("RESPONSE:", response)
+      })
+      .catch((error) => {
+        console.log("ERROR:", error)
+      })
+  }
 
   const pinIssue = () => {}
 
-  const deleteIssue = () => {}
+  const deleteIssue = async () => {
+    const data = {
+      issueId: issue.id
+    }
+    console.log("deleting data ", data)
+
+    axios
+      .delete(`/api/${namespaceName}/${projectName}/issues`, {
+        data: data
+      })
+      .then((response) => {
+        console.log("RESPONSE:", response)
+      })
+      .catch((error) => {
+        console.log("ERROR:", error)
+      })
+  }
 
   return (
     <>
@@ -145,6 +193,36 @@ export default function IssuesView(props) {
             </Button>
             <Button variant="danger" onClick={deleteComment}>
               Delete
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={showCloseIssue} onHide={() => setCloseIssue(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Are you sure you want to close this issue?</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setCloseIssue(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={closeIssue}>
+              Close Issue
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={showDeleteIssue} onHide={() => setDeleteIssue(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Are you sure you want to delete this issue?</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setDeleteIssue(false)}>
+              Close
+            </Button>
+            <Button variant="danger" onClick={deleteIssue}>
+              Delete Issue
             </Button>
           </Modal.Footer>
         </Modal>
@@ -219,7 +297,7 @@ export default function IssuesView(props) {
 
             {!showEditTitle && <h2>{issue.name}</h2>}
 
-            {!showEditTitle && (
+            {!showEditTitle && session && session.user.id === issue.user.id && (
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -238,7 +316,7 @@ export default function IssuesView(props) {
             )}
             {!issue.open && (
               <>
-                <span className="badge bg-danger">Open</span>Closed{" "}
+                <span className="badge bg-danger">Closed</span>Closed{" "}
               </>
             )}
             {new Date(issue.createdAt).toLocaleString("default", {
@@ -257,15 +335,17 @@ export default function IssuesView(props) {
             <div className="col-md-8">
               <article>
                 <div className="d-flex justify-content-end align-self-center">
-                  {!showEditDescription && (
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => setShowDescription(true)}
-                    >
-                      Edit
-                    </button>
-                  )}
+                  {!showEditDescription &&
+                    session &&
+                    session.user.id === issue.user.id && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setShowDescription(true)}
+                      >
+                        Edit
+                      </button>
+                    )}
                 </div>
 
                 {showEditDescription ? (
@@ -531,34 +611,116 @@ export default function IssuesView(props) {
               <div>
                 <div className="d-flex justify-content-between align-self-center">
                   <span className="text-secondary h5">Labels </span>
-                  <Dropdown>
-                    <Dropdown.Toggle
-                      as={CustomToggle2}
-                      id="dropdown-custom-components"
-                    >
-                      Custom toggle
-                    </Dropdown.Toggle>
+                  {issue.labels.length === 0 ? (
+                    <div></div>
+                  ) : (
+                    <Dropdown>
+                      <Dropdown.Toggle
+                        as={CustomToggle2}
+                        id="dropdown-custom-components"
+                      >
+                        Custom toggle
+                      </Dropdown.Toggle>
 
-                    <Dropdown.Menu>
-                      {issue.labels.map((label, index) => (
-                        <Dropdown.Item
-                          key={index}
-                          lable-id={label.id}
-                          onClick={() => onLabelClick(label)}
-                        >
-                          {label.name}
-                        </Dropdown.Item>
-                      ))}
-                    </Dropdown.Menu>
-                  </Dropdown>
+                      <Dropdown.Menu>
+                        {issue.labels.map((label, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            lable-id={label.id}
+                            onClick={() => onLabelClick(label)}
+                          >
+                            {label.name}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  )}
                 </div>
+                {issue.labels.length === 0 ? (
+                  <div>This project has no labels yet</div>
+                ) : (
+                  <div>
+                    <Formik
+                      initialValues={{
+                        labels: labels
+                      }}
+                      // validationSchema={IssueCreationSchema}
+                      onSubmit={(values, { setSubmitting, setFieldError }) => {
+         
+                        console.log(labels)
+                        const map = labels.map(e => {
+                          return {id: e.id}
+                        })
+
+                        console.log("map: ", map)
+                        axios
+                          .put(
+                            `/api/${namespaceName}/${projectName}/issues`,
+                            {
+                              issueId: issueId,
+                              labels: map
+                            }
+                          )
+                          .then((response) => {
+                            console.log("RESPONSE:", response)
+                            // TODO: Render to the screen - don't refresh the page
+                          })
+                          .catch((error) => {
+                            console.log("ERROR:", error.response.data)
+                            console.log("ERROR:", error)
+                          })
+                          .finally(() => {
+                            setSubmitting(false)
+                          })
+                      }}
+                    >
+                      {({
+                        errors,
+                        isSubmitting,
+                        values,
+                        setFieldValue,
+                        setValues
+                      }) => (
+                        <Form>
+                          {labels.map((label, index) => (
+                            <span
+                              className="badge"
+                              style={{
+                                color: "white",
+                                background: `#${label.color}`
+                              }}
+                              
+                              key={index}
+                            >
+                              {label.name}
+                            </span>
+                          ))}
+
+                          {!arraysEqual(labels, defaultLabels) && (
+                            <>
+                              <div className="d-flex flex-row-reverse">
+                                <button
+                                  type="submit"
+                                  className="btn btn-success"
+                                  disabled={isSubmitting}
+                                >
+                                  Save Changes
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </Form>
+                      )}
+                    </Formik>
+                  </div>
+                )}
               </div>
 
               <hr />
 
               <div>
                 <FontAwesomeIcon className="mr-4" icon={faLock} />
-                <a href="#" onClick={closeIssue}>
+                <a href="#" onClick={() => setCloseIssue(true)}>
                   Close Issue
                 </a>
               </div>
@@ -572,7 +734,7 @@ export default function IssuesView(props) {
 
               <div>
                 <FontAwesomeIcon className="mr-4" icon={faTrash} />
-                <a href="#" onClick={deleteIssue}>
+                <a href="#" onClick={() => setDeleteIssue(true)}>
                   Delete Issue
                 </a>
               </div>
@@ -605,6 +767,7 @@ export async function getServerSideProps(context) {
 
       user: {
         select: {
+          id: true,
           username: true
         }
       },
@@ -632,7 +795,7 @@ export async function getServerSideProps(context) {
   if (!issuesData) {
     return {
       redirect: {
-        destination: "/",
+        destination: "/404",
         permanent: false
       }
     }
