@@ -8,6 +8,7 @@ import SearchBar from "@/components/IssueSearchBar";
 import { useState } from "react";
 import prisma from "@/lib/prisma/prisma";
 import { useRouter } from "next/router"
+import Link from "next/link";
 
 export default function Issues({ issuesData }) {
   console.log(issuesData)
@@ -32,6 +33,9 @@ export default function Issues({ issuesData }) {
       </Head>
       <main className={styles.mainContainer}>
         <Header />
+
+        {/* TODO: Fix styling */}
+        <h3><Link href={`/${namespaceName}`}>{namespaceName}(href)</Link></h3>
         <div className={styles.topContainer}>
         <IssueButtons onSearch={handleSearch} path={`/${namespaceName}/${projectName}`}/> 
         </div>
