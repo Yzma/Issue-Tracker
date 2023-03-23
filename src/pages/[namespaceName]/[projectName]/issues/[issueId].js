@@ -118,7 +118,42 @@ export default function IssuesView(props) {
     handleClose()
   }
 
-  const closeIssue = () => {}
+  const closeIssue = async () => {
+
+    axios
+    .put(`/api/${namespaceName}/${projectName}/issues`, {
+      issueId: issueId,
+      open: false
+    })
+    .then((response) => {
+      console.log("RESPONSE:", response)
+
+    })
+    .catch((error) => {
+      console.log("ERROR:", error)
+    })
+    // .finally(() => {
+    //   setSubmitting(false)
+    // })
+
+    // const data = {
+    //   issueId: issue.id,
+    //   open: false
+    // }
+    // console.log("closing issue data ", data)
+
+    // axios
+    //   .put(`/api/${namespaceName}/${projectName}/issues`, {
+    //     data: data
+    //   })
+    //   .then((response) => {
+    //     console.log("RESPONSE:", response)
+
+    //   })
+    //   .catch((error) => {
+    //     console.log("ERROR:", error)
+    //   })
+  }
 
   const pinIssue = () => {}
 
@@ -287,7 +322,7 @@ export default function IssuesView(props) {
             )}
             {!issue.open && (
               <>
-                <span className="badge bg-danger">Open</span>Closed{" "}
+                <span className="badge bg-danger">Closed</span>Closed{" "}
               </>
             )}
             {new Date(issue.createdAt).toLocaleString("default", {
