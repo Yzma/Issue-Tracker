@@ -41,29 +41,27 @@ export default function UserProfile({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getServerSession(context.req, context.res);
-  // if (!session) {
-  //   return {
-  //     redirect: {
-  //       destination: "/api/auth/signin",
-  //       permanent: false,
-  //     },
-  //   };
-  // }
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
 
-  const userWithId = await prisma.user.findFirst({
-    where: {
-      id: "clfha6abq0000s3p23jcwzn11"
-      // id: session.user.id,
-    },
-    select: {
-      id: true,
-    },
-  });
+  // const userWithId = await prisma.user.findFirst({
+  //   where: {
+  //     id: session.user.id,
+  //   },
+  //   select: {
+  //     id: true,
+  //   },
+  // });
 
   const user = await prisma.user.findUnique({
     where: {
-      id: "clfha6abq0000s3p23jcwzn11",
-      // id: session.user.id,
+      id: session.user.id,
     },
     include: {
       namespace: {
