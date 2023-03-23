@@ -40,6 +40,7 @@ model User {
   comments      Comment[]
   organizations Organization[]
 
+  members                        Member[]
   organizationMembers            OrganizationMember[]
   organizationInvitations        OrganizationInvitation[] @relation("invited")
   pendingOrganizationInvitations OrganizationInvitation[] @relation("invites")
@@ -74,6 +75,7 @@ model Namespace {
   organizationId String?       @unique
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  members  Member[]
   projects Project[]
 }
 
@@ -113,6 +115,25 @@ model OrganizationMember {
   @@unique([userId, organizationId])
 }
 
+// TODO: This is likely going to be a major change.
+// Essentially we want to merge the OrganizationMember table and transform it into a generic Member table (like below)
+// This allows us to have Members for both an Organization and a Project
+// This will be a slow merged as we need to go throughout the code and change things.
+model Member {
+  id String @id @default(cuid())
+
+  role      OrganizationRole
+  createdAt DateTime         @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  namespaceId String
+  namespace   Namespace @relation(fields: [namespaceId], references: [id])
+
+  @@unique([userId, namespaceId])
+}
+
 model Project {
   id          String  @id @default(cuid())
   name        String  @default(cuid())
@@ -140,8 +161,8 @@ model Issue {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  pinned Boolean @default(false)
-  issueNumber Int @default(autoincrement())
+  pinned      Boolean @default(false)
+  issueNumber Int     @default(autoincrement())
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
