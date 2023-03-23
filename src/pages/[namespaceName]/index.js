@@ -5,16 +5,17 @@ import layoutStyles from "@/styles/usersLayout.module.css";
 import Header from "@/components/Header";
 import ProfileContainer from '@/components/ProfileContainer';
 import ProjectSection from '@/components/ProjectSection';
+import Footer from "@/components/Footer";
+import prisma from "@/lib/prisma/prisma";
+import { useSession } from "next-auth/react";
+import { getServerSession } from "@/lib/sessions"
 
+export default function UserProfile({ user }) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
-export default function UserProfile() {
-  //fake data for now
-  const username = "Julian Paredes";
-  const bio = "Full stack developer student at Lighthouse Labs";
-  const projects = [
-    { id: 1, name: "Tweeter-App", description: "Twitter clone app", updated_at: "March 17 2023" },
-    { id: 2, name: "Scheduler-App", description: "Scheduler Appointment App", updated_at: "March 17 2023" },
-  ];
+  const username = user.name;
+  const projects = user.namespace.projects;
 
   return (
     <>
@@ -27,14 +28,57 @@ export default function UserProfile() {
       <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
         <Header />
         <div className={layoutStyles.profileContainer}>
-          <ProfileContainer username={username} bio={bio} />
+          <ProfileContainer username={username} bio={"random"} />
         </div>
         <div className={layoutStyles.projectSection}>
-        <ProjectSection projects={projects} />
+          <ProjectSection projects={projects} />
         </div>
+        <Footer />
       </main>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  const session = await getServerSession(context.req, context.res);
+  // if (!session) {
+  //   return {
+  //     redirect: {
+  //       destination: "/api/auth/signin",
+  //       permanent: false,
+  //     },
+  //   };
+  // }
+
+  const userWithId = await prisma.user.findFirst({
+    where: {
+      id: "clfha6abq0000s3p23jcwzn11"
+      // id: session.user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: "clfha6abq0000s3p23jcwzn11",
+      // id: session.user.id,
+    },
+    include: {
+      namespace: {
+        include: {
+          projects: true,
+        },
+      },
+    },
+  });
+
+  return {
+    props: {
+      user: JSON.parse(JSON.stringify(user)),
+    },
+  };
 }
 
 // TODO: Determine if it's a user or org and render accordantly

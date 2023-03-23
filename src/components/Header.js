@@ -11,7 +11,6 @@ const Header = () => {
 
   console.log(session)
 
-  if (!session) return
   return (
     <header className={styles.header}>
       <div className={styles.logoContainer}>
