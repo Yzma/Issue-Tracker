@@ -37,13 +37,13 @@ export default function IssuesView(props) {
 
   // TODO: Sort this client side?
   issue.comments.sort((a, b) => {
-    return new Date(b.date) - new Date(a.date);
+    return new Date(b.createdAt) - new Date(a.createdAt);
   })
   console.log(issue)
 
   const [showEditTitle, setShowEditTitle] = useState(false)
   const [showEditDescription, setShowDescription] = useState(false)
-  const [showEditComment, setEditComment] = useState(false)
+  const [showEditComment, setEditComment] = useState(null)
 
   const [showEditLabels, setEditLabels] = useState(false)
   const [showCloseIssue, setCloseIssue] = useState(false)
@@ -332,7 +332,7 @@ export default function IssuesView(props) {
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => setEditComment(true)}>
+                      <Dropdown.Item onClick={() => setEditComment({id: comment.id})}>
                         Edit
                       </Dropdown.Item>
                       <Dropdown.Item onClick={() => handleShow(comment)}>
@@ -345,10 +345,10 @@ export default function IssuesView(props) {
 
 
 
-                {showEditComment ? (
+                {showEditComment && showEditComment.id === comment.id ? (
                 <Formik
                   initialValues={{
-                    description: issue.description
+                    description: comment.description
                   }}
                   // validationSchema={IssueCreationSchema}
                   onSubmit={(values, { setSubmitting, setFieldError }) => {
@@ -386,7 +386,7 @@ export default function IssuesView(props) {
                         <button
                           type="submit"
                           className="btn btn-danger"
-                          onClick={() => setEditComment(false)}
+                          onClick={() => setEditComment(null)}
                         >
                           Cancel
                         </button>
@@ -593,8 +593,8 @@ export async function getServerSideProps(context) {
   const mappedComments = issuesData.comments.map((e) => {
     return {
       ...e,
-      createdAt: issuesData.createdAt.toISOString(),
-      updatedAt: issuesData.updatedAt.toISOString()
+      createdAt: e.createdAt.toISOString(),
+      updatedAt: e.updatedAt.toISOString()
     }
   })
 
