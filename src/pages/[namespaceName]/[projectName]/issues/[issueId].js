@@ -219,7 +219,7 @@ export default function IssuesView(props) {
 
             {!showEditTitle && <h2>{issue.name}</h2>}
 
-            {!showEditTitle && (
+            {(!showEditTitle && session && session.user.id === issue.user.id) && (
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -257,7 +257,7 @@ export default function IssuesView(props) {
             <div className="col-md-8">
               <article>
                 <div className="d-flex justify-content-end align-self-center">
-                  {!showEditDescription && (
+                  {(!showEditDescription && session && session.user.id === issue.user.id) && (
                     <button
                       type="button"
                       className="btn btn-secondary"
@@ -605,6 +605,7 @@ export async function getServerSideProps(context) {
 
       user: {
         select: {
+          id: true,
           username: true
         }
       },
