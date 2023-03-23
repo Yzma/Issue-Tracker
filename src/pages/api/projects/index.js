@@ -87,7 +87,22 @@ export default async function handler(req, res) {
           name,
           description,
           private: schemaResult.private,
-          namespaceId: namespaceOwner.id
+          namespaceId: namespaceOwner.id,
+          labels: {
+            create: [
+              { name: "Bug", description: "Bug description", color: "392029" },
+              {
+                name: "Documentation",
+                description: "Documentation description",
+                color: "122b40"
+              },
+              {
+                name: "Duplicate",
+                description: "Duplicate description",
+                color: "373c43"
+              }
+            ]
+          }
         }
       })
       .then((result) => {
