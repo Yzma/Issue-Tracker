@@ -20,7 +20,7 @@ const Header = () => {
       <nav className={styles.nav}>
         <ul>
           <li>
-            <Link href="/issues">Issues</Link>
+            <Link href="/globalissue">Issues</Link>
           </li>
           <li>
             <Link href="/orgs">Organizations</Link>

@@ -49,3 +49,18 @@
   font-size: 1rem;
   color: #1d3557;
 }
+
+/*createproject button*/
+.createProjectBtn {
+  background-color: #0070f3;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 0;
+  cursor: pointer;
+  border-radius: 4px;
+}
