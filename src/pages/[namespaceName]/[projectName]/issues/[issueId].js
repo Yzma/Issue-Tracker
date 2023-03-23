@@ -107,13 +107,7 @@ export default function IssuesView(props) {
   const [defaultLabels, setDefaultLabels] = useState(issue.labels)
 
   const [labels, setLabels] = useState(issue.labels)
-  const [labelsChanged, setLabelsChanged] = useState(true)
 
-  // if(arraysEqual(labels, defaultLabels)) {
-  //   setLabelsChanged(true)
-  // } else {
-  //   setLabelsChanged(false)
-  // }
   console.log(namespaceName, projectName)
 
   // TODO: Schema doesn't validate label ids - figure out a way to check them
@@ -152,7 +146,20 @@ export default function IssuesView(props) {
       })
   }
 
-  const pinIssue = () => {}
+  const pinIssue = () => {
+    const inverse = !issue.pinned
+    axios
+      .put(`/api/${namespaceName}/${projectName}/issues`, {
+        issueId: issueId,
+        pinned: inverse
+      })
+      .then((response) => {
+        console.log("RESPONSE:", response)
+      })
+      .catch((error) => {
+        console.log("ERROR:", error)
+      })
+  }
 
   const deleteIssue = async () => {
     const data = {
@@ -223,6 +230,24 @@ export default function IssuesView(props) {
             </Button>
             <Button variant="danger" onClick={deleteIssue}>
               Delete Issue
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={showPinIssue} onHide={() => setPinIssue(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to {issue.pinned ? "unpin" : "pin"} this
+            issue?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setPinIssue(false)}>
+              Close
+            </Button>
+            <Button variant="success" onClick={pinIssue}>
+              {issue.pinned ? "Unpin" : "Pin"} Issue
             </Button>
           </Modal.Footer>
         </Modal>
@@ -309,6 +334,11 @@ export default function IssuesView(props) {
           </div>
 
           <p>
+            {issue.pinned && (
+              <>
+                <span className="badge bg-success">Pinned</span>{" "}
+              </>
+            )}
             {issue.open && (
               <>
                 <span className="badge bg-success">Open</span>Opened{" "}
@@ -646,21 +676,17 @@ export default function IssuesView(props) {
                       }}
                       // validationSchema={IssueCreationSchema}
                       onSubmit={(values, { setSubmitting, setFieldError }) => {
-         
                         console.log(labels)
-                        const map = labels.map(e => {
-                          return {id: e.id}
+                        const map = labels.map((e) => {
+                          return { id: e.id }
                         })
 
                         console.log("map: ", map)
                         axios
-                          .put(
-                            `/api/${namespaceName}/${projectName}/issues`,
-                            {
-                              issueId: issueId,
-                              labels: map
-                            }
-                          )
+                          .put(`/api/${namespaceName}/${projectName}/issues`, {
+                            issueId: issueId,
+                            labels: map
+                          })
                           .then((response) => {
                             console.log("RESPONSE:", response)
                             // TODO: Render to the screen - don't refresh the page
@@ -689,7 +715,6 @@ export default function IssuesView(props) {
                                 color: "white",
                                 background: `#${label.color}`
                               }}
-                              
                               key={index}
                             >
                               {label.name}
@@ -727,8 +752,8 @@ export default function IssuesView(props) {
 
               <div>
                 <FontAwesomeIcon className="mr-4" icon={faThumbTack} />
-                <a href="#" onClick={pinIssue}>
-                  Pin Issue
+                <a href="#" onClick={() => setPinIssue(true)}>
+                  {issue.pinned ? "Unpin" : "Pin"} Issue
                 </a>
               </div>
 
@@ -765,6 +790,7 @@ export async function getServerSideProps(context) {
       updatedAt: true,
       issueNumber: true,
 
+      pinned: true,
       user: {
         select: {
           id: true,

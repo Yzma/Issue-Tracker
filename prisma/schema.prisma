@@ -140,6 +140,7 @@ model Issue {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  pinned Boolean @default(false)
   issueNumber Int @default(autoincrement())
 
   userId String
