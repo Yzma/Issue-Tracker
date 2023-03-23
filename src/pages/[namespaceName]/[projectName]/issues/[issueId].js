@@ -1,8 +1,6 @@
+
 import Head from "next/head"
 import { useRouter } from "next/router"
-
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
@@ -22,8 +20,10 @@ import axios from "axios"
 import "bootstrap/dist/css/bootstrap.min.css"
 import Header from "@/components/Header"
 
-export default function IssuesView(props) {
+import MarkdownViewer from "@/components/markdown/MarkdownViewer"
+import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 
+export default function IssuesView(props) {
   const router = useRouter()
   const { namespaceName, projectName, issueId } = router.query
 
@@ -71,22 +71,11 @@ export default function IssuesView(props) {
         <div className="row g-5">
           <div className="col-md-8">
             <article>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {issue.description}
-              </ReactMarkdown>
+              <MarkdownViewer text={issue.description} />
             </article>
 
             <hr />
 
-            {/* comments: [
-    {
-      id: 'clfiwk5j9000fqqi8u4pi428b',
-      description: '# Comment',
-      createdAt: '2023-03-21T23:26:45.985Z',
-      updatedAt: '2023-03-21T23:26:45.985Z',
-      userId: 'clfiwhw4q0000qqi8h4bfk9nx',
-      issueId: 'clfivxk2p001sqq8cznh3p7ur'
-    } */}
             {issue.comments.map((comment, index) => (
               <div key={index} className="card mb-5">
                 <div className="card-header d-flex justify-content-between align-items-center">
@@ -94,11 +83,7 @@ export default function IssuesView(props) {
                   <FontAwesomeIcon className="mr-4" icon={faEllipsis} />
                 </div>
                 <div className="card-body">
-                  
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {comment.description}
-                    </ReactMarkdown>
-                
+                  <MarkdownViewer text={comment.description} />
                 </div>
               </div>
             ))}
@@ -127,7 +112,7 @@ export default function IssuesView(props) {
                   })
               }}
             >
-              {({ errors, isSubmitting }) => (
+              {({ errors, isSubmitting, values, setFieldValue, setValues }) => (
                 <Form>
                   {(errors.name || errors.description || errors.private) && (
                     <div className="alert alert-danger" role="alert">
@@ -139,27 +124,17 @@ export default function IssuesView(props) {
                     </div>
                   )}
 
-                  <div className="card mb-5">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                      Write a comment
-                    </div>
-                    <div className="card-body">
-                      <Field
-                        className="form-control"
-                        type="textarea"
-                        as={"textarea"}
-                        name="description"
-                        rows="3"
-                      />
-                      <button
-                        type="submit"
-                        className="btn btn-success"
-                        disabled={isSubmitting}
-                      >
-                        Create Issue
-                      </button>
-                    </div>
-                  </div>
+                  <MarkdownEditor
+                    onChange={(text) => setFieldValue("description", text)}
+                  >
+                    <button
+                      type="submit"
+                      className="btn btn-success"
+                      disabled={isSubmitting}
+                    >
+                      Create Issue
+                    </button>
+                  </MarkdownEditor>
                 </Form>
               )}
             </Formik>
@@ -240,13 +215,13 @@ export async function getServerSideProps(context) {
     }
   }
 
-  const mappedComments = issuesData.comments.map(e => {
+  const mappedComments = issuesData.comments.map((e) => {
     return {
       ...e,
       createdAt: issuesData.createdAt.toISOString(),
       updatedAt: issuesData.updatedAt.toISOString()
     }
-  }) 
+  })
 
   return {
     props: {

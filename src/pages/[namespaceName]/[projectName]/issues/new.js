@@ -2,69 +2,31 @@ import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-
-import MarkdownIt from 'markdown-it';
-
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
+import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
 import Header from "@/components/Header"
-import Dropdown from 'react-bootstrap/Dropdown';
+import Dropdown from "react-bootstrap/Dropdown"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-  faGear
-} from "@fortawesome/free-solid-svg-icons"
+import { faGear } from "@fortawesome/free-solid-svg-icons"
 
 import axios from "axios"
 
-import dynamic from 'next/dynamic';
 import "bootstrap/dist/css/bootstrap.min.css"
-import 'react-markdown-editor-lite/lib/index.css';
-
-const MdEditor = dynamic(() => import('react-markdown-editor-lite'), {
-  ssr: true,
-});
-
-const mdParser = new MarkdownIt({ 
-
-});
-
-const canView = {
-  menu: true, 
-  md: true, 
-  html: false, 
-  fullScreen: true, 
-  hideMenu: true 
-}
-// view: {
-//   menu: true,
-//   md: false,
-//   html: false
-// }
 
 export default function IssuesCreate(props) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
   const [labels, setLabels] = useState([])
-  const [text, setText] = useState("")
   console.log(namespaceName, projectName)
-
-  const onMarkdownChange = (html, text, event, desc) => {
-    setText(text)
-    desc = text
-  }
 
   // TODO: Schema doesn't validate label ids - figure out a way to check them
   const onLabelClick = (label) => {
-    console.log(label)
-    if(labels.find(e => e.id === label.id)) {
-      const filter = labels.filter(item => item.id !== label.id)
+    if (labels.find((e) => e.id === label.id)) {
+      const filter = labels.filter((item) => item.id !== label.id)
       setLabels(filter)
     } else {
       setLabels([...labels, label])
@@ -127,17 +89,7 @@ export default function IssuesCreate(props) {
                     })
                 }}
               >
-                {({
-                  values,
-                  errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  isSubmitting,
-                  setFieldValue
-                  /* and other goodies */
-                }) => (
+                {({ errors, isSubmitting, setFieldValue }) => (
                   <Form>
                     {(errors.name || errors.description || errors.private) && (
                       <div className="alert alert-danger" role="alert">
@@ -162,46 +114,19 @@ export default function IssuesCreate(props) {
                           Description (optional)
                         </label>
 
-                        <div class="card">
-                          <div class="card-header">
-                            <Tabs
-                              defaultActiveKey="write"
-                              id="uncontrolled-tab-example"
-                              className="mb-3"
-                            >
-                              <Tab eventKey="write" title="Write">
-                                <div class="card-body">
-                                  <MdEditor 
-                                    style={{ height: '500px' }} 
-                                    renderHTML={text => mdParser.render(text)} 
-                                    onChange={({html, text}, event) =>  {
-                                      onMarkdownChange(html, text, event, values.description)
-                                      setFieldValue("description", text)
-                                    }}
-                                    view={{ menu: true, md: true, html: false }}/>
-                                </div>
-                              </Tab>
-
-                              <Tab eventKey="preview" title="Preview">
-                                <div class="card-body">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                  {text}
-                                </ReactMarkdown>
-                                </div>
-                              </Tab>
-
-                            </Tabs>
-                          </div>
-                        </div>
-
-                        {/* <Field
-                          className="form-control"
-                          type="textarea"
-                          as={"textarea"}
-                          name="description"
-                          rows="3"
-                          value={text}
-                        /> */}
+                        <MarkdownEditor
+                          onChange={(text) =>
+                            setFieldValue("description", text)
+                          }
+                        >
+                          <button
+                            type="submit"
+                            className="btn btn-success"
+                            disabled={isSubmitting}
+                          >
+                            Create Issue
+                          </button>
+                        </MarkdownEditor>
                       </div>
                     </div>
 
@@ -214,14 +139,6 @@ export default function IssuesCreate(props) {
                     )}
 
                     <hr />
-
-                    <button
-                      type="submit"
-                      className="btn btn-success"
-                      disabled={isSubmitting}
-                    >
-                      Create Issue
-                    </button>
                   </Form>
                 )}
               </Formik>
@@ -262,10 +179,6 @@ export default function IssuesCreate(props) {
                     ))}
                   </Dropdown.Menu>
                 </Dropdown>
-                {/* <FontAwesomeIcon
-                  className="mr-4 align-self-center align-middle"
-                  icon={faGear}
-                /> */}
               </div>
               {labels.map((label, index) => (
                 <span key={index} className="badge bg-primary">
@@ -293,11 +206,11 @@ export async function getServerSideProps(context) {
         }
       }
     }
-  });
+  })
 
   return {
     props: {
       labels: labels
-    },
-  };
+    }
+  }
 }
