@@ -32,7 +32,10 @@ import MarkdownViewer from "@/components/markdown/MarkdownViewer"
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 import Link from "next/link"
 
+import { useSession } from "next-auth/react"
+
 export default function IssuesView(props) {
+  const { data: session } = useSession()
   const router = useRouter()
   const { namespaceName, projectName, issueId } = router.query
 
@@ -335,29 +338,41 @@ export default function IssuesView(props) {
                         {comment.user.username}
                       </Link>{" "}
                       commented{" "}
-                      {<TimeAgo date={comment.createdAt} live={false} now={() => props.now} formatter={formatter} />}
-                      {/* {<TimeAgo datetime={comment.createdAt} live={false} locale="en" />}{" "} */}
+                      {
+                        <TimeAgo
+                          date={comment.createdAt}
+                          live={false}
+                          now={() => props.now}
+                          formatter={formatter}
+                        />
+                      }
                     </div>
 
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                      >
-                        Custom toggle
-                      </Dropdown.Toggle>
-
-                      <Dropdown.Menu>
-                        <Dropdown.Item
-                          onClick={() => setEditComment({ id: comment.id })}
+                    {session &&
+                    session.user &&
+                    session.user.id === comment.user.id ? (
+                      <Dropdown>
+                        <Dropdown.Toggle
+                          as={CustomToggle}
+                          id="dropdown-custom-components"
                         >
-                          Edit
-                        </Dropdown.Item>
-                        <Dropdown.Item onClick={() => handleShow(comment)}>
-                          Delete
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
+                          Custom toggle
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                          <Dropdown.Item
+                            onClick={() => setEditComment({ id: comment.id })}
+                          >
+                            Edit
+                          </Dropdown.Item>
+                          <Dropdown.Item onClick={() => handleShow(comment)}>
+                            Delete
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    ) : (
+                      <div></div>
+                    )}
                   </div>
                   <div className="card-body">
                     {showEditComment && showEditComment.id === comment.id ? (
@@ -603,6 +618,7 @@ export async function getServerSideProps(context) {
           description: true,
           user: {
             select: {
+              id: true,
               username: true
             }
           }
