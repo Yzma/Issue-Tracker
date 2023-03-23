@@ -1,8 +1,11 @@
-
+import React, { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
+import Dropdown from "react-bootstrap/Dropdown"
+import Button from "react-bootstrap/Button"
+import Modal from "react-bootstrap/Modal"
 
-import TimeAgo from 'timeago-react';
+import TimeAgo from "timeago-react"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
@@ -24,14 +27,95 @@ import Header from "@/components/Header"
 
 import MarkdownViewer from "@/components/markdown/MarkdownViewer"
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
-import Link from "next/link";
+import Link from "next/link"
 
 export default function IssuesView(props) {
   const router = useRouter()
   const { namespaceName, projectName, issueId } = router.query
 
   const issue = props.issuesData
+
+  // TODO: Sort this client side?
+  issue.comments.sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  })
   console.log(issue)
+
+  const [showEditTitle, setShowEditTitle] = useState(false)
+  const [showEditDescription, setShowDescription] = useState(false)
+  const [showEditComment, setEditComment] = useState(false)
+
+  const [showEditLabels, setEditLabels] = useState(false)
+  const [showCloseIssue, setCloseIssue] = useState(false)
+  const [showPinIssue, setPinIssue] = useState(false)
+  const [showDeleteIssue, setDeleteIssue] = useState(false)
+
+  const [show, setShow] = useState(false)
+
+  const handleClose = () => setShow(false)
+  const handleShow = () => setShow(true)
+
+  const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
+    <FontAwesomeIcon
+      className="mr-4"
+      icon={faEllipsis}
+      ref={ref}
+      onClick={(e) => {
+        e.preventDefault()
+        onClick(e)
+      }}
+    >
+      {children}
+      &#x25bc;
+    </FontAwesomeIcon>
+  ))
+
+  const CustomToggle2 = React.forwardRef(({ children, onClick }, ref) => (
+    <FontAwesomeIcon
+      className="mr-4"
+      icon={faGear}
+      ref={ref}
+      onClick={(e) => {
+        e.preventDefault()
+        onClick(e)
+      }}
+    >
+      {children}
+      &#x25bc;
+    </FontAwesomeIcon>
+  ))
+
+  const [labels, setLabels] = useState([])
+  console.log(namespaceName, projectName)
+
+  // TODO: Schema doesn't validate label ids - figure out a way to check them
+  const onLabelClick = (label) => {
+    if (labels.find((e) => e.id === label.id)) {
+      const filter = labels.filter((item) => item.id !== label.id)
+      setLabels(filter)
+    } else {
+      setLabels([...labels, label])
+    }
+  }
+
+  const editIssueTitle = () => {
+    setShowEditTitle(true)
+  }
+
+  const editIssue = () => {}
+
+  const editComment = (comment) => {}
+
+  const deleteComment = (comment) => {
+    handleClose()
+  }
+
+  const closeIssue = () => {}
+
+  const pinIssue = () => {}
+
+  const deleteIssue = () => {}
+
   return (
     <>
       <Head>
@@ -41,31 +125,113 @@ export default function IssuesView(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this comment?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="danger" onClick={deleteComment}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <div className="mt-5 pt-5" />
 
       <Header />
       <div className="container">
         <div className="d-flex justify-content-between">
-          <h2>{issue.name}</h2>
+          {showEditTitle && (
+            <Formik
+              initialValues={{
+                name: ""
+              }}
+              // validationSchema={IssueCreationSchema}
+              onSubmit={(values, { setSubmitting, setFieldError }) => {
+                axios
+                  .put(`/api/${namespaceName}/${projectName}/issues`, {
+                    issueId: issueId,
+                    name: values.name
+                  })
+                  .then((response) => {
+                    console.log("RESPONSE:", response)
+                    props.issuesData.name = values.name // TODO: Probably a better way to do this
+                    setShowEditTitle(false)
+                  })
+                  .catch((error) => {
+                    console.log("ERROR:", error)
+                  })
+                  .finally(() => {
+                    setSubmitting(false)
+                  })
+              }}
+            >
+              {({ errors, isSubmitting, values, setFieldValue, setValues }) => (
+                <Form>
+                  <Field
+                    className="form-control"
+                    type="text"
+                    name="name"
+                    placeholder={issue.name}
+                  />
 
-          <button type="button" className="btn btn-secondary">
-            Edit
-          </button>
+                  {showEditTitle && (
+                    <>
+                      <button
+                        type="submit"
+                        className="btn btn-success"
+                        onClick={editIssueTitle}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        onClick={() => setShowEditTitle(false)}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
+                </Form>
+              )}
+            </Formik>
+          )}
+
+          {!showEditTitle && <h2>{issue.name}</h2>}
+
+          {!showEditTitle && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowEditTitle(true)}
+            >
+              Edit
+            </button>
+          )}
         </div>
 
         <p>
           {issue.open && (
             <>
-              <span className="badge bg-success">Open</span>Opened January 1,
-              2021 by <a href="#">Yzma</a>
+              <span className="badge bg-success">Open</span>Opened{" "}
             </>
           )}
           {!issue.open && (
             <>
-              <span className="badge bg-danger">Closed</span>Closed January 1,
-              2021 by <a href="#">Yzma</a>
+              <span className="badge bg-danger">Open</span>Closed{" "}
             </>
           )}
+          {new Date(issue.createdAt).toLocaleString("default", {
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+          })}{" "}
+          by <Link href={`/${issue.user.username}`}>{issue.user.username}</Link>
         </p>
         <hr />
       </div>
@@ -74,7 +240,74 @@ export default function IssuesView(props) {
         <div className="row g-5">
           <div className="col-md-8">
             <article>
-              <MarkdownViewer text={issue.description} />
+              <div className="d-flex justify-content-end align-self-center">
+                {!showEditDescription && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowDescription(true)}
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+
+              {showEditDescription ? (
+                <Formik
+                  initialValues={{
+                    description: issue.description
+                  }}
+                  // validationSchema={IssueCreationSchema}
+                  onSubmit={(values, { setSubmitting, setFieldError }) => {
+                    axios
+                      .put(`/api/${namespaceName}/${projectName}/issues`, {
+                        issueId: issueId,
+                        description: values.description
+                      })
+                      .then((response) => {
+                        console.log("RESPONSE:", response)
+                        // props.issuesData.name = values.name // TODO: Probably a better way to do this
+                        // setShowEditTitle(false)
+                      })
+                      .catch((error) => {
+                        console.log("ERROR:", error)
+                      })
+                      .finally(() => {
+                        setSubmitting(false)
+                      })
+                  }}
+                >
+                  {({
+                    errors,
+                    isSubmitting,
+                    values,
+                    setFieldValue,
+                    setValues
+                  }) => (
+                    <Form>
+                      <MarkdownEditor
+                        placeholder={issue.description}
+                        onChange={(text) => setFieldValue("description", text)}
+                      >
+                        <div className="d-flex flex-row-reverse">
+                          <button
+                            type="submit"
+                            className="btn btn-danger"
+                            onClick={() => setShowDescription(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button type="submit" className="btn btn-success">
+                            Submit
+                          </button>
+                        </div>
+                      </MarkdownEditor>
+                    </Form>
+                  )}
+                </Formik>
+              ) : (
+                <MarkdownViewer text={issue.description} />
+              )}
             </article>
 
             <hr />
@@ -83,15 +316,99 @@ export default function IssuesView(props) {
               <div key={index} className="card mb-5">
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <div>
-                    <Link href={`/${comment.user.username}`}>{comment.user.username}</Link> commented {<TimeAgo datetime={comment.createdAt} locale='en'/>}{" "}
+                    <Link href={`/${comment.user.username}`}>
+                      {comment.user.username}
+                    </Link>{" "}
+                    commented{" "}
+                    {<TimeAgo datetime={comment.createdAt} locale="en" />}{" "}
                   </div>
-                  <FontAwesomeIcon className="mr-4" icon={faEllipsis} />
+
+                  <Dropdown>
+                    <Dropdown.Toggle
+                      as={CustomToggle}
+                      id="dropdown-custom-components"
+                    >
+                      Custom toggle
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => setEditComment(true)}>
+                        Edit
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleShow(comment)}>
+                        Delete
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </div>
                 <div className="card-body">
-                  <MarkdownViewer text={comment.description} />
+
+
+
+                {showEditComment ? (
+                <Formik
+                  initialValues={{
+                    description: issue.description
+                  }}
+                  // validationSchema={IssueCreationSchema}
+                  onSubmit={(values, { setSubmitting, setFieldError }) => {
+                    axios
+                      .put(`/api/${namespaceName}/${projectName}/comments`, {
+                        commentId: comment.id,
+                        description: values.description
+                      })
+                      .then((response) => {
+                        console.log("RESPONSE:", response)
+                        // props.issuesData.name = values.name // TODO: Probably a better way to do this
+                        // setShowEditTitle(false)
+                      })
+                      .catch((error) => {
+                        console.log("ERROR:", error)
+                      })
+                      .finally(() => {
+                        setSubmitting(false)
+                      })
+                  }}
+                >
+                  {({
+                    errors,
+                    isSubmitting,
+                    values,
+                    setFieldValue,
+                    setValues
+                  }) => (
+                    <Form>
+                      <MarkdownEditor
+                        placeholder={comment.description}
+                        onChange={(text) => setFieldValue("description", text)}
+                      >
+                      <div className="d-flex flex-row-reverse">
+                        <button
+                          type="submit"
+                          className="btn btn-danger"
+                          onClick={() => setEditComment(false)}
+                        >
+                          Cancel
+                        </button>
+                        <button type="submit" className="btn btn-success">
+                          Submit
+                        </button>
+                      </div>
+                    </MarkdownEditor>
+                    </Form>
+                  )}
+                </Formik>
+              ) : (
+                <MarkdownViewer text={comment.description} />
+              )}
+
                 </div>
               </div>
             ))}
+
+            <hr />
+
+            <h3 className="mb-4">Create a comment</h3>
 
             <Formik
               initialValues={{
@@ -132,13 +449,17 @@ export default function IssuesView(props) {
                   <MarkdownEditor
                     onChange={(text) => setFieldValue("description", text)}
                   >
-                    <button
-                      type="submit"
-                      className="btn btn-success"
-                      disabled={isSubmitting}
-                    >
-                      Create Issue
-                    </button>
+                    <div className="d-flex flex-row-reverse">
+                      <button
+                        type="submit"
+                        className="btn btn-success"
+                        disabled={
+                          isSubmitting || values.description.length === 0
+                        }
+                      >
+                        Submit
+                      </button>
+                    </div>
                   </MarkdownEditor>
                 </Form>
               )}
@@ -154,7 +475,9 @@ export default function IssuesView(props) {
                   icon={faGear}
                 />
               </div>
-              <a>Yzma</a>
+              <Link href={`/${issue.user.username}`}>
+                {issue.user.username}
+              </Link>
             </div>
 
             <hr />
@@ -162,30 +485,50 @@ export default function IssuesView(props) {
             <div>
               <div className="d-flex justify-content-between align-self-center">
                 <span className="text-secondary h5">Labels </span>
-                <FontAwesomeIcon
-                  className="mr-4 align-self-center align-middle"
-                  icon={faGear}
-                />
+                <Dropdown>
+                  <Dropdown.Toggle
+                    as={CustomToggle2}
+                    id="dropdown-custom-components"
+                  >
+                    Custom toggle
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    {issue.labels.map((label, index) => (
+                      <Dropdown.Item
+                        key={index}
+                        lable-id={label.id}
+                        onClick={() => onLabelClick(label)}
+                      >
+                        {label.name}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
               </div>
-              <span className="badge bg-primary">Label 1</span>{" "}
-              <span className="badge bg-warning">Label 2</span>
             </div>
 
             <hr />
 
             <div>
               <FontAwesomeIcon className="mr-4" icon={faLock} />
-              <a href="#">Close Issue</a>
+              <a href="#" onClick={closeIssue}>
+                Close Issue
+              </a>
             </div>
 
             <div>
               <FontAwesomeIcon className="mr-4" icon={faThumbTack} />
-              <a href="#">Pin Issue</a>
+              <a href="#" onClick={pinIssue}>
+                Pin Issue
+              </a>
             </div>
 
             <div>
               <FontAwesomeIcon className="mr-4" icon={faTrash} />
-              <a href="#">Delete Issue</a>
+              <a href="#" onClick={deleteIssue}>
+                Delete Issue
+              </a>
             </div>
           </div>
         </div>
@@ -213,9 +556,16 @@ export async function getServerSideProps(context) {
       updatedAt: true,
       issueNumber: true,
 
+      user: {
+        select: {
+          username: true
+        }
+      },
+
       labels: true,
       comments: {
         select: {
+          id: true,
           createdAt: true,
           updatedAt: true,
           description: true,
