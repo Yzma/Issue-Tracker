@@ -20,7 +20,7 @@ const MdEditor = dynamic(() => import("react-markdown-editor-lite"), {
 const mdParser = new MarkdownIt({})
 
 const MarkdownEditor = (props) => {
-  const [text, setText] = useState("")
+  const [text, setText] = useState(props.placeholder)
   return (
     <SSRProvider>
       <div className="card">
@@ -33,6 +33,7 @@ const MarkdownEditor = (props) => {
             <Tab eventKey="write" title="Write">
               <div className="card-body">
                 <MdEditor
+                  value={text}
                   style={{ height: "350px" }}
                   renderHTML={(text) => mdParser.render(text)}
                   onChange={({ html, text }, event) => {
