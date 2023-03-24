@@ -1,15 +1,15 @@
-import React from "react"
-import Link from "next/link"
-import styles from "../styles/Header.module.css"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faBug } from "@fortawesome/free-solid-svg-icons"
-import { faPlus } from "@fortawesome/free-solid-svg-icons"
-import { useSession, signIn, signOut } from "next-auth/react"
+import React from "react";
+import Link from "next/link";
+import styles from "../styles/Header.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBug } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 const Header = () => {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
 
-  console.log(session)
+  console.log(session);
 
   return (
     <header className={styles.header}>
@@ -20,13 +20,19 @@ const Header = () => {
       <nav className={styles.nav}>
         <ul>
           <li>
-            <Link href="/issues">Issues</Link>
-          </li>
-          <li>
-            <Link href="/orgs">Organizations</Link>
+            <Link href="/globalissue">Issues</Link>
           </li>
           <li>
             <a href={`/${session?.namespace}`}>{session?.namespace}</a>
+          </li>
+          <li className={styles.dropdown}>
+            <button className={styles.dropbtn}>
+              <FontAwesomeIcon icon={faPlus} />
+            </button>
+            <div className={styles.dropdownContent}>
+              <Link href="/projects/create">Create Project</Link>
+              <Link href="/orgs/create">Create Organization</Link>
+            </div>
           </li>
           <li>
             {session ? (
@@ -49,49 +55,63 @@ const Header = () => {
               </>
             )}
           </li>
-          {/* <li>
-            <FontAwesomeIcon icon={faPlus} />
-          </li> */}
         </ul>
       </nav>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
 
-// import React from "react";
-// import styles from '../styles/Header.module.css';
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faBug } from "@fortawesome/free-solid-svg-icons";
-// import { faPlus } from "@fortawesome/free-solid-svg-icons";
-// import { useSession, signIn, signOut } from "next-auth/react";
+
+// import React from "react"
+// import Link from "next/link"
+// import styles from "../styles/Header.module.css"
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+// import { faBug } from "@fortawesome/free-solid-svg-icons"
+// import { faPlus } from "@fortawesome/free-solid-svg-icons"
+// import { useSession, signIn, signOut } from "next-auth/react"
 
 // const Header = () => {
-//   const { data: session } = useSession();
+//   const { data: session } = useSession()
+
+//   console.log(session)
 
 //   return (
 //     <header className={styles.header}>
 //       <div className={styles.logoContainer}>
 //         <FontAwesomeIcon icon={faBug} size="2x" />
-//         <p>Bug-Zapper</p>
+//         <Link href="/">Bug-Zapper</Link>
 //       </div>
 //       <nav className={styles.nav}>
 //         <ul>
 //           <li>
-//             <a href="/issues">Issues</a>
+//             <Link href="/globalissue">Issues</Link>
 //           </li>
 //           <li>
-//             <a href="/orgs">Organizations</a>
+//             <Link href="/orgs">Organizations</Link>
+//           </li>
+//           <li>
+//             <a href={`/${session?.namespace}`}>{session?.namespace}</a>
 //           </li>
 //           <li>
 //             {session ? (
 //               <>
-//                 <button onClick={() => signOut()}>Sign Out</button>
+//                 <button
+//                   className={styles.signInOutButton}
+//                   onClick={() => signOut()}
+//                 >
+//                   Sign Out
+//                 </button>
 //               </>
 //             ) : (
 //               <>
-//                 <button onClick={() => signIn()}>Sign In</button>
+//                 <button
+//                   className={styles.signInOutButton}
+//                   onClick={() => signIn()}
+//                 >
+//                   Sign In
+//                 </button>
 //               </>
 //             )}
 //           </li>
@@ -101,7 +121,7 @@ export default Header
 //         </ul>
 //       </nav>
 //     </header>
-//   );
-// };
+//   )
+// }
 
-// export default Header;
+// export default Header

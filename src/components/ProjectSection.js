@@ -7,6 +7,11 @@ const ProjectSection = ({ projects }) => {
   const router = useRouter()
   const { namespaceName } = router.query
   console.log("test: ", namespaceName)
+
+  const handleCreateProject = () => {
+    // Handle create project logic here
+  };
+
   return (
     <section className={styles.container}>
       <h2>Projects</h2>
@@ -21,8 +26,12 @@ const ProjectSection = ({ projects }) => {
           </li>
         ))}
       </ul>
+      <button className={styles.createProjectBtn} onClick={handleCreateProject}>
+        Create Project
+      </button>
     </section>
   );
 };
 
 export default ProjectSection;
+

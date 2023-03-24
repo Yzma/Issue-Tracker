@@ -6,6 +6,11 @@ import { useRouter } from "next/router";
 const ProjectSection = ({ projects }) => {
   const router = useRouter()
   const { namespaceName } = router.query
+
+  const handleCreateProject = () => {
+    router.push('/projects/create');
+  };
+
   return (
     <section className={styles.container}>
       <h2>Projects</h2>
@@ -27,6 +32,9 @@ const ProjectSection = ({ projects }) => {
           ))}
         </tbody>
       </table>
+      <button className={styles.createProjectBtn} onClick={handleCreateProject}>
+        Create Project
+      </button>
     </section>
   );
 };

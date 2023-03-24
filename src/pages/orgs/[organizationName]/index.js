@@ -60,19 +60,18 @@ export async function getServerSideProps(context) {
 
   console.log(session)
 
-  // if (!session) {
-  //   return {
-  //     redirect: {
-  //       destination: "/api/auth/signin", // goes to sign in page if no one logged in 
-  //       permanent: false,
-  //     },
-  //   };
-  // }
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin", // goes to sign in page if no one logged in 
+        permanent: false,
+      },
+    };
+  }
 
   const organization = await prisma.organization.findFirst({
     where: {
-      id: "clfha6acb000vs3p26hlr90cl", //org id from db 
-      // id: session.organization.id,
+      id: session.organization.id,
     },
     include: {
       organizationMembers: {
