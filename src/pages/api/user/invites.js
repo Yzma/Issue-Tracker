@@ -77,26 +77,27 @@ async function declineInvite(inviteId, sessionId) {
 async function acceptInvite(inviteId, sessionId) {
   console.log("inviteId: ", inviteId)
   return await prisma.$transaction(async (tx) => {
-    const deletedOrganizationInvitation =
+    const deletedInvitation =
       await tx.memberInvitation.delete({
         where: {
           id: inviteId
         }
       })
 
-    if (deletedOrganizationInvitation.invitedId != sessionId) {
+    if (deletedInvitation.invitedId != sessionId) {
       throw new Error(`The correct user isn't accepting the invite`)
     }
 
-    if (deletedOrganizationInvitation < 0) {
+    if (deletedInvitation < 0) {
       throw new Error(`No invitations were deleted`)
     }
 
     return await prisma.member.create({
       data: {
-        role: deletedOrganizationInvitation.role,
-        userId: deletedOrganizationInvitation.invitedId,
-        organizationId: deletedOrganizationInvitation.organizationId
+        role: deletedInvitation.role,
+        userId: deletedInvitation.invitedId,
+        organizationId: deletedInvitation.organizationId,
+        projectId: deletedInvitation.projectId
       }
     })
   })
