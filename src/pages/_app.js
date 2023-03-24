@@ -1,7 +1,7 @@
 import { SessionProvider } from "next-auth/react";
 import "@/styles/globals.css";
-import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
+import "@/styles/popover-styles.css" // TODO: Move this into the actual component
 
 export default function App({
   Component,

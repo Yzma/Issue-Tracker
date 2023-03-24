@@ -23,12 +23,9 @@ export default function Home() {
           integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/WM6avuye5x+z7gDzFgLp5B45SY8U4h0EK10M5d"
           crossOrigin="anonymous"
         />
-      </Head>
+         </Head>
       <Header />
-    
-      <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
+
       <main className={styles.main}>
 
         
