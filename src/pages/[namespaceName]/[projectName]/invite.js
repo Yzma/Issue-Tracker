@@ -62,13 +62,15 @@ export default function ProjectInvites(props) {
             <article>
               <Formik
                 initialValues={{
-                  name: ""
+                  name: "",
+                  role: "User"
                 }}
                 validationSchema={NamespaceNameCreationSchema}
                 onSubmit={(values, { setSubmitting, setFieldError }) => {
                   axios
                     .post(`/api/${namespaceName}/${projectName}/invites`, {
-                      name: values.name
+                      name: values.name,
+                      role: values.role
                     })
                     .then((response) => {
                       console.log("RESPONSE:", response)
@@ -85,21 +87,33 @@ export default function ProjectInvites(props) {
                 }}
               >
                 {({
-                  values,
                   errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
                   isSubmitting
-                  /* and other goodies */
                 }) => (
                   <Form>
-                    <div className="mb-3">
-                      <label htmlFor="name" className="form-label">
-                        Username
-                      </label>
-                      <Field className="form-control" type="text" name="name" />
+                    <div className="row g-3 align-items-center mb-3">
+                      <div className="col-5">
+                        <label htmlFor="name" className="form-label">
+                          Username
+                        </label>
+                        <Field
+                          className="form-control"
+                          type="text"
+                          name="name"
+                        />
+                      </div>
+
+                      <div className="col-auto h3 mt-5">/</div>
+
+                      <div className="col-3">
+                        <label htmlFor="role" className="form-label">
+                          Role
+                        </label>
+                        <Field className="form-select" as="select" name="role">
+                          <option value="User">User</option>
+                          <option value="Owner">Owner</option>
+                        </Field>
+                      </div>
                     </div>
 
                     {errors.name && <div>{errors.name}</div>}
@@ -152,7 +166,11 @@ export default function ProjectInvites(props) {
                   <td>{invite.createdAt}</td>
                   <td>{invite.role}</td>
                   <td>
-                    <button className="btn btn-danger" type="button" onClick={() => cancelInvite(invite.id)}>
+                    <button
+                      className="btn btn-danger"
+                      type="button"
+                      onClick={() => cancelInvite(invite.id)}
+                    >
                       Cancel
                     </button>
                   </td>
@@ -161,12 +179,10 @@ export default function ProjectInvites(props) {
             </tbody>
           </table>
         </div>
-
       </main>
     </>
   )
 }
-
 
 export async function getServerSideProps(context) {
   const { namespaceName, projectName } = context.query
