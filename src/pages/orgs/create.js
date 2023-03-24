@@ -6,11 +6,9 @@ import { OrganizationNameCreationSchema } from "@/lib/yup-schemas"
 
 import axios from "axios"
 
-import "bootstrap/dist/css/bootstrap.min.css"
-import Header from "@/components/Header"
-
 export default function OrganizationCreate() {
   const router = useRouter()
+
   return (
     <>
       <Head>
@@ -19,73 +17,82 @@ export default function OrganizationCreate() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="mt-5 pt-5" />
 
-      <Header />
+      <main className="grid h-screen place-items-center pt-10">
+        <div className="relative px-4 sm:px-6 lg:px-8 pb-8  max-w-lg mx-auto">
+          <div className="bg-white px-8 pb-6 pt-9 rounded-b shadow-lg">
+            <div className="text-center mb-6">
+              <h1 className="text-xl leading-snug text-slate-800 font-semibold mb-2">
+                Create a new Organization
+              </h1>
+              <div className="text-sm">Tell us about your organization</div>
+            </div>
 
-      <div className="container">
-        <h2>Create a new Organization</h2>
+            <div>
+              <div className="space-y-4">
+                <Formik
+                  initialValues={{ name: "" }}
+                  validationSchema={OrganizationNameCreationSchema}
+                  onSubmit={(values, { setSubmitting, setFieldError }) => {
+                    axios
+                      .post("/api/organization", {
+                        name: values.name
+                      })
+                      .then((response) => {
+                        console.log("RESPONSE:", response)
+                        router.push(`/${response.name}`)
+                      })
+                      .catch((error) => {
+                        console.log("ERROR:", error)
+                        setFieldError("name", "name already in use")
+                      })
+                      .finally(() => {
+                        setSubmitting(false)
+                      })
+                  }}
+                >
+                  {({ values, errors, isSubmitting }) => (
+                    <Form className="pt-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Organization Name{" "}
+                          <span className="text-rose-500">*</span>
+                        </label>
+                        <Field
+                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          type="text"
+                          name="name"
+                        />
+                      </div>
 
-        <hr />
+                      <div className="text-sm pt-4">
+                        <p>This will be the name of your account on GitHub.</p>
+                        <p>
+                          Your URL will be: https://github.com/{values.name}
+                        </p>
+                      </div>
 
-        <Formik
-          initialValues={{ name: "" }}
-          validationSchema={OrganizationNameCreationSchema}
-          onSubmit={(values, { setSubmitting, setFieldError }) => {
-            axios
-              .post("/api/organization", {
-                name: values.name
-              })
-              .then((response) => {
-                console.log("RESPONSE:", response)
-                router.push("/")
-              })
-              .catch((error) => {
-                console.log("ERROR:", error)
-                setFieldError("name", "name already in use")
-              })
-              .finally(() => {
-                setSubmitting(false)
-              })
-          }}
-        >
-          {({
-            values,
-            errors,
-            touched,
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            isSubmitting
-            /* and other goodies */
-          }) => (
-            <Form>
-              <div className="mb-3">
-                <label htmlFor="name" className="form-label">
-                  Organization Name
-                </label>
-                <Field className="form-control" type="text" name="name" />
+                      {errors.name && <div>{errors.name}</div>}
+             
+                      <div className="mt-6">
+                        <div className="mb-4">
+                          <button
+                            className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                            type="submit"
+                            disabled={isSubmitting}
+                          >
+                            Create Organization
+                          </button>
+                        </div>
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
               </div>
-
-              <div className="form-text">
-                <p>This will be the name of your account on GitHub.</p>
-                <p>Your URL will be: https://github.com/{values.name}</p>
-              </div>
-
-              {errors.name && <div>{errors.name}</div>}
-              <hr />
-
-              <button
-                type="submit"
-                className="btn btn-success"
-                disabled={isSubmitting}
-              >
-                Create Organization
-              </button>
-            </Form>
-          )}
-        </Formik>
-      </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </>
   )
 }
