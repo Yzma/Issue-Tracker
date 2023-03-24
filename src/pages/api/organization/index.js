@@ -33,15 +33,15 @@ export default async function handler(req, res) {
               role: OrganizationRole.OWNER
             }
           },
+          members: {
+            create: {
+              userId: session.user.id,
+              role: OrganizationRole.OWNER
+            }
+          },
           namespace: {
             create: {
-              name,
-              members: {
-                create: {
-                  userId: session.user.id,
-                  role: OrganizationRole.OWNER
-                }
-              },
+              name
             }
           }
         }

@@ -30,7 +30,7 @@ const OrganizationPage = ({ props }) => {
         )}
         {activeTab === "users" && (
           <UserSection
-            users={props.namespace.members.map(
+            users={props.data.members.map(
               (member) => member.user.username
             )}
           />

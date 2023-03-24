@@ -88,6 +88,12 @@ export default async function handler(req, res) {
           description,
           private: schemaResult.private,
           namespaceId: namespaceOwner.id,
+          members: {
+            create: {
+              userId: session.user.id,
+              role: "Owner" // TODO: Use Constant
+            }
+          },
           labels: {
             create: [
               { name: "Bug", description: "Bug description", color: "392029" },

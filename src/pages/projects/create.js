@@ -18,8 +18,8 @@ export default function ProjectCreate(props) {
   const router = useRouter()
   console.log("Props: ", props)
   const { data: session } = useSession()
-  const map = props.organizations.map((e) => (
-    <option key={e.organization.name} value={e.organization.name}>
+  const map = props.organizations.map((e, index) => (
+    <option key={index} value={e.organization.name}>
       {e.organization.name}
     </option>
   ))
@@ -193,19 +193,26 @@ export async function getServerSideProps(context) {
     }
   }
 
-  const organizations = await prisma.organizationMember.findMany({
+  const organizations = await prisma.member.findMany({
     where: {
       userId: session.user.id,
-      role: "Owner"
+      organization: {
+        is: {} // TODO: Double check this is actually checking the the field is null or not by looking at what prisma is producing
+      }
     },
+
     select: {
+      id: true,
       organization: {
         select: {
+          id: true,
           name: true
         }
       }
     }
   })
+
+  console.log(organizations)
 
   return {
     props: {

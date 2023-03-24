@@ -170,7 +170,7 @@ export default function IssuesCreate(props) {
 
 export async function getServerSideProps(context) {
   const { organizationName } = context.query
-  const outgoingInvites = await prisma.organizationInvitation.findMany({
+  const outgoingInvites = await prisma.memberInvitation.findMany({
     where: {
       organization: {
         name: organizationName
@@ -178,8 +178,8 @@ export async function getServerSideProps(context) {
     },
     select: {
       id: true,
-      createdAt: true,
       role: true,
+      createdAt: true,
       invitedUser: {
         select: {
           username: true

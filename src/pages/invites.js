@@ -62,7 +62,7 @@ export default function MyInvites(props) {
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Organization</th>
+                <th scope="col">Type</th>
                 <th scope="col">Invited By</th>
                 <th scope="col">Invited At</th>
                 <th scope="col">Role</th>
@@ -70,7 +70,7 @@ export default function MyInvites(props) {
               </tr>
             </thead>
             <tbody>
-              {props.organizationInvites.map((invite, index) => (
+              {props.invites.map((invite, index) => (
                 <tr key={index + 1}>
                   <th scope="row">{index}</th>
                   <td><a href={`/${invite.organization.name}`}>{invite.organization.name}</a></td>
@@ -100,7 +100,7 @@ export async function getServerSideProps(context) {
     }
   }
 
-  const organizationInvites = await prisma.organizationInvitation.findMany({
+  const invites = await prisma.memberInvitation.findMany({
     where: {
       invitedId: session.user.id
     },
@@ -118,13 +118,49 @@ export async function getServerSideProps(context) {
         select: {
           name: true
         }
+      },
+      project: {
+        select: {
+          name: true
+        }
       }
     }
   })
 
-  console.log(organizationInvites)
+  if(!invites) {
+    return {
+      props: {
+        invites: []
+      }
+    }
+  }
 
-  const mapped = organizationInvites.map((e) => {
+
+  // const organizationInvites = await prisma.organizationInvitation.findMany({
+    // where: {
+    //   invitedId: session.user.id
+    // },
+
+  //   select: {
+  //     id: true,
+  //     role: true,
+  //     createdAt: true,
+      // inviteeUser: {
+      //   select: {
+      //     username: true
+      //   }
+      // },
+      // organization: {
+      //   select: {
+      //     name: true
+      //   }
+      // }
+  //   }
+  // })
+
+  console.log(invites)
+
+  const mapped = invites.map((e) => {
     return {
       ...e,
       createdAt: e.createdAt.toISOString()
@@ -133,7 +169,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      organizationInvites: mapped
+      invites: mapped
     }
   }
 }

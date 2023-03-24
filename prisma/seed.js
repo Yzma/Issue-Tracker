@@ -78,15 +78,15 @@ async function main() {
             { userId: jim.id, role: "User" }
           ]
         },
+        members: {
+          create:[
+            { userId: alice.id, role: "Owner" },
+            { userId: jim.id, role: "User" }
+          ]
+        },
         namespace: {
           create: {
-            name: "AliceOrg",
-            members: {
-              create:[
-                { userId: alice.id, role: "Owner" },
-                { userId: jim.id, role: "User" }
-              ]
-            },
+            name: "AliceOrg"
           }
         }
       }

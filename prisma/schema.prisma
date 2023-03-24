@@ -44,6 +44,9 @@ model User {
   organizationMembers            OrganizationMember[]
   organizationInvitations        OrganizationInvitation[] @relation("invited")
   pendingOrganizationInvitations OrganizationInvitation[] @relation("invites")
+
+  memberInvitations        MemberInvitation[] @relation("invited")
+  pendingMemberInvitations MemberInvitation[] @relation("invites")
 }
 
 model Organization {
@@ -59,8 +62,10 @@ model Organization {
 
   namespace Namespace?
 
+  members                  Member[]
   organizationMembers      OrganizationMember[]
   organizationInvitationss OrganizationInvitation[]
+  MemberInvitation         MemberInvitation[]
 }
 
 // Note: 20230319212545_namespace_has_atleast_one_org_or_user:
@@ -75,7 +80,6 @@ model Namespace {
   organizationId String?       @unique
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  members  Member[]
   projects Project[]
 }
 
@@ -96,6 +100,29 @@ model OrganizationInvitation {
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
   role OrganizationRole @default(User)
+
+  @@unique([invitedId, organizationId])
+}
+
+model MemberInvitation {
+  id String @id @default(cuid())
+
+  role      OrganizationRole @default(User)
+  createdAt DateTime         @default(now())
+
+  // The user that's being invited
+  invitedId   String
+  invitedUser User   @relation("invited", fields: [invitedId], references: [id])
+
+  // The user that's inviting another user
+  inviteeId   String
+  inviteeUser User   @relation("invites", fields: [inviteeId], references: [id])
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
 
   @@unique([invitedId, organizationId])
 }
@@ -128,10 +155,14 @@ model Member {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  namespaceId String
-  namespace   Namespace @relation(fields: [namespaceId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
 
-  @@unique([userId, namespaceId])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, organizationId])
+  @@unique([userId, projectId])
 }
 
 model Project {
@@ -146,8 +177,11 @@ model Project {
   namespaceId String
   namespace   Namespace @relation(fields: [namespaceId], references: [id])
 
-  issues Issue[]
-  labels Label[]
+  members Member[]
+  issues  Issue[]
+  labels  Label[]
+
+  MemberInvitation MemberInvitation[]
 
   @@unique([namespaceId, name])
 }

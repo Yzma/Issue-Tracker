@@ -52,62 +52,11 @@ export default async function handler(req, res) {
   }
 }
 
-// const foundMember = await prisma.organizationMember.findMany({
-//   where: {
-//     userId: session.user.id,
-//     organization: {
-//       name: organizationName
-//     }
-//   }
-// })
-
-// console.log("Member", foundMember)
-
-// // TODO: Remove debug '1' after testing
-// if (!foundMember) {
-//   return res
-//     .status(400)
-//     .json({
-//       error: "You do not have permission to do this action.1 (not member)"
-//     })
-// }
-
-// const member = foundMember[0]
-
-// // TODO: Use constant rather than hard coded string
-// if (member.role !== "Owner") {
-//   return res
-//     .status(400)
-//     .json({
-//       error: "You do not have permission to do this action.2 (not owner)"
-//     })
-// }
-
-// console.log("invite id", inviteId)
-
-// return await prisma.organizationInvitation
-//   .delete({
-//     where: {
-//       id: inviteId
-//     }
-//   })
-//   .then((result) => {
-//     console.log("API RESULT: ", result)
-//     return res.status(200).json({ result: result })
-//   })
-//   .catch((err) => {
-//     // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
-//     console.log("error: ", err)
-//     return res
-//       .status(400)
-//       .json({ error: "Error deleting entry in database" })
-//   })
-
 async function declineInvite(inviteId, sessionId) {
 
   return await prisma.$transaction(async (tx) => {
     const deletedOrganizationInvitation =
-      await tx.organizationInvitation.delete({
+      await tx.memberInvitation.delete({
         where: {
           id: inviteId
         }
@@ -129,7 +78,7 @@ async function acceptInvite(inviteId, sessionId) {
   console.log("inviteId: ", inviteId)
   return await prisma.$transaction(async (tx) => {
     const deletedOrganizationInvitation =
-      await tx.organizationInvitation.delete({
+      await tx.memberInvitation.delete({
         where: {
           id: inviteId
         }
@@ -143,7 +92,7 @@ async function acceptInvite(inviteId, sessionId) {
       throw new Error(`No invitations were deleted`)
     }
 
-    return await prisma.organizationMember.create({
+    return await prisma.member.create({
       data: {
         role: deletedOrganizationInvitation.role,
         userId: deletedOrganizationInvitation.invitedId,
@@ -151,36 +100,4 @@ async function acceptInvite(inviteId, sessionId) {
       }
     })
   })
-  // return await prisma.$transaction(async (tx) => {
-  //   // 1. Decrement amount from the sender.
-  //   const sender = await tx.account.update({
-  //     data: {
-  //       balance: {
-  //         decrement: amount,
-  //       },
-  //     },
-  //     where: {
-  //       email: from,
-  //     },
-  //   })
-
-  //   // 2. Verify that the sender's balance didn't go below zero.
-  //   if (sender.balance < 0) {
-  //     throw new Error(`${from} doesn't have enough to send ${amount}`)
-  //   }
-
-  //   // 3. Increment the recipient's balance by amount
-  //   const recipient = await tx.account.update({
-  //     data: {
-  //       balance: {
-  //         increment: amount,
-  //       },
-  //     },
-  //     where: {
-  //       email: to,
-  //     },
-  //   })
-
-  //   return recipient
-  // })
 }
