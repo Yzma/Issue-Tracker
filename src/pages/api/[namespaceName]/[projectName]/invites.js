@@ -35,19 +35,18 @@ export default async function handler(req, res) {
 
     console.log(foundNamespace)
 
-    const foundProjects = await prisma.project.findMany({
+    const foundProject = await prisma.project.findFirst({
       where: {
         name: projectName,
         namespaceId: foundNamespace.id
       }
     })
 
-    if (!foundProjects) {
+    if (!foundProject) {
       return res.status(400).json({ error: "Project not found" })
     }
-    console.log("Projects ", foundProjects)
-    const project = foundProjects[0]
-    console.log("Project ", project)
+
+    console.log("Project ", foundProject)
 
     // TODO: Authorize user creating invite
     return await prisma.memberInvitation
@@ -65,7 +64,7 @@ export default async function handler(req, res) {
           },
           project: {
             connect: {
-              id: project.id
+              id: foundProject.id
             }
           }
         }
