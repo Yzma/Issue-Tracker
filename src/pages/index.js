@@ -25,6 +25,7 @@ export default function Home() {
         />
       </Head>
       <Header />
+    
       <h1 className="text-3xl font-bold underline">
       Hello world!
     </h1>
@@ -55,16 +56,16 @@ export default function Home() {
           </div>
         </div>
 
-        <div className={styles.center}>
+        <div>
           <Image
-            className={styles.logo}
+    
             src="/next.svg"
             alt="Next.js Logo"
             width={180}
             height={37}
             priority
           />
-          <div className={styles.thirteen}>
+          <div>
             <Image
               src="/thirteen.svg"
               alt="13"
@@ -75,10 +76,10 @@ export default function Home() {
           </div>
         </div>
 
-        <div className={styles.grid}>
+        <div>
           <a
             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
+            
             target="_blank"
             rel="noopener noreferrer"
           >
