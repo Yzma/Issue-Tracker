@@ -14,7 +14,7 @@ const IssueButtons = ({onSearch, path}) => {
       <button className={styles.button} onClick={() => router.push(`${path}/labels`)}>
       <FontAwesomeIcon icon={faTag} />  Label
       </button>
-      <button className={styles.button} onClick={() => router.push(`${path}/issues/new`)}>
+      <button className={styles.button} onClick={() => router.push(`${path}/new`)}>
       <FontAwesomeIcon icon={faPlus} />  Create Issue
       </button>
     </div>
