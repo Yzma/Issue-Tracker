@@ -4,11 +4,13 @@ import { useRouter } from "next/router"
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
+import { useSession } from "next-auth/react"
+
 import prisma from "@/lib/prisma/prisma"
 import BelowNavbar from "@/components/other/BelowNavbar"
 
 export default function MyInvites(props) {
-  console.log(props)
+  const { data: session } = useSession()
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
@@ -23,8 +25,10 @@ export default function MyInvites(props) {
 
       <div className="flex h-screen overflow-hidden bg-slate-100">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-
-        <BelowNavbar namespaceName={namespaceName} projectName={projectName}/>
+          <BelowNavbar
+            namespaceName={namespaceName}
+            projectName={projectName}
+          />
 
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
@@ -44,10 +48,8 @@ export default function MyInvites(props) {
                 </header>
 
                 <div>
-                  {/* Table */}
                   <div className="overflow-x-auto">
                     <table className="table-auto w-full rounded-xl shadow-lg">
-                      {/* Table header */}
                       <thead className="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
                         <tr>
                           <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
@@ -67,7 +69,6 @@ export default function MyInvites(props) {
                           </th>
                         </tr>
                       </thead>
-                      {/* Table body */}
                       <tbody className="text-sm divide-y divide-slate-200">
                         {props.members.map((member, index) => (
                           <tr key={index}>
@@ -83,9 +84,14 @@ export default function MyInvites(props) {
                                 >
                                   {member.user.username}
                                 </Link>
-                                <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-500 bg-green-100 rounded-full">
-                                  You
-                                </span>
+                                {session &&
+                                session.namespace === member.user.username ? (
+                                  <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-500 bg-green-100 rounded-full">
+                                    You
+                                  </span>
+                                ) : (
+                                  <></>
+                                )}
                               </div>
                             </td>
 
@@ -121,11 +127,9 @@ export default function MyInvites(props) {
                                       Remove User
                                       <div className="RightSlot"></div>
                                     </DropdownMenu.Item>
-                                    
                                   </DropdownMenu.Content>
                                 </DropdownMenu.Portal>
                               </DropdownMenu.Root>
-
                             </td>
                           </tr>
                         ))}
