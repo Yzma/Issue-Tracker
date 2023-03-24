@@ -4,6 +4,8 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 
+@import 'utility-patterns.css';
+
 @import 'tailwindcss/utilities';
 
 /* :root {
