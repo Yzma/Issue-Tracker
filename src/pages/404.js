@@ -1,5 +1,7 @@
+import Header from '@/components/Header'
 import Head from 'next/head'
-import styles from '@/styles/Home.module.css'
+import Link from 'next/link'
+
 
 export default function Home() {
   return (
@@ -11,9 +13,25 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <p>404 page goes here</p>
-      </main>
+      <Header />
+
+      <main>
+          <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+            <div className="max-w-2xl m-auto mt-16">
+
+              <div className="text-center px-4">
+                <div className="inline-flex mb-8">
+                  <p className="text-9xl font-light text-gray-500">404</p>
+                </div>
+                <div className="mb-6">The requested page does not exist...</div>
+                <Link href={"/"} className="btn bg-indigo-500 hover:bg-indigo-600 text-white">Back To Home</Link>
+              </div>
+
+            </div>
+
+          </div>
+        </main>
     </>
   )
 }
