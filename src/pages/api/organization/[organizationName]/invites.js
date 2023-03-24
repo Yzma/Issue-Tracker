@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const { organizationName } = req.query
 
   if (req.method === "POST") {
-    const { name } = req.body
+    const { name, role } = req.body
 
     try {
       await NamespaceNameCreationSchema.validate({ name })
@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     return await prisma.memberInvitation
       .create({
         data: {
+          role,
           invitedUser: {
             connect: {
               username: name
