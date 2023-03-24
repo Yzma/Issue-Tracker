@@ -42,7 +42,7 @@ export default async function handler(req, res) {
       })
       .then((result) => {
         console.log("API RESULT: ", result)
-        return res.status(200).json({ name: "Hello?" })
+        return res.status(200).json({ name: result.name })
       })
       .catch((err) => {
         // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
