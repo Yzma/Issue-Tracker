@@ -1,10 +1,10 @@
 import Head from "next/head"
 import { useRouter } from "next/router"
-
 import { Formik, Form, Field } from "formik"
 import { OrganizationNameCreationSchema } from "@/lib/yup-schemas"
 
 import axios from "axios"
+import Header from "@/components/Header"
 
 export default function OrganizationCreate() {
   const router = useRouter()
@@ -17,8 +17,10 @@ export default function OrganizationCreate() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+     
+      <Header />
 
-      <main className="grid h-screen place-items-center pt-10">
+      <main className="flex absolute inset-0  justify-center items-center">
         <div className="relative px-4 sm:px-6 lg:px-8 pb-8  max-w-lg mx-auto">
           <div className="bg-white px-8 pb-6 pt-9 rounded-b shadow-lg">
             <div className="text-center mb-6">
