@@ -75,25 +75,26 @@ export default async function handler(req, res) {
           .json({ error: "User is not who they say they are" })
       }
     } else if (foundNamespace.organizationId) {
-      const foundOrganizationMember =
-        await prisma.organizationMember.findUnique({
-          where: {
-            userId_organizationId: {
-              userId: session.user.id,
-              organizationId: foundNamespace.organizationId
-            }
-          }
-        })
+      // TODO: Check org member
+      // const foundOrganizationMember =
+      //   await prisma.organizationMember.findUnique({
+      //     where: {
+      //       userId_organizationId: {
+      //         userId: session.user.id,
+      //         organizationId: foundNamespace.organizationId
+      //       }
+      //     }
+      //   })
 
-      if (!foundOrganizationMember) {
-        return res.status(400).json({ error: "Not in the organization" })
-      }
+      // if (!foundOrganizationMember) {
+      //   return res.status(400).json({ error: "Not in the organization" })
+      // }
 
-      console.log("foundOrganizationMember", foundOrganizationMember)
+      // console.log("foundOrganizationMember", foundOrganizationMember)
 
-      if (foundOrganizationMember.role != "Owner") {
-        return res.status(400).json({ error: "User isn't an owner" })
-      }
+      // if (foundOrganizationMember.role != "Owner") {
+      //   return res.status(400).json({ error: "User isn't an owner" })
+      // }
     } else {
       // Note: There is a constraint on the database top not allow this to happen so this check will probably be removed in the future
       console.log("ERROR: Namespace does not have a user or and organization")

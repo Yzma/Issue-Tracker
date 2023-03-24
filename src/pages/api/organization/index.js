@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         data: {
           name,
           userId: session.user.id,
-          organizationMembers: {
+          members: {
             create: {
               userId: session.user.id,
               role: OrganizationRole.OWNER

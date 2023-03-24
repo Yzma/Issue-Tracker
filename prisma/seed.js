@@ -5,7 +5,7 @@ async function main() {
   // TODO: OrganizationSettings, Comments
 
   // Clear the database
-  await prisma.$queryRaw`TRUNCATE "User", "Account", "Session", "UserSettings", "Organization", "OrganizationMember", "Namespace", "Issue", "OrganizationInvitation", "Comment", "Project", "Label", "_IssueToLabel";`
+  await prisma.$queryRaw`TRUNCATE "User", "Account", "Session", "UserSettings", "Organization", "Namespace", "Issue", "Comment", "Project", "Label", "_IssueToLabel", "Member", "MemberInvitation";`
 
   // Users
   const alice = await prisma.user.upsert({
@@ -72,8 +72,8 @@ async function main() {
       data: {
         name: "AliceOrg",
         userId: alice.id,
-        organizationMembers: {
-          create: [
+        members: {
+          create:[
             { userId: alice.id, role: "Owner" },
             { userId: jim.id, role: "User" }
           ]
@@ -87,12 +87,12 @@ async function main() {
     })
   ])
 
-  //OrganizationInvitation
+  //MemberInvitation
   const [deleteInvites, newInvite] = await prisma.$transaction([
-    prisma.organizationInvitation.deleteMany({
+    prisma.memberInvitation.deleteMany({
       where: { organizationId: aliceOrg.id }
     }),
-    prisma.organizationInvitation.create({
+    prisma.memberInvitation.create({
       data: {
         invitedId: bob.id,
         inviteeId: alice.id,

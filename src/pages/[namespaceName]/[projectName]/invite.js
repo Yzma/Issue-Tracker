@@ -11,15 +11,15 @@ import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 import "bootstrap/dist/css/bootstrap.min.css"
 import Header from "@/components/Header"
 
-export default function IssuesCreate(props) {
+export default function ProjectInvites(props) {
   const router = useRouter()
-  const { organizationName } = router.query
+  const { namespaceName, projectName } = router.query
 
   console.log(props)
   const cancelInvite = (inviteId) => {
     console.log("deleting: ", inviteId)
     axios
-      .delete(`/api/organization/${organizationName}/invites`, {
+      .delete(`/api/${namespaceName}/${projectName}/invites`, {
         data: {
           inviteId: inviteId
         }
@@ -50,7 +50,7 @@ export default function IssuesCreate(props) {
 
       <div className="container">
         <div className="d-flex justify-content-between">
-          <h2>Invite a user</h2>
+          <h2>Invite a user (to project)</h2>
         </div>
 
         <hr />
@@ -68,7 +68,7 @@ export default function IssuesCreate(props) {
                 validationSchema={NamespaceNameCreationSchema}
                 onSubmit={(values, { setSubmitting, setFieldError }) => {
                   axios
-                    .post(`/api/organization/${organizationName}/invites`, {
+                    .post(`/api/${namespaceName}/${projectName}/invites`, {
                       name: values.name,
                       role: values.role
                     })
@@ -87,14 +87,8 @@ export default function IssuesCreate(props) {
                 }}
               >
                 {({
-                  values,
                   errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
                   isSubmitting
-                  /* and other goodies */
                 }) => (
                   <Form>
                     <div className="row g-3 align-items-center mb-3">
@@ -141,7 +135,7 @@ export default function IssuesCreate(props) {
 
         <div>
           <div className="mb-4 mt-5">
-            <h1>Outgoing Invites ({props.outgoingInvites.length})</h1>
+            <h1>Outgoing Project Invites ({props.outgoingInvites.length})</h1>
           </div>
 
           <table className="table">
@@ -191,11 +185,14 @@ export default function IssuesCreate(props) {
 }
 
 export async function getServerSideProps(context) {
-  const { organizationName } = context.query
+  const { namespaceName, projectName } = context.query
   const outgoingInvites = await prisma.memberInvitation.findMany({
     where: {
-      organization: {
-        name: organizationName
+      project: {
+        name: projectName,
+        namespace: {
+          name: namespaceName
+        }
       }
     },
     select: {

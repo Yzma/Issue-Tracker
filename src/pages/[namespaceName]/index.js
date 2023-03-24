@@ -41,7 +41,11 @@ export async function getServerSideProps(context) {
       name: namespaceName
     },
 
-    include: {
+    select: {
+      id: true,
+      name: true,
+      userId: true,
+      organizationId: true,
       projects: true
     }
   })
@@ -74,9 +78,7 @@ export async function getServerSideProps(context) {
         name: true,
         createdAt: true,
         updatedAt: true,
-        namespace: true,
-
-        organizationMembers: {
+        members: {
           select: {
             id: true,
             role: true,
@@ -93,10 +95,10 @@ export async function getServerSideProps(context) {
 
     result = {
       ...result,
-      organizationMembers: result.organizationMembers.map((member) => ({
+      members: result.members.map((member) => ({
         ...member,
         createdAt: member.createdAt.toISOString()
-      }))
+      })),
     }
   }
 
@@ -109,7 +111,7 @@ export async function getServerSideProps(context) {
       ...project,
       createdAt: project.createdAt.toISOString(),
       updatedAt: project.updatedAt.toISOString()
-    }))
+    })),
   }
 
   const mappedEntity = {

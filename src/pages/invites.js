@@ -62,7 +62,8 @@ export default function MyInvites(props) {
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Organization</th>
+                <th scope="col">Type</th>
+                <th scope="col">Name</th>
                 <th scope="col">Invited By</th>
                 <th scope="col">Invited At</th>
                 <th scope="col">Role</th>
@@ -70,14 +71,54 @@ export default function MyInvites(props) {
               </tr>
             </thead>
             <tbody>
-              {props.organizationInvites.map((invite, index) => (
+              {props.invites.map((invite, index) => (
                 <tr key={index + 1}>
                   <th scope="row">{index}</th>
-                  <td><a href={`/${invite.organization.name}`}>{invite.organization.name}</a></td>
-                  <td><a href={`/${invite.inviteeUser.username}`}>{invite.inviteeUser.username}</a></td>
+                  {invite.organization ? (
+                    <>
+                      <th scope="row">Organization</th>
+                      <td>
+                        <a>{invite.organization.name}</a>
+                      </td>
+                      <td>
+                        <a href={`/${invite.inviteeUser.username}`}>
+                          {invite.inviteeUser.username}
+                        </a>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <th scope="row">Project</th>
+                      <td>
+                        <a>{invite.project.name}</a>
+                      </td>
+                      <td>
+                        <a
+                          href={`/${invite.inviteeUser.username}/${invite.project.name}`}
+                        >
+                          {invite.inviteeUser.username}
+                        </a>
+                      </td>
+                    </>
+                  )}
                   <td>{invite.createdAt}</td>
                   <td>{invite.role}</td>
-                  <td><button className="btn btn-success" type="button" onClick={() => acceptInvitation(invite.id)}>Accept</button> <button className="btn btn-danger" type="button" onClick={() => declineInvitation(invite.id)}>Decline</button></td>
+                  <td>
+                    <button
+                      className="btn btn-success"
+                      type="button"
+                      onClick={() => acceptInvitation(invite.id)}
+                    >
+                      Accept
+                    </button>{" "}
+                    <button
+                      className="btn btn-danger"
+                      type="button"
+                      onClick={() => declineInvitation(invite.id)}
+                    >
+                      Decline
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -100,7 +141,7 @@ export async function getServerSideProps(context) {
     }
   }
 
-  const organizationInvites = await prisma.organizationInvitation.findMany({
+  const invites = await prisma.memberInvitation.findMany({
     where: {
       invitedId: session.user.id
     },
@@ -118,13 +159,48 @@ export async function getServerSideProps(context) {
         select: {
           name: true
         }
+      },
+      project: {
+        select: {
+          name: true
+        }
       }
     }
   })
 
-  console.log(organizationInvites)
+  if (!invites) {
+    return {
+      props: {
+        invites: []
+      }
+    }
+  }
 
-  const mapped = organizationInvites.map((e) => {
+  // const organizationInvites = await prisma.organizationInvitation.findMany({
+  // where: {
+  //   invitedId: session.user.id
+  // },
+
+  //   select: {
+  //     id: true,
+  //     role: true,
+  //     createdAt: true,
+  // inviteeUser: {
+  //   select: {
+  //     username: true
+  //   }
+  // },
+  // organization: {
+  //   select: {
+  //     name: true
+  //   }
+  // }
+  //   }
+  // })
+
+  console.log(invites)
+
+  const mapped = invites.map((e) => {
     return {
       ...e,
       createdAt: e.createdAt.toISOString()
@@ -133,7 +209,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      organizationInvites: mapped
+      invites: mapped
     }
   }
 }

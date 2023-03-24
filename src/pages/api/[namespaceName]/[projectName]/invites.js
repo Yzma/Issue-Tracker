@@ -6,7 +6,7 @@ import { authOptions } from "@/pages/api/auth/[...nextauth]"
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 
 export default async function handler(req, res) {
-  const { organizationName } = req.query
+  const { namespaceName, projectName } = req.query
 
   if (req.method === "POST") {
     const { name, role } = req.body
@@ -23,6 +23,31 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Invalid session" })
     }
 
+    const foundNamespace = await prisma.namespace.findUnique({
+      where: {
+        name: namespaceName
+      }
+    })
+
+    if (!foundNamespace) {
+      return res.status(400).json({ error: "Namespace not found" })
+    }
+
+    console.log(foundNamespace)
+
+    const foundProject = await prisma.project.findFirst({
+      where: {
+        name: projectName,
+        namespaceId: foundNamespace.id
+      }
+    })
+
+    if (!foundProject) {
+      return res.status(400).json({ error: "Project not found" })
+    }
+
+    console.log("Project ", foundProject)
+
     // TODO: Authorize user creating invite
     return await prisma.memberInvitation
       .create({
@@ -38,9 +63,9 @@ export default async function handler(req, res) {
               id: session.user.id
             }
           },
-          organization: {
+          project: {
             connect: {
-              name: organizationName
+              id: foundProject.id
             }
           }
         }
@@ -60,45 +85,13 @@ export default async function handler(req, res) {
 
   if (req.method === "DELETE") {
     const { inviteId } = req.body
-    console.log("inviteId", inviteId)
+
+    console.log("invite id", inviteId)
+
     const session = await getServerSession(req, res, authOptions(req, res))
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }
-
-    // TODO: Authorize user canceling invite
-    // const foundMember = await prisma.organizationMember.findMany({
-    //   where: {
-    //     userId: session.user.id,
-    //     organization: {
-    //       name: organizationName
-    //     }
-    //   }
-    // })
-
-    // console.log("Member", foundMember)
-
-    // // TODO: Remove debug '1' after testing
-    // if (!foundMember) {
-    //   return res
-    //     .status(400)
-    //     .json({
-    //       error: "You do not have permission to do this action.1 (not member)"
-    //     })
-    // }
-
-    // const member = foundMember[0]
-
-    // // TODO: Use constant rather than hard coded string
-    // if (member.role !== "Owner") {
-    //   return res
-    //     .status(400)
-    //     .json({
-    //       error: "You do not have permission to do this action.2 (not owner)"
-    //     })
-    // }
-
-    console.log("invite id", inviteId)
 
     return await prisma.memberInvitation
       .delete({

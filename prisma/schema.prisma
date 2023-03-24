@@ -40,9 +40,10 @@ model User {
   comments      Comment[]
   organizations Organization[]
 
-  organizationMembers            OrganizationMember[]
-  organizationInvitations        OrganizationInvitation[] @relation("invited")
-  pendingOrganizationInvitations OrganizationInvitation[] @relation("invites")
+  members                  Member[]
+
+  memberInvitations        MemberInvitation[] @relation("invited")
+  pendingMemberInvitations MemberInvitation[] @relation("invites")
 }
 
 model Organization {
@@ -58,8 +59,8 @@ model Organization {
 
   namespace Namespace?
 
-  organizationMembers      OrganizationMember[]
-  organizationInvitationss OrganizationInvitation[]
+  members                  Member[]
+  MemberInvitation         MemberInvitation[]
 }
 
 // Note: 20230319212545_namespace_has_atleast_one_org_or_user:
@@ -77,10 +78,11 @@ model Namespace {
   projects Project[]
 }
 
-model OrganizationInvitation {
+model MemberInvitation {
   id String @id @default(cuid())
 
-  createdAt DateTime @default(now())
+  role      OrganizationRole @default(User)
+  createdAt DateTime         @default(now())
 
   // The user that's being invited
   invitedId   String
@@ -93,12 +95,17 @@ model OrganizationInvitation {
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
-  role OrganizationRole @default(User)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
 
   @@unique([invitedId, organizationId])
 }
 
-model OrganizationMember {
+// TODO: This is likely going to be a major change.
+// Essentially we want to merge the OrganizationMember table and transform it into a generic Member table (like below)
+// This allows us to have Members for both an Organization and a Project
+// This will be a slow merged as we need to go throughout the code and change things.
+model Member {
   id String @id @default(cuid())
 
   role      OrganizationRole
@@ -107,10 +114,14 @@ model OrganizationMember {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
 
   @@unique([userId, organizationId])
+  @@unique([userId, projectId])
 }
 
 model Project {
@@ -125,8 +136,11 @@ model Project {
   namespaceId String
   namespace   Namespace @relation(fields: [namespaceId], references: [id])
 
-  issues Issue[]
-  labels Label[]
+  members Member[]
+  issues  Issue[]
+  labels  Label[]
+
+  MemberInvitation MemberInvitation[]
 
   @@unique([namespaceId, name])
 }
@@ -140,8 +154,8 @@ model Issue {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  pinned Boolean @default(false)
-  issueNumber Int @default(autoincrement())
+  pinned      Boolean @default(false)
+  issueNumber Int     @default(autoincrement())
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
