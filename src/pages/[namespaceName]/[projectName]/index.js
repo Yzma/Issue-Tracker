@@ -9,6 +9,7 @@ import { useState } from "react";
 import prisma from "@/lib/prisma/prisma";
 import { useRouter } from "next/router"
 import Link from "next/link";
+import { getServerSession } from "@/lib/sessions"
 
 export default function Issues({ issuesData }) {
   console.log(issuesData)
@@ -50,14 +51,79 @@ export default function Issues({ issuesData }) {
 
 export async function getServerSideProps(context) {
   const { namespaceName, projectName } = context.query
-  const issuesData = await prisma.issue.findMany({
+
+  const session = await getServerSession(context.req, context.res)
+
+  const project = await prisma.project.findFirst({
     where: {
-      project: {
-        name: projectName,
-        namespace: {
-          name: namespaceName
+      name: projectName,
+      namespace: {
+        name: namespaceName
+      }
+    },
+
+    include: {
+      namespace: true
+    }
+  })
+
+  console.log("Project: ", project)
+
+  if(project.private) {
+    if(!session) {
+      console.log("private - session is null")
+      return {
+        redirect: {
+          destination: "/404",
+          permanent: false
         }
       }
+    }
+
+    // Is the user apart of the project separately?
+    if(project.namespace.projectId) {
+      const isMember = await prisma.member.findFirst({
+        where: {
+          userId: session.user.id,
+          projectId: project.id
+        }
+      })
+  
+      if(!isMember) {
+        console.log("private - is not member")
+        return {
+          redirect: {
+            destination: "/404",
+            permanent: false
+          }
+        }
+      }
+    }
+
+    // If the project belongs to an organization, then check if they are apart of that organization
+    if(project.namespace.organizationId) {
+      const isOrganizationMember = await prisma.member.findFirst({
+        where: {
+          userId: session.user.id,
+          organizationId: project.namespace.organizationId
+        }
+      })
+  
+      if(!isOrganizationMember) {
+        console.log("private - is not organization member")
+        return {
+          redirect: {
+            destination: "/404",
+            permanent: false
+          }
+        }
+      }
+    }
+  }
+
+  const issuesData = await prisma.issue.findMany({
+    where: {
+      projectId: project.id
     },
     include: {
       labels: true
