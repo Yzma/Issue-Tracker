@@ -10,7 +10,7 @@ import BelowNavbar from "@/components/other/BelowNavbar"
 export default function MyInvites(props) {
   console.log(props)
   const router = useRouter()
-  const { projectName } = router.query
+  const { namespaceName, projectName } = router.query
 
   return (
     <>
@@ -24,7 +24,7 @@ export default function MyInvites(props) {
       <div className="flex h-screen overflow-hidden bg-slate-100">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
 
-        <BelowNavbar namespaceName={"Yzma"} projectName={"Issue-Tracker"}/>
+        <BelowNavbar namespaceName={namespaceName} projectName={projectName}/>
 
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
