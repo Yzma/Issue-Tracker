@@ -80,7 +80,7 @@ export default function MyInvites(props) {
                               <div className="text-center">
                                 <Link
                                   className="text-sky-400 hover:text-sky-700"
-                                  href={"/"}
+                                  href={`/${member.user.username}`}
                                 >
                                   {member.user.username}
                                 </Link>
