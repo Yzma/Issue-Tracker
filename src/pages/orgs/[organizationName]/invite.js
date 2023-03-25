@@ -1,39 +1,18 @@
 import Head from "next/head"
 import { useRouter } from "next/router"
 
+import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 import { Formik, Form, Field } from "formik"
+
+import Header from "@/components/Header"
 
 import axios from "axios"
 
-import prisma from "@/lib/prisma/prisma"
-import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
-
-import "bootstrap/dist/css/bootstrap.min.css"
-import Header from "@/components/Header"
-
-export default function IssuesCreate(props) {
+export default function OrganizationInvitation(props) {
   const router = useRouter()
   const { organizationName } = router.query
 
   console.log(props)
-  const cancelInvite = (inviteId) => {
-    console.log("deleting: ", inviteId)
-    axios
-      .delete(`/api/organization/${organizationName}/invites`, {
-        data: {
-          inviteId: inviteId
-        }
-      })
-      .then((response) => {
-        console.log("RESPONSE:", response)
-        // TODO: Redirect to new project page
-        // router.push("/")
-      })
-      .catch((error) => {
-        console.log("ERROR:", error.response.data)
-        console.log("ERROR:", error)
-      })
-  }
 
   return (
     <>
@@ -43,189 +22,120 @@ export default function IssuesCreate(props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <div className="flex h-screen overflow-hidden">
+        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          <Header />
 
-      <Header />
+          <main>
+            <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+              <div className="mb-8">
+                <div className="flex flex-col md:flex-row md:-mr-px">
+                  <div className="grow">
+                    <div className="p-6 space-y-6">
+                      <section>
+                        <h2 className="text-3xl leading-snug text-slate-800 font-bold mb-1">
+                          Invite a user to join {organizationName}
+                        </h2>
+                        <div className="">
+                          <Formik
+                            initialValues={{
+                              name: ""
+                            }}
+                            validationSchema={NamespaceNameCreationSchema}
+                            onSubmit={(
+                              values,
+                              { setSubmitting, setFieldError }
+                            ) => {
+                    
+                              axios
+                              .post(`/api/organization/${organizationName}/invites`, {
+                                name: values.name,
+                                role: values.role
+                              })
+                              .then((response) => {
+                                console.log("RESPONSE:", response)
+                                // TODO: Redirect to new project page
+                                // router.push("/")
+                              })
+                              .catch((error) => {
+                                console.log("ERROR:", error.response.data)
+                                console.log("ERROR:", error)
+                              })
+                              .finally(() => {
+                                setSubmitting(false)
+                              })
 
-      <div className="mt-5 pt-5" />
 
-      <div className="container">
-        <div className="d-flex justify-content-between">
-          <h2>Invite a user</h2>
-        </div>
+                            }}
+                          >
+                            {({ values, errors, isSubmitting }) => (
+                              <Form>
+                                <section className="flex flex-row mb-4 gap-x-4">
+                                  <div className="sm:w-1/3">
+                                    <label
+                                      className="block text-sm font-medium mb-1"
+                                      htmlFor="name"
+                                    >
+                                      Username{" "}
+                                      <span className="text-rose-500">*</span>
+                                    </label>
+                                    <Field
+                                      className="form-input w-full"
+                                      type="text"
+                                      name="name"
+                                    />
+                                  </div>
 
-        <hr />
-      </div>
+                                  <div className="w-1/6">
+                                    <label
+                                      className="block text-sm font-medium mb-1"
+                                      htmlFor="owner"
+                                    >
+                                      Role{" "}
+                                      <span className="text-rose-500">*</span>
+                                    </label>
 
-      <main className="container">
-        <div className="row g-5">
-          <div className="col-md-8">
-            <article>
-              <Formik
-                initialValues={{
-                  name: "",
-                  role: "User"
-                }}
-                validationSchema={NamespaceNameCreationSchema}
-                onSubmit={(values, { setSubmitting, setFieldError }) => {
-                  axios
-                    .post(`/api/organization/${organizationName}/invites`, {
-                      name: values.name,
-                      role: values.role
-                    })
-                    .then((response) => {
-                      console.log("RESPONSE:", response)
-                      // TODO: Redirect to new project page
-                      // router.push("/")
-                    })
-                    .catch((error) => {
-                      console.log("ERROR:", error.response.data)
-                      console.log("ERROR:", error)
-                    })
-                    .finally(() => {
-                      setSubmitting(false)
-                    })
-                }}
-              >
-                {({
-                  values,
-                  errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  isSubmitting
-                  /* and other goodies */
-                }) => (
-                  <Form>
-                    <div className="row g-3 align-items-center mb-3">
-                      <div className="col-5">
-                        <label htmlFor="name" className="form-label">
-                          Username
-                        </label>
-                        <Field
-                          className="form-control"
-                          type="text"
-                          name="name"
-                        />
-                      </div>
+                                    <Field
+                                      className="form-input w-full "
+                                      as="select"
+                                      name="role"
+                                    >
+                                      <option value="User">User</option>
+                                      <option value="Owner">Owner</option>
+                                    </Field>
+                                  </div>
+                                </section>
 
-                      <div className="col-auto h3 mt-5">/</div>
+                                {errors.name && (
+                                  <div>Name errors:{errors.name}</div>
+                                )}
 
-                      <div className="col-3">
-                        <label htmlFor="role" className="form-label">
-                          Role
-                        </label>
-                        <Field className="form-select" as="select" name="role">
-                          <option value="User">User</option>
-                          <option value="Owner">Owner</option>
-                        </Field>
-                      </div>
+                                <hr />
+
+                                <div className="flex flex-col py-5 border-t border-slate-200">
+                                  <div className="flex self-start">
+                                    <button
+                                      className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                                      type="submit"
+                                      disabled={isSubmitting}
+                                    >
+                                      Invite User
+                                    </button>
+                                  </div>
+                                </div>
+                              </Form>
+                            )}
+                          </Formik>
+                        </div>
+                      </section>
                     </div>
-
-                    {errors.name && <div>{errors.name}</div>}
-                    <hr />
-
-                    <button
-                      type="submit"
-                      className="btn btn-success"
-                      disabled={isSubmitting}
-                    >
-                      Invite User
-                    </button>
-                  </Form>
-                )}
-              </Formik>
-            </article>
-          </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
         </div>
-
-        <div>
-          <div className="mb-4 mt-5">
-            <h1>Outgoing Invites ({props.outgoingInvites.length})</h1>
-          </div>
-
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">User</th>
-                <th scope="col">Invited By</th>
-                <th scope="col">Invited At</th>
-                <th scope="col">Role</th>
-                <th scope="col"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {props.outgoingInvites.map((invite, index) => (
-                <tr key={index}>
-                  <th scope="row">{index + 1}</th>
-                  <td>
-                    <a href={`/${invite.invitedUser.username}`}>
-                      {invite.invitedUser.username}
-                    </a>
-                  </td>
-                  <td>
-                    <a href={`/${invite.inviteeUser.username}`}>
-                      {invite.inviteeUser.username}
-                    </a>
-                  </td>
-                  <td>{invite.createdAt}</td>
-                  <td>{invite.role}</td>
-                  <td>
-                    <button
-                      className="btn btn-danger"
-                      type="button"
-                      onClick={() => cancelInvite(invite.id)}
-                    >
-                      Cancel
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </main>
+      </div>
     </>
   )
-}
-
-export async function getServerSideProps(context) {
-  const { organizationName } = context.query
-  const outgoingInvites = await prisma.memberInvitation.findMany({
-    where: {
-      organization: {
-        name: organizationName
-      }
-    },
-    select: {
-      id: true,
-      role: true,
-      createdAt: true,
-      invitedUser: {
-        select: {
-          username: true
-        }
-      },
-      inviteeUser: {
-        select: {
-          username: true
-        }
-      }
-    }
-  })
-  console.log(outgoingInvites)
-
-  const mapped = outgoingInvites.map((e) => {
-    return {
-      ...e,
-      createdAt: e.createdAt.toISOString()
-    }
-  })
-
-  return {
-    props: {
-      outgoingInvites: mapped
-    }
-  }
 }
