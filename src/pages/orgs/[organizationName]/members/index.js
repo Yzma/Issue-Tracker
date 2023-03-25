@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react"
 import axios from "axios"
 import prisma from "@/lib/prisma/prisma"
 
-export default function ProjectMembers(props) {
+export default function OrganizationMembers(props) {
   const router = useRouter()
   const { organizationName } = router.query
 
@@ -26,7 +26,7 @@ export default function ProjectMembers(props) {
   const removeMember = (memberId) => {
     console.log("removing ", memberId)
     axios
-      .delete(`/api/${namespaceName}/${projectName}/members`, {
+      .delete(`/api/organization/${organizationName}/members`, {
         data: {
           memberId: memberId
         }
@@ -57,7 +57,7 @@ export default function ProjectMembers(props) {
           <Dialog.Content className="DialogContent">
             <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
             <Dialog.Description className="DialogDescription">
-              Are you sure you want to remove {open.name} from the project?
+              Are you sure you want to remove {open.name} from the organization?
             </Dialog.Description>
             <div
               className="gap-2"
