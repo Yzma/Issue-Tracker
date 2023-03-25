@@ -1,21 +1,20 @@
 import Head from "next/head";
-import styles from "@/styles/IssueContainer.module.css";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import IssueList from "@/components/IssueList";
 import IssueButtons from "@/components/IssueButtons";
 import SearchBar from "@/components/IssueSearchBar";
 import { useState } from "react";
 import prisma from "@/lib/prisma/prisma";
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import Link from "next/link";
-import { getServerSession } from "@/lib/sessions"
+import { getServerSession } from "@/lib/sessions";
+import BelowNavbar from "@/components/other/BelowNavbar";
 
 export default function Issues({ issuesData }) {
-  console.log(issuesData)
+  console.log(issuesData);
 
-  const router = useRouter()
-  const { namespaceName, projectName } = router.query
+  const router = useRouter();
+  const { namespaceName, projectName } = router.query;
 
   const [filteredIssues, setFilteredIssues] = useState(issuesData);
 
@@ -30,107 +29,110 @@ export default function Issues({ issuesData }) {
 
   return (
     <>
-      <Head>
-      </Head>
-      <main className={styles.mainContainer}>
+      <Head></Head>
+      <main>
         <Header />
-
-        {/* TODO: Fix styling */}
-        <h3><Link href={`/${namespaceName}`}>{namespaceName}(href)</Link></h3>
-        <div className={styles.topContainer}>
-        <IssueButtons onSearch={handleSearch} path={`/${namespaceName}/${projectName}`}/> 
+        <BelowNavbar />
+        <h3>
+          <Link href={`/${namespaceName}`}>{namespaceName}(href)</Link>
+        </h3>
+        <div className="flex justify-center">
+          <IssueButtons
+            onSearch={handleSearch}
+            path={`/${namespaceName}/${projectName}`}
+          />
         </div>
-        <div className={styles.issueListContainer}>
-          <IssueList issues={filteredIssues} routePath={`/${namespaceName}/${projectName}`} />
-        </div>
-        <Footer />
+        <IssueList
+          issues={filteredIssues}
+          routePath={`/${namespaceName}/${projectName}`}
+        />
       </main>
     </>
   );
 }
 
 export async function getServerSideProps(context) {
-  const { namespaceName, projectName } = context.query
+  const { namespaceName, projectName } = context.query;
 
-  const session = await getServerSession(context.req, context.res)
+  const session = await getServerSession(context.req, context.res);
 
   const project = await prisma.project.findFirst({
     where: {
       name: projectName,
       namespace: {
-        name: namespaceName
-      }
+        name: namespaceName,
+      },
     },
 
     include: {
-      namespace: true
-    }
-  })
+      namespace: true,
+    },
+  });
 
-  console.log("Project: ", project)
+  console.log("Project: ", project);
 
-  if(project.private) {
-    if(!session) {
-      console.log("private - session is null")
+  if (project.private) {
+    if (!session) {
+      console.log("private - session is null");
       return {
         redirect: {
           destination: "/404",
-          permanent: false
-        }
-      }
+          permanent: false,
+        },
+      };
     }
 
     // Is the user apart of the project separately?
-    if(project.namespace.projectId) {
+    if (project.namespace.projectId) {
       const isMember = await prisma.member.findFirst({
         where: {
           userId: session.user.id,
-          projectId: project.id
-        }
-      })
-  
-      if(!isMember) {
-        console.log("private - is not member")
+          projectId: project.id,
+        },
+      });
+
+      if (!isMember) {
+        console.log("private - is not member");
         return {
           redirect: {
             destination: "/404",
-            permanent: false
-          }
-        }
+            permanent: false,
+          },
+        };
       }
     }
 
     // If the project belongs to an organization, then check if they are apart of that organization
-    if(project.namespace.organizationId) {
+    if (project.namespace.organizationId) {
       const isOrganizationMember = await prisma.member.findFirst({
         where: {
           userId: session.user.id,
-          organizationId: project.namespace.organizationId
-        }
-      })
-  
-      if(!isOrganizationMember) {
-        console.log("private - is not organization member")
+          organizationId: project.namespace.organizationId,
+        },
+      });
+
+      if (!isOrganizationMember) {
+        console.log("private - is not organization member");
         return {
           redirect: {
             destination: "/404",
-            permanent: false
-          }
-        }
+            permanent: false,
+          },
+        };
       }
     }
   }
 
   const issuesData = await prisma.issue.findMany({
     where: {
-      projectId: project.id
+      projectId: project.id,
     },
     include: {
-      labels: true
+      labels: true,
     },
   });
 
-  console.log(issuesData)
+  console.log(issuesData);
 
   return {
     props: {

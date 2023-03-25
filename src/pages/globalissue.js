@@ -1,6 +1,5 @@
 import Head from "next/head";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import IssueList from "@/components/IssueList";
 import IssueButtons from "@/components/IssueButtons";
 import SearchBar from "@/components/IssueSearchBar";
@@ -9,6 +8,7 @@ import prisma from "@/lib/prisma/prisma";
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
 import Link from "next/link";
+import BelowNavbar from "@/components/other/BelowNavbar";
 
 export default function Issues({ issuesData }) {
   console.log(issuesData);
@@ -32,12 +32,11 @@ export default function Issues({ issuesData }) {
       <Head></Head>
       <main>
         <Header />
-
-        {/* TODO: Fix styling */}
+        <BelowNavbar />
         <h3>
           <Link href={`/${namespaceName}`}>{namespaceName}(href)</Link>
         </h3>
-        <div>
+        <div className="flex justify-center">
           <IssueButtons
             onSearch={handleSearch}
             path={`/${namespaceName}/${projectName}`}
@@ -49,7 +48,6 @@ export default function Issues({ issuesData }) {
             routePath={`/${namespaceName}/${projectName}`}
           />
         </div>
-        <Footer />
       </main>
     </>
   );
