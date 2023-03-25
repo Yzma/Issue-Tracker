@@ -1,15 +1,26 @@
+import { useState } from "react"
 import Head from "next/head"
-import layoutStyles from "@/styles/usersLayout.module.css"
+import Link from "next/link"
+
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 
-import prisma from "@/lib/prisma/prisma"
-import { getServerSession } from "@/lib/sessions"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faXmark } from "@fortawesome/free-solid-svg-icons"
+
+import * as Dialog from "@radix-ui/react-dialog"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+
 import axios from "axios"
-import "bootstrap/dist/css/bootstrap.min.css"
+
+import { useSession } from "next-auth/react"
+import { getServerSession } from "@/lib/sessions"
+import prisma from "@/lib/prisma/prisma"
 
 export default function MyInvites(props) {
   console.log(props)
+
+  const { data: session } = useSession()
 
   const acceptInvitation = (inviteId) => {
     console.log("accepting: ", inviteId)
@@ -47,6 +58,9 @@ export default function MyInvites(props) {
       })
   }
 
+  const [open, setOpen] = useState(false)
+  const [openAccept, setOpenAccept] = useState(false)
+
   return (
     <>
       <Head>
@@ -55,7 +69,269 @@ export default function MyInvites(props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
+
+      <Header />
+
+      <Dialog.Root open={open} onOpenChange={setOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="DialogOverlay" />
+          <Dialog.Content className="DialogContent">
+            <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
+            <Dialog.Description className="DialogDescription">
+              Are you sure you want to decline this invitation?
+            </Dialog.Description>
+            <div
+              className="gap-2"
+              style={{
+                display: "flex",
+                marginTop: 25,
+                justifyContent: "flex-end"
+              }}
+            >
+              <Dialog.Close asChild>
+                <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                  Cancel
+                </button>
+              </Dialog.Close>
+              <Dialog.Close asChild>
+                <button
+                  className="btn bg-red-500 hover:bg-red-600 text-white"
+                  onClick={() => declineInvitation(open.id)}
+                >
+                  Confirm
+                </button>
+              </Dialog.Close>
+            </div>
+            <Dialog.Close asChild>
+              <button className="IconButton" aria-label="Close">
+                <FontAwesomeIcon icon={faXmark} />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      <Dialog.Root open={openAccept} onOpenChange={setOpenAccept}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="DialogOverlay" />
+          <Dialog.Content className="DialogContent">
+            <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
+            <Dialog.Description className="DialogDescription">
+              Are you sure you want to accept this invitation?
+            </Dialog.Description>
+            <div
+              className="gap-2"
+              style={{
+                display: "flex",
+                marginTop: 25,
+                justifyContent: "flex-end"
+              }}
+            >
+              <Dialog.Close asChild>
+                <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                  Cancel
+                </button>
+              </Dialog.Close>
+              <Dialog.Close asChild>
+                <button
+                  className="btn bg-red-500 hover:bg-red-600 text-white"
+                  onClick={() => acceptInvitation(openAccept.id)}
+                >
+                  Confirm
+                </button>
+              </Dialog.Close>
+            </div>
+            <Dialog.Close asChild>
+              <button className="IconButton" aria-label="Close">
+                <FontAwesomeIcon icon={faXmark} />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      <div className="flex h-screen overflow-hidden bg-slate-100">
+        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          {/* <BelowNavbar
+            namespaceName={namespaceName}
+            projectName={projectName}
+          /> */}
+
+          <main>
+            <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+              <div className="sm:flex sm:justify-between sm:items-center mb-8">
+                <div className="mb-4 sm:mb-0">
+                  <h1 className="text-2xl md:text-3xl text-slate-800 font-bold">
+                    My Invites
+                  </h1>
+                </div>
+              </div>
+
+              <div className="bg-white shadow-lg rounded-sm border border-slate-200 relative">
+                <header className="px-5 py-4">
+                  <h2 className="font-semibold text-slate-800">
+                    My Invites ({props.invites.length}){" "}
+                  </h2>
+                </header>
+
+                <div>
+                  <div className="overflow-x-auto">
+                    <table className="table-auto w-full rounded-xl shadow-lg">
+                      <thead className="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
+                        <tr>
+                          <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div className="font-semibold text-left">#</div>
+                          </th>
+                          <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div className="font-semibold">Type</div>
+                          </th>
+                          <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div className="font-semibold">Name</div>
+                          </th>
+                          <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div className="font-semibold">Invited By</div>
+                          </th>
+                          <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div className="font-semibold">Invited At</div>
+                          </th>
+                          <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div className="font-semibold">Role</div>
+                          </th>
+                          <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <span className="sr-only">Menu</span>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-sm divide-y divide-slate-200">
+                        {props.invites.map((invite, index) => (
+                          <tr key={index}>
+                            <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                              <div className="text-left">{index + 1}</div>
+                            </td>
+
+                            {invite.organization ? (
+                              <>
+                                <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                                  <div className="text-center">
+                                    Organization
+                                  </div>
+                                </td>
+                              </>
+                            ) : (
+                              <>
+                                <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                                  <div className="text-center">Project</div>
+                                </td>
+                              </>
+                            )}
+
+                            {invite.organization ? (
+                              <>
+                                <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                                  <div className="text-center">
+                                    <Link
+                                      className="text-sky-400 hover:text-sky-700"
+                                      href={`/${invite.organization.name}`}
+                                    >
+                                      {invite.organization.name}
+                                    </Link>
+                                  </div>
+                                </td>
+                              </>
+                            ) : (
+                              <>
+                                <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                                  <div className="text-center">
+                                    <Link
+                                      className="text-sky-400 hover:text-sky-700"
+                                      href={`/${invite.project.namespace.name}/${invite.project.name}`}
+                                    >
+                                      {invite.project.name}
+                                    </Link>
+                                  </div>
+                                </td>
+                              </>
+                            )}
+
+                            <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                              <div className="text-center">
+                                <Link
+                                  className="text-sky-400 hover:text-sky-700"
+                                  href={`/${invite.inviteeUser.username}`}
+                                >
+                                  {invite.inviteeUser.username}
+                                </Link>
+                              </div>
+                            </td>
+
+                            <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                              <div className="text-center">
+                                {invite.createdAt}
+                              </div>
+                            </td>
+
+                            <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                              <div className="text-center">{invite.role}</div>
+                            </td>
+
+                            <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px">
+                              <DropdownMenu.Root>
+                                <DropdownMenu.Trigger asChild>
+                                  <svg
+                                    className="w-8 h-8 fill-current "
+                                    viewBox="0 0 32 32"
+                                  >
+                                    <circle cx="16" cy="16" r="2" />
+                                    <circle cx="10" cy="16" r="2" />
+                                    <circle cx="22" cy="16" r="2" />
+                                  </svg>
+                                </DropdownMenu.Trigger>
+
+                                <DropdownMenu.Portal>
+                                  <DropdownMenu.Content
+                                    className="DropdownMenuContent"
+                                    sideOffset={5}
+                                  >
+                                    <DropdownMenu.Item
+                                      className="DropdownMenuItem"
+                                      onClick={() =>
+                                        setOpen({
+                                          id: invite.id
+                                        })
+                                      }
+                                    >
+                                      Decline Invitation
+                                      <div className="RightSlot"></div>
+                                    </DropdownMenu.Item>
+
+                                    <DropdownMenu.Item
+                                      className="DropdownMenuItem"
+                                      onClick={() =>
+                                        setOpenAccept({
+                                          id: invite.id
+                                        })
+                                      }
+                                    >
+                                      Accept Invitation
+                                      <div className="RightSlot"></div>
+                                    </DropdownMenu.Item>
+                                  </DropdownMenu.Content>
+                                </DropdownMenu.Portal>
+                              </DropdownMenu.Root>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      {/* <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
         <Header />
         <div className={layoutStyles.labelsContainer}>
           <table className="table">
@@ -125,7 +401,7 @@ export default function MyInvites(props) {
           </table>
         </div>
         <Footer />
-      </main>
+      </main> */}
     </>
   )
 }
@@ -162,7 +438,12 @@ export async function getServerSideProps(context) {
       },
       project: {
         select: {
-          name: true
+          name: true,
+          namespace: {
+            select: {
+              name: true
+            }
+          }
         }
       }
     }
@@ -175,28 +456,6 @@ export async function getServerSideProps(context) {
       }
     }
   }
-
-  // const organizationInvites = await prisma.organizationInvitation.findMany({
-  // where: {
-  //   invitedId: session.user.id
-  // },
-
-  //   select: {
-  //     id: true,
-  //     role: true,
-  //     createdAt: true,
-  // inviteeUser: {
-  //   select: {
-  //     username: true
-  //   }
-  // },
-  // organization: {
-  //   select: {
-  //     name: true
-  //   }
-  // }
-  //   }
-  // })
 
   console.log(invites)
 
