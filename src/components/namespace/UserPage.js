@@ -48,7 +48,11 @@ const UserPage = ({ props }) => {
                 {activeTab === "projects" ? (
                   <ProjectSection projects={props.namespace.projects} />
                 ) : (
-                  <OrganizationSection organizations={props.data.organizations} />
+                  <OrganizationSection
+                    organizations={props.data.members.map(
+                      (member) => member.organization
+                    )}
+                  />
                 )}
               </div>
             </div>
@@ -60,4 +64,3 @@ const UserPage = ({ props }) => {
 };
 
 export default UserPage;
-
