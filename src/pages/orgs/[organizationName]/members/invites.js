@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react"
 import axios from "axios"
 import prisma from "@/lib/prisma/prisma"
 
-export default function ProjectMembers(props) {
+export default function OrganizationMembers(props) {
   const router = useRouter()
   const { organizationName } = router.query
 
