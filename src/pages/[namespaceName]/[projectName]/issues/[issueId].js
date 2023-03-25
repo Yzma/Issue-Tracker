@@ -252,9 +252,8 @@ export default function IssuesView(props) {
           </Modal.Footer>
         </Modal>
 
-        <div className="mt-5 pt-5" />
-
         <Header />
+
         <div className="container">
           <div className="d-flex justify-content-between">
             {showEditTitle && (
@@ -743,26 +742,29 @@ export default function IssuesView(props) {
 
               <hr />
 
-              <div>
-                <FontAwesomeIcon className="mr-4" icon={faLock} />
-                <a href="#" onClick={() => setCloseIssue(true)}>
-                  Close Issue
-                </a>
-              </div>
+              <section className="flex flex-col gap-y-2"> 
+                <div>
+                  <FontAwesomeIcon className="mr-2" icon={faLock} />
+                  <a className="text-gray-600 hover:cursor-pointer" onClick={() => setCloseIssue(true)}>
+                    Close Issue
+                  </a>
+                </div>
 
-              <div>
-                <FontAwesomeIcon className="mr-4" icon={faThumbTack} />
-                <a href="#" onClick={() => setPinIssue(true)}>
-                  {issue.pinned ? "Unpin" : "Pin"} Issue
-                </a>
-              </div>
+                <div>
+                  <FontAwesomeIcon className="mr-2" icon={faThumbTack} />
+                  <a className="text-gray-600 hover:cursor-pointer" onClick={() => setPinIssue(true)}>
+                    {issue.pinned ? "Unpin" : "Pin"} Issue
+                  </a>
+                </div>
 
-              <div>
-                <FontAwesomeIcon className="mr-4" icon={faTrash} />
-                <a href="#" onClick={() => setDeleteIssue(true)}>
-                  Delete Issue
-                </a>
-              </div>
+                <div>
+                  <FontAwesomeIcon className="mr-2" icon={faTrash} />
+                  <a className="text-gray-600 hover:cursor-pointer" onClick={() => setDeleteIssue(true)}>
+                    Delete Issue
+                  </a>
+                </div>
+              </section>
+
             </div>
           </div>
         </main>
