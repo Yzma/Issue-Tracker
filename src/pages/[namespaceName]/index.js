@@ -1,18 +1,18 @@
-import Head from "next/head"
+import Head from "next/head";
 
-import layoutStyles from "@/styles/usersLayout.module.css"
-import Header from "@/components/Header"
+import layoutStyles from "@/styles/usersLayout.module.css";
+import Header from "@/components/Header";
+import prisma from "@/lib/prisma/prisma";
 
-import Footer from "@/components/Footer"
-import prisma from "@/lib/prisma/prisma"
+import { useSession } from "next-auth/react";
 
-import { useSession } from "next-auth/react"
-
-import UserPage from "@/components/namespace/UserPage"
-import OrganizationPage from "@/components/namespace/OrganizationPage"
+import UserPage from "@/components/namespace/UserPage";
+import OrganizationPage from "@/components/namespace/OrganizationPage";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBug } from "@fortawesome/free-solid-svg-icons";
 
 export default function UserProfile(props) {
-  console.log(props)
+  console.log(props);
 
   return (
     <>
@@ -27,18 +27,22 @@ export default function UserProfile(props) {
         ) : (
           <OrganizationPage props={props} />
         )}
-        <Footer />
       </main>
+      <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
+        <div className="text-center">
+          <FontAwesomeIcon icon={faBug} />
+          <p className="mt-2">Bug-Zapper</p>
+        </div>
+      </div>
     </>
-  )
+  );
 }
-
 export async function getServerSideProps(context) {
-  const { namespaceName } = context.query
+  const { namespaceName } = context.query;
 
   const namespace = await prisma.namespace.findUnique({
     where: {
-      name: namespaceName
+      name: namespaceName,
     },
 
     select: {
@@ -46,31 +50,62 @@ export async function getServerSideProps(context) {
       name: true,
       userId: true,
       organizationId: true,
-      projects: true
-    }
-  })
+      projects: true,
+    },
+  });
 
   if (!namespace) {
     return {
       redirect: {
         destination: "/404",
-        permanent: false
-      }
-    }
+        permanent: false,
+      },
+    };
   }
 
-  let result
+  let result;
 
   if (namespace.userId) {
+    // TODO: Fetch the users organizations that their apart of
     result = await prisma.user.findUnique({
       where: {
         username: namespaceName
+      },
+
+      select: {
+        username: true,
+        members: {
+          where: {
+            project: null
+          },
+
+          select: {
+            organization: true
+          }
+        }
       }
     })
+
+    // "members":[{"organization":{"id":"clfn0qqoe000vqqic0xsfp94y","name":"AliceOrg","createdAt":"2023-03-24T20:52:30.735Z","updatedAt":"2023-03-24T20:52:30.735Z","userId":"clfn0qqnp0000qqicwa8qulku"}}]}
+
+    console.log("resss", JSON.stringify(result))
+    console.log(result.members)
+    result = {
+      ...result,
+      members: result.members.map((member) => ({
+        ...member,
+        organization: {
+          ...member.organization,
+          createdAt: member.organization.createdAt.toISOString(),
+          updatedAt: member.organization.createdAt.toISOString()
+        }
+      }))
+    }
+
   } else {
     result = await prisma.organization.findUnique({
       where: {
-        name: namespaceName
+        name: namespaceName,
       },
 
       select: {
@@ -85,46 +120,40 @@ export async function getServerSideProps(context) {
             createdAt: true,
             user: {
               select: {
-                username: true
-              }
-            }
-          }
-        }
-      }
-    })
+                username: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
     result = {
       ...result,
       members: result.members.map((member) => ({
         ...member,
-        createdAt: member.createdAt.toISOString()
+        createdAt: member.createdAt.toISOString(),
       })),
-    }
+    };
   }
 
-  console.log("namespace", namespace)
-  console.log("res", result)
+  console.log("namespace", namespace);
+  console.log("res", result);
 
   const mappedNamespace = {
     ...namespace,
     projects: namespace.projects.map((project) => ({
       ...project,
       createdAt: project.createdAt.toISOString(),
-      updatedAt: project.updatedAt.toISOString()
+      updatedAt: project.updatedAt.toISOString(),
     })),
-  }
-
-  const mappedEntity = {
-    ...result,
-    createdAt: result.createdAt.toISOString(),
-    updatedAt: result.updatedAt.toISOString()
-  }
+  };
 
   return {
     props: {
       type: namespace.userId ? "User" : "Organization",
-      namespace: mappedNamespace,
-      data: mappedEntity
-    }
-  }
+      namespace: JSON.parse(JSON.stringify(namespace)),
+      data: JSON.parse(JSON.stringify(result))
+    },
+  };
 }
