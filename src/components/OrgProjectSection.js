@@ -13,7 +13,15 @@ const ProjectSection = ({ projects }) => {
   return (
     <div className="w-3/4 mx-auto">
       <section className="bg-white shadow-md rounded-md p-6">
-        <h2 className="text-2xl font-semibold mb-4">Projects</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold">Projects</h2>
+          <button
+            className="btn bg-green-600 hover:bg-green-500 text-white"
+            onClick={handleCreateProject}
+          >
+            Create Project
+          </button>
+        </div>
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -46,17 +54,10 @@ const ProjectSection = ({ projects }) => {
             ))}
           </tbody>
         </table>
-        <div className="flex justify-center mt-4">
-          <button
-            className="btn bg-green-600 hover:bg-green-500 text-white"
-            onClick={handleCreateProject}
-          >
-            Create Project
-          </button>
-        </div>
       </section>
     </div>
   );
 };
 
 export default ProjectSection;
+
