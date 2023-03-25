@@ -1,11 +1,8 @@
 import React from "react";
-import styles from "../styles/OrganizationSection.module.css";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 const OrganizationSection = ({ organizations }) => {
-  console.log("OrganizationSection organizations", organizations);
-
   const router = useRouter();
 
   const handleCreateOrganization = () => {
@@ -13,25 +10,31 @@ const OrganizationSection = ({ organizations }) => {
   };
 
   return (
-    <section className={styles.container}>
-      {typeof organizations === 'undefined' ? (
+    <section className="bg-white shadow-md rounded-md p-6">
+      {typeof organizations === "undefined" ? (
         <p>No Organization Found</p>
       ) : (
         <>
-          <table className={styles.table}>
-            <thead>
-              <tr className={styles.header}>
-                <th className={styles.cell}>Name</th>
-                <th className={styles.cell}>Created At</th>
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Created At
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
               {organizations.map((organization) => (
                 <tr key={organization.id}>
-                  <td className={styles.cell}>
-                    <Link href={`/orgs/${organization.name}`}>{organization.name}</Link>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <Link href={`/orgs/${organization.name}`}>
+                      {organization.name}
+                    </Link>
                   </td>
-                  <td className={styles.cell}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(organization.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
@@ -40,11 +43,14 @@ const OrganizationSection = ({ organizations }) => {
           </table>
         </>
       )}
-      <button
-        onClick={handleCreateOrganization}
-      >
-        Create Organization
-      </button>
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={handleCreateOrganization}
+          className="btn bg-green-600 hover:bg-green-500 text-white"
+        >
+          Create Organization
+        </button>
+      </div>
     </section>
   );
 };

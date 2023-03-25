@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import layoutStyles from "@/styles/usersLayout.module.css";
 import ProfileContainer from "../ProfileContainer";
 import ProjectSection from "../OrgProjectSection";
 import OrganizationSection from "../OrganizationSection";
@@ -15,26 +14,34 @@ const UserPage = ({ props }) => {
         <meta name="description" content="TODO: Description?" />
       </Head>
 
-      <div className={layoutStyles.mainContainer}>
-        <div className={layoutStyles.profileContainer}>
+      <div className="flex w-full">
+        <div className="w-1/4">
           <ProfileContainer username={props.data.username} bio={""} />
         </div>
-        <div className={layoutStyles.rightSection}>
-          <div className={layoutStyles.tabs}>
+        <div className="w-3/4 pl-8"> {/* Added padding-left here */}
+          <div className="flex justify-center w-full mt-4">
             <button
-              className={`${layoutStyles.tabButton} ${activeTab === "projects" ? layoutStyles.activeTab : ""}`}
+              className={`px-4 py-2 font-semibold rounded ${
+                activeTab === "projects"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-200 text-gray-800"
+              }`}
               onClick={() => setActiveTab("projects")}
             >
               Projects
             </button>
             <button
-              className={`${layoutStyles.tabButton} ${activeTab === "organizations" ? layoutStyles.activeTab : ""}`}
+              className={`px-4 py-2 font-semibold rounded ${
+                activeTab === "organizations"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-200 text-gray-800"
+              }`}
               onClick={() => setActiveTab("organizations")}
             >
               Organizations
             </button>
           </div>
-          <div className={layoutStyles.contentSection}>
+          <div className="w-full max-w-5xl">
             {activeTab === "projects" ? (
               <ProjectSection projects={props.namespace.projects} />
             ) : (
@@ -48,4 +55,3 @@ const UserPage = ({ props }) => {
 };
 
 export default UserPage;
-
