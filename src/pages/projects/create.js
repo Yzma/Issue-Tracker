@@ -1,18 +1,17 @@
-import prisma from "@/lib/prisma/prisma"
-import { getServerSession } from "@/lib/sessions"
-
 import { useRouter } from "next/router"
 import Head from "next/head"
+
+import Header from "@/components/Header"
 
 import { Formik, Form, Field } from "formik"
 import { ProjectCreationSchema } from "@/lib/yup-schemas"
 
-import { useSession } from "next-auth/react"
-
 import axios from "axios"
 
-import "bootstrap/dist/css/bootstrap.min.css"
-import Header from "@/components/Header"
+import { useSession } from "next-auth/react"
+
+import prisma from "@/lib/prisma/prisma"
+import { getServerSession } from "@/lib/sessions"
 
 export default function ProjectCreate(props) {
   const router = useRouter()
@@ -35,148 +34,230 @@ export default function ProjectCreate(props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Header />
-      <div className="mt-5 pt-5" />
 
-      <div className="container">
-        <h2>Create a new Project</h2>
-        <p>
-          A project contains all project files, including the revision history.
-        </p>
+      <div className="flex h-screen overflow-hidden">
+        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          <Header />
 
-        <hr />
+          <main>
+            <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+              <div className="mb-8">
+                <div className="flex flex-col md:flex-row md:-mr-px">
+                  <div className="grow">
+                    <div className="p-6 space-y-6">
+                      <section>
+                        <h2 className="text-3xl leading-snug text-slate-800 font-bold mb-1">
+                          Create a new project
+                        </h2>
+                        <div className="font-light">
+                          A repository contains all project files, including the
+                          revision history. Already have a project repository
+                          elsewhere?
+                        </div>
+                        <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-5">
+                          <Formik
+                            initialValues={{
+                              name: "",
+                              description: "",
+                              private: false,
+                              owner: session?.namespace
+                            }}
+                            validationSchema={ProjectCreationSchema}
+                            onSubmit={(
+                              values,
+                              { setSubmitting, setFieldError }
+                            ) => {
+                              values.private =
+                                values.private == "true" ? true : false
 
-        <Formik
-          initialValues={{
-            name: "",
-            description: "",
-            private: false,
-            owner: session?.namespace
-          }}
-          validationSchema={ProjectCreationSchema}
-          onSubmit={(values, { setSubmitting, setFieldError }) => {
-            values.private = values.private == "true" ? true : false
+                              axios
+                                .post("/api/projects", {
+                                  name: values.name,
+                                  description: values.description,
+                                  private: values.private,
+                                  owner: values.owner
+                                })
+                                .then((response) => {
+                                  console.log("RESPONSE:", response)
+                                  router.push(`/${values.owner}/${values.name}`)
+                                })
+                                .catch((error) => {
+                                  console.log("ERROR:", error)
+                                })
+                                .finally(() => {
+                                  setSubmitting(false)
+                                })
+                            }}
+                          >
+                            {({ values, errors, isSubmitting }) => (
+                              <Form>
+                                {(errors.name ||
+                                  errors.description ||
+                                  errors.private) && (
+                                  <div
+                                    className="alert alert-danger"
+                                    role="alert"
+                                  >
+                                    <ul>
+                                      {errors.name && (
+                                        <li>Name: {errors.name}</li>
+                                      )}
+                                      {errors.description && (
+                                        <li>
+                                          Description: {errors.description}
+                                        </li>
+                                      )}
+                                      {errors.private && (
+                                        <li>private: {errors.private}</li>
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
 
-            axios
-              .post("/api/projects", {
-                name: values.name,
-                description: values.description,
-                private: values.private,
-                owner: values.owner
-              })
-              .then((response) => {
-                console.log("RESPONSE:", response)
-                router.push(`/${values.owner}/${values.name}`)
-              })
-              .catch((error) => {
-                console.log("ERROR:", error)
-              })
-              .finally(() => {
-                setSubmitting(false)
-              })
-          }}
-        >
-          {({
-            values,
-            errors,
-            touched,
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            isSubmitting
-            /* and other goodies */
-          }) => (
-            <Form>
-              {(errors.name || errors.description || errors.private) && (
-                <div className="alert alert-danger" role="alert">
-                  <ul>
-                    {errors.name && <li>Name: {errors.name}</li>}
-                    {errors.description && (
-                      <li>Description: {errors.description}</li>
-                    )}
-                    {errors.private && <li>private: {errors.private}</li>}
-                  </ul>
+                                <section className="flex flex-row mb-4">
+                                  <div className="sm:w-1/3">
+                                    <label
+                                      className="block text-sm font-medium mb-1"
+                                      htmlFor="owner"
+                                    >
+                                      Owner{" "}
+                                      <span className="text-rose-500">*</span>
+                                    </label>
+                                    <Field
+                                      className="form-input w-full "
+                                      as="select"
+                                      name="owner"
+                                    >
+                                      <option
+                                        key={session?.namespace}
+                                        value={session?.namespace}
+                                      >
+                                        {session?.namespace}
+                                      </option>
+                                      {map}
+                                    </Field>
+                                  </div>
+
+                                  <div className="auto-cols-auto pt-6 font-semibold text-2xl px-3">
+                                    /
+                                  </div>
+
+                                  <div className="sm:w-1/3 grow">
+                                    <label
+                                      className="block text-sm font-medium mb-1"
+                                      htmlFor="name"
+                                    >
+                                      Project Name{" "}
+                                      <span className="text-rose-500">*</span>
+                                    </label>
+                                    <Field
+                                      className="form-input w-full"
+                                      type="text"
+                                      name="name"
+                                    />
+                                  </div>
+                                </section>
+
+                                <hr />
+
+                                <section className="mt-4 mb-4 grow">
+                                  <h2 className="text-xl leading-snug text-slate-800 font-bold mb-1">
+                                    Description (optional)
+                                  </h2>
+                                  <div className="flex flex-wrap mt-5 grow">
+                                    <div className="mr-2 grow">
+                                      <label
+                                        className="sr-only"
+                                        htmlFor="description"
+                                      ></label>
+                                      <Field
+                                        className="form-input w-full"
+                                        type="text"
+                                        name="description"
+                                      />
+                                    </div>
+                                  </div>
+                                </section>
+
+                                <hr />
+
+                                <section className="mt-4 mb-4">
+                                  <h2 className="text-xl leading-snug text-slate-800 font-bold mb-4">
+                                    Visibility
+                                  </h2>
+
+                                  <div class="flex flew-row gap-x-4 items-center pb-3">
+                                    <Field
+                                      className="form-radio"
+                                      type="radio"
+                                      name="private"
+                                      value="false"
+                                      checked={true}
+                                    />
+
+                                    <div>
+                                      <p className="font-bold">Public</p>
+                                      <p className="text-sm font-light">
+                                        Anyone on the internet can see this
+                                        repository. You choose who can commit.
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div class="flex flew-row gap-x-4 items-center">
+                                    <Field
+                                      className="form-radio"
+                                      type="radio"
+                                      name="private"
+                                      value="true"
+                                    />
+
+                                    <div>
+                                      <p className="font-bold">Private</p>
+                                      <p className="text-sm font-light">
+                                        You choose who can see and commit to
+                                        this repository.
+                                      </p>
+                                    </div>
+                                  </div>
+                                </section>
+
+                                {errors.name && (
+                                  <div>Name errors:{errors.name}</div>
+                                )}
+                                {errors.description && (
+                                  <div>
+                                    Description errors: {errors.description}
+                                  </div>
+                                )}
+                                {errors.private && (
+                                  <div>Private error: {errors.private}</div>
+                                )}
+
+                                <hr />
+
+                                <div className="flex flex-col py-5 border-t border-slate-200">
+                                  <div className="flex self-start">
+                                    <button
+                                      className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                                      type="submit"
+                                      disabled={isSubmitting}
+                                    >
+                                      Create Project
+                                    </button>
+                                  </div>
+                                </div>
+                              </Form>
+                            )}
+                          </Formik>
+                        </div>
+                      </section>
+                    </div>
+                  </div>
                 </div>
-              )}
-
-              <div className="row g-3 align-items-center mb-3">
-                <div className="col-2">
-                  <label htmlFor="owner" className="form-label">
-                    Owner
-                  </label>
-                  <Field className="form-select" as="select" name="owner">
-                    <option key={session?.namespace} value={session?.namespace}>
-                      {session?.namespace}
-                    </option>
-                    {map}
-                  </Field>
-                </div>
-
-                <div className="col-auto h3 mt-5">/</div>
-
-                <div className="col-4">
-                  <label htmlFor="name" className="form-label">
-                    Project Name
-                  </label>
-                  <Field className="form-control" type="text" name="name" />
-                </div>
               </div>
-
-              <div className="mb-3">
-                <label htmlFor="description" className="form-label">
-                  Description (optional)
-                </label>
-                <Field
-                  className="form-control"
-                  type="text"
-                  name="description"
-                />
-              </div>
-
-              <hr />
-
-              <div className="form-check">
-                <Field
-                  className="form-check-input"
-                  type="radio"
-                  name="private"
-                  value="false"
-                  checked={true}
-                />
-                <label className="form-check-label" htmlFor="exampleRadios1">
-                  Public
-                </label>
-              </div>
-              <div className="form-check">
-                <Field
-                  className="form-check-input"
-                  type="radio"
-                  name="private"
-                  value="true"
-                />
-                <label className="form-check-label" htmlFor="exampleRadios2">
-                  Private
-                </label>
-              </div>
-
-              {errors.name && <div>Name errors:{errors.name}</div>}
-              {errors.description && (
-                <div>Description errors: {errors.description}</div>
-              )}
-              {errors.private && <div>Private error: {errors.private}</div>}
-
-              <hr />
-
-              <button
-                type="submit"
-                className="btn btn-success"
-                disabled={isSubmitting}
-              >
-                Create Project
-              </button>
-            </Form>
-          )}
-        </Formik>
+            </div>
+          </main>
+        </div>
       </div>
     </>
   )
