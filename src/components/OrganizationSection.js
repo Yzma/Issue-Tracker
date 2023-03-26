@@ -39,7 +39,7 @@ const OrganizationSection = ({ organizations }) => {
               {organizations.map((organization) => (
                 <tr key={organization.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <Link href={`/orgs/${organization.name}`}>
+                    <Link href={`/${organization.name}`}>
                       {organization.name}
                     </Link>
                   </td>

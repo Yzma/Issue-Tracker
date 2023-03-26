@@ -40,7 +40,7 @@ const ProjectSection = ({ projects }) => {
             {projects.map((project) => (
               <tr key={project.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  <Link href={`/${namespaceName}/${project.name}/issues`}>
+                  <Link href={`/${namespaceName}/${project.name}`}>
                     {project.name}
                   </Link>
                 </td>
