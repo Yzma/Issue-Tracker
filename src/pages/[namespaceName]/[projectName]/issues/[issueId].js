@@ -14,31 +14,17 @@ import * as Dialog from "@radix-ui/react-dialog"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
 import Header from "@/components/Header"
-
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
 import Comment from "@/components/comment/Comment"
 
 import MarkdownViewer from "@/components/markdown/MarkdownViewer"
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 
-import Dropdown from "react-bootstrap/Dropdown"
-import Button from "react-bootstrap/Button"
-import Modal from "react-bootstrap/Modal"
-
 import { Tab } from "@headlessui/react"
-
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Typography,
-  Tooltip
-} from "@material-tailwind/react"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faLock,
-  faEllipsis,
   faThumbTack,
   faTrash,
   faGear,
@@ -49,9 +35,7 @@ import {
 import axios from "axios"
 
 import { useSession } from "next-auth/react"
-
 import prisma from "@/lib/prisma/prisma"
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
 
 const FormButton = (props) => {
   return (
@@ -1163,7 +1147,11 @@ export default function IssuesView(props) {
                             )
                             .then((response) => {
                               console.log("RESPONSE:", response)
-                              // TODO: Render to the screen - don't refresh the page
+                              setIssueState((prevState) => ({
+                                ...prevState,
+                                labels: response.data.result.labels
+                              }));
+                              
                             })
                             .catch((error) => {
                               console.log("ERROR:", error.response.data)
