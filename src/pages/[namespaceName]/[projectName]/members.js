@@ -8,12 +8,13 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons"
 
 import * as Dialog from "@radix-ui/react-dialog"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
-import BelowNavbar from "@/components/other/BelowNavbar"
 
 import { useSession } from "next-auth/react"
 
 import axios from "axios"
 import prisma from "@/lib/prisma/prisma"
+import Header from "@/components/Header"
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
 
 export default function ProjectMembers(props) {
   const router = useRouter()
@@ -92,7 +93,8 @@ export default function ProjectMembers(props) {
 
       <div className="flex h-screen overflow-hidden bg-slate-100">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-          <BelowNavbar
+          <Header />
+          <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
           />

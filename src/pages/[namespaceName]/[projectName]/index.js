@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { getServerSession } from "@/lib/sessions";
 import BelowNavbar from "@/components/other/BelowNavbar";
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar";
 
 export default function Issues({ issuesData }) {
   console.log(issuesData);
@@ -32,7 +33,10 @@ export default function Issues({ issuesData }) {
       <Head></Head>
       <main>
         <Header />
-        <BelowNavbar />
+        <ProjectBelowNavbar
+            namespaceName={namespaceName}
+            projectName={projectName}
+          />
         <h3>
           <Link href={`/${namespaceName}`}>{namespaceName}(href)</Link>
         </h3>
