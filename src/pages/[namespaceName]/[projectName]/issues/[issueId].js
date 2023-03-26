@@ -669,12 +669,9 @@ export default function IssuesView(props) {
                                   Edit
                                 </FormButton>
                               )}
-                              <FormButton
-                                submit={false}
-                                className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white"
-                              >
+                              <Link className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white" href={`/${namespaceName}/${projectName}/new`}>
                                 New Issue
-                              </FormButton>
+                              </Link>
                             </>
                           )}
                         </div>
