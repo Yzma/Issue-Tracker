@@ -16,13 +16,11 @@ export default function UserSettings() {
   };
 
   const handleSave = () => {
-    // Save the updated bio and social links
     console.log("Bio:", bio);
     console.log("Social Links:", socialLinks);
   };
 
   const handleCancel = () => {
-    // Cancel any changes made to the bio and social links
     console.log("Changes canceled");
   };
 
