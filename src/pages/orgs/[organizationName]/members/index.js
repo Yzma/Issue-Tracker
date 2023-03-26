@@ -14,6 +14,8 @@ import { useSession } from "next-auth/react"
 
 import axios from "axios"
 import prisma from "@/lib/prisma/prisma"
+import Header from "@/components/Header"
+import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
 
 export default function OrganizationMembers(props) {
   const router = useRouter()
@@ -92,11 +94,8 @@ export default function OrganizationMembers(props) {
 
       <div className="flex h-screen overflow-hidden bg-slate-100">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-          {/* <BelowNavbar
-            namespaceName={namespaceName}
-            projectName={projectName}
-          /> */}
-
+          <Header />
+          <OrganizationBelowNavbar namespaceName={organizationName} />
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
               <div className="sm:flex sm:justify-between sm:items-center mb-8">

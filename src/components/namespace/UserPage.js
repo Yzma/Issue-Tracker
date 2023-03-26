@@ -14,7 +14,7 @@ const UserPage = ({ props }) => {
         <title>{props.data.username}'s Profile</title>
         <meta name="description" content="TODO: Description?" />
       </Head>
-      <BelowNavbar />
+
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-center items-start">
           <div className="w-1/4 mt-20"> {/* Add margin-top here */}
