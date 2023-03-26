@@ -6,6 +6,7 @@ import Head from "next/head"
 import OrgProjectSection from "@/components/OrgProjectSection"
 import Tabs from "@/components/OrgPageTabs"
 import UserSection from "@/components/OrgUserSection"
+import OrganizationBelowNavbar from "../navbar/OrganizationBelowNavbar"
 
 const OrganizationPage = ({ props }) => {
   console.log("Orgh props ", props)
@@ -22,6 +23,8 @@ const OrganizationPage = ({ props }) => {
         <title>{props.data.name}</title>
         <meta name="description" content="TODO: Description?" />
       </Head>
+
+      <OrganizationBelowNavbar namespaceName={"AliceOrg"} />
 
       <div className={layoutStyles.projectSection}>
         <Tabs activeTab={activeTab} onTabClick={handleTabClick} />

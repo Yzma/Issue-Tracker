@@ -51,6 +51,7 @@ import axios from "axios"
 import { useSession } from "next-auth/react"
 
 import prisma from "@/lib/prisma/prisma"
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
 
 const FormButton = (props) => {
   return (
@@ -577,6 +578,11 @@ export default function IssuesView(props) {
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <Header />
 
+          <ProjectBelowNavbar
+            namespaceName={namespaceName}
+            projectName={projectName}
+          />
+
           <main>
             <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
               <div class="col-start-2 col-span-6">
@@ -833,7 +839,16 @@ export default function IssuesView(props) {
                           {/* const Comment = ({ placeholder, editing, createdAt, now, formatter}) => { */}
 
                           {issue.comments.map((comment, index) => (
-                            <Comment key={index} placeholder={comment.description} text={comment.description} editing={false} canEdit={true} createdAt={comment.createdAt} now={props.now} formatter={formatter} />
+                            <Comment
+                              key={index}
+                              placeholder={comment.description}
+                              text={comment.description}
+                              editing={false}
+                              canEdit={true}
+                              createdAt={comment.createdAt}
+                              now={props.now}
+                              formatter={formatter}
+                            />
                             // <div key={index} className="card mb-5">
                             //   <div className="card-header d-flex justify-content-between align-items-center">
                             //     <div>

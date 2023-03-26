@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 import layoutStyles from "@/styles/usersLayout.module.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -7,10 +8,12 @@ import LabelSearchBar from "@/components/LabelSearchBar";
 import { useState } from "react";
 
 import prisma from "@/lib/prisma/prisma";
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar";
 
 
 export default function LabelPage(props) {
-
+  const router = useRouter()
+  const { namespaceName, projectName } = router.query
   console.log(props)
 
   const [searchTerm, setSearchTerm] = useState(""); 
@@ -33,6 +36,10 @@ export default function LabelPage(props) {
       </Head>
       <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
         <Header />
+        <ProjectBelowNavbar
+            namespaceName={namespaceName}
+            projectName={projectName}
+          />
         <div className={layoutStyles.labelsContainer}>
           <LabelSearchBar onSearch={handleSearch} />
 
