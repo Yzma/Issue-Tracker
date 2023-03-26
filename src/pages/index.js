@@ -39,7 +39,7 @@ export default function Home() {
                 <FontAwesomeIcon icon={faBug} className="text-9xl mb-4" />
                 <h1 className="text-4xl font-bold">Bug-Zapper</h1>
                 <p className="text-center mt-4 px-6">
-                  Bug-Zapper is a powerful and user-friendly platform for tracking and managing coding bugs in your projects. Our mission is to streamline your bug tracking process, making it easier to identify, prioritize, and resolve coding issues in your projects. With a user-friendly interface and powerful collaboration tools, Bug-Zapper empowers developers and teams to efficiently manage bugs, enhance code quality, and accelerate project delivery. Join us today!
+                  Bug-Zapper is a powerful and user-friendly platform for tracking and managing coding bugs in your projects. Our mission is to streamline your bug tracking process, making it easier to identify, prioritize, and resolve coding issues in your projects. With a user-friendly interface and powerful collaboration tools, Bug-Zapper empowers developers and teams to efficiently manage bugs, enhance code quality, and accelerate project delivery. Join us!
                 </p>
               </div>
             </div>
