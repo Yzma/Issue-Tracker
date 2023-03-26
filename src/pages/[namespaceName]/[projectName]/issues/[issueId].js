@@ -1,10 +1,7 @@
 import React, { useState } from "react"
 import Head from "next/head"
+import Link from "next/link"
 import { useRouter } from "next/router"
-import Dropdown from "react-bootstrap/Dropdown"
-import Button from "react-bootstrap/Button"
-import Modal from "react-bootstrap/Modal"
-import SSRProvider from "react-bootstrap/SSRProvider"
 
 import TimeAgo from "react-timeago"
 import englishStrings from "react-timeago/lib/language-strings/en"
@@ -13,27 +10,219 @@ import buildFormatter from "react-timeago/lib/formatters/buildFormatter"
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
 
+import * as Dialog from "@radix-ui/react-dialog"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+
+import Header from "@/components/Header"
+
+import Comment from "@/components/comment/Comment"
+
+import MarkdownViewer from "@/components/markdown/MarkdownViewer"
+import MarkdownEditor from "@/components/markdown/MarkdownEditor"
+
+import Dropdown from "react-bootstrap/Dropdown"
+import Button from "react-bootstrap/Button"
+import Modal from "react-bootstrap/Modal"
+
+import { Tab } from "@headlessui/react"
+
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Typography,
+  Tooltip
+} from "@material-tailwind/react"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faLock,
   faEllipsis,
   faThumbTack,
   faTrash,
-  faGear
+  faGear,
+  faCircle,
+  faXmark
 } from "@fortawesome/free-solid-svg-icons"
 
-import prisma from "@/lib/prisma/prisma"
 import axios from "axios"
-
-import "bootstrap/dist/css/bootstrap.min.css"
-import Header from "@/components/Header"
-
-import MarkdownViewer from "@/components/markdown/MarkdownViewer"
-import MarkdownEditor from "@/components/markdown/MarkdownEditor"
-import Link from "next/link"
 
 import { useSession } from "next-auth/react"
 
+import prisma from "@/lib/prisma/prisma"
+
+const FormButton = (props) => {
+  return (
+    <>
+      <button
+        {...props}
+        onClick={(e) => {
+          if (!props.submit) {
+            e.preventDefault(e)
+          }
+          props.onClick?.(e)
+        }}
+      >
+        {props.children}
+      </button>
+    </>
+  )
+}
+
+const YzmaCard = (props) => {
+  return (
+    <div className="col-span-full xl:col-span-8 bg-white shadow-lg rounded border border-slate-200">
+      <header className="flex flex-row justify-between px-3 py-2 border-b border-slate-100">
+        <div className="font-semibold text-slate-800">
+          Yzma posted{" "}
+          <TimeAgo
+            date={props.createdAt}
+            live={false}
+            now={() => props.now}
+            formatter={props.formatter}
+          />
+        </div>
+        <div className="font-semibold text-slate-800">
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <svg className="w-8 h-8 fill-current " viewBox="0 0 32 32">
+                <circle cx="16" cy="16" r="2" />
+                <circle cx="10" cy="16" r="2" />
+                <circle cx="22" cy="16" r="2" />
+              </svg>
+            </DropdownMenu.Trigger>
+
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                className="DropdownMenuContent"
+                sideOffset={5}
+              >
+                <DropdownMenu.Item className="DropdownMenuItem">
+                  Edit
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="DropdownMenuItem">
+                  Copy Link
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+        </div>
+      </header>
+      <div className="p-3">{props.children}</div>
+    </div>
+  )
+}
+
+// placeholder={issue.description}
+// onChange={(text) =>
+//   setFieldValue("description", text)
+// }
+// <MarkdownViewer text={comment.description} />
+const Yzma2 = (props) => {
+  const [text, setText] = useState("")
+  return (
+    <div className="col-span-full xl:col-span-8 bg-white shadow-lg rounded border border-slate-200">
+      {props.isEditing ? (
+        <Tab.Group>
+          <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
+            <Tab
+              className={({ selected }) =>
+                classNames(
+                  "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
+                  "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+                  selected
+                    ? "bg-white shadow"
+                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                )
+              }
+            >
+              Write
+            </Tab>
+
+            <Tab
+              className={({ selected }) =>
+                classNames(
+                  "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
+                  "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+                  selected
+                    ? "bg-white shadow"
+                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                )
+              }
+            >
+              Preview
+            </Tab>
+          </Tab.List>
+          <Tab.Panels className="mt-2">
+            <Tab.Panel
+              className={classNames(
+                "rounded-xl bg-white p-3",
+                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+              )}
+            >
+              <MarkdownEditor
+                placeholder={text}
+                onChange={(text) => setText(text)}
+              />
+            </Tab.Panel>
+
+            <Tab.Panel
+              className={classNames(
+                "rounded-xl bg-white p-3",
+                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+              )}
+            >
+              <MarkdownViewer text={text} />
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
+      ) : (
+        <header className="flex flex-row justify-between px-3 py-2 border-b border-slate-100">
+          <div className="font-semibold text-slate-800">
+            Yzma posted{" "}
+            <TimeAgo
+              date={props.createdAt}
+              live={false}
+              now={() => props.now}
+              formatter={props.formatter}
+            />
+          </div>
+          <div className="font-semibold text-slate-800">
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <svg className="w-8 h-8 fill-current " viewBox="0 0 32 32">
+                  <circle cx="16" cy="16" r="2" />
+                  <circle cx="10" cy="16" r="2" />
+                  <circle cx="22" cy="16" r="2" />
+                </svg>
+              </DropdownMenu.Trigger>
+
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  className="DropdownMenuContent"
+                  sideOffset={5}
+                >
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    Edit
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    Copy Link
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+          </div>
+        </header>
+      )}
+
+      <div className="p-3">{props.children}</div>
+    </div>
+  )
+}
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ")
+}
 export default function IssuesView(props) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -63,36 +252,6 @@ export default function IssuesView(props) {
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
 
-  const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
-    <FontAwesomeIcon
-      className="mr-4"
-      icon={faEllipsis}
-      ref={ref}
-      onClick={(e) => {
-        e.preventDefault()
-        onClick(e)
-      }}
-    >
-      {children}
-      &#x25bc;
-    </FontAwesomeIcon>
-  ))
-
-  const CustomToggle2 = React.forwardRef(({ children, onClick }, ref) => (
-    <FontAwesomeIcon
-      className="mr-4"
-      icon={faGear}
-      ref={ref}
-      onClick={(e) => {
-        e.preventDefault()
-        onClick(e)
-      }}
-    >
-      {children}
-      &#x25bc;
-    </FontAwesomeIcon>
-  ))
-
   const arraysEqual = (a, b) => {
     if (a === b) return true
     if (a == null || b == null) return false
@@ -108,8 +267,6 @@ export default function IssuesView(props) {
 
   const [labels, setLabels] = useState(issue.labels)
 
-  console.log(namespaceName, projectName)
-
   // TODO: Schema doesn't validate label ids - figure out a way to check them
   const onLabelClick = (label) => {
     if (labels.find((e) => e.id === label.id)) {
@@ -124,10 +281,6 @@ export default function IssuesView(props) {
     setShowEditTitle(true)
   }
 
-  const editIssue = () => {}
-
-  const editComment = (comment) => {}
-
   const deleteComment = (comment) => {
     handleClose()
   }
@@ -136,7 +289,7 @@ export default function IssuesView(props) {
     axios
       .put(`/api/${namespaceName}/${projectName}/issues`, {
         issueId: issueId,
-        open: false
+        open: !issue.open
       })
       .then((response) => {
         console.log("RESPONSE:", response)
@@ -181,219 +334,271 @@ export default function IssuesView(props) {
 
   return (
     <>
-      <SSRProvider>
-        <Head>
-          <title>Create Issues</title>
-          <meta name="description" content="Generated by create next app" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+      <Head>
+        <title>Create Issues</title>
+        <meta name="description" content="Generated by create next app" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
 
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirmation</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>Are you sure you want to delete this comment?</Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-              Close
-            </Button>
-            <Button variant="danger" onClick={deleteComment}>
-              Delete
-            </Button>
-          </Modal.Footer>
-        </Modal>
+      {/* <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this comment?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="danger" onClick={deleteComment}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal> */}
 
-        <Modal show={showCloseIssue} onHide={() => setCloseIssue(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirmation</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>Are you sure you want to close this issue?</Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setCloseIssue(false)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={closeIssue}>
-              Close Issue
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        <Modal show={showDeleteIssue} onHide={() => setDeleteIssue(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirmation</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>Are you sure you want to delete this issue?</Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setDeleteIssue(false)}>
-              Close
-            </Button>
-            <Button variant="danger" onClick={deleteIssue}>
-              Delete Issue
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        <Modal show={showPinIssue} onHide={() => setPinIssue(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirmation</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Are you sure you want to {issue.pinned ? "unpin" : "pin"} this
-            issue?
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setPinIssue(false)}>
-              Close
-            </Button>
-            <Button variant="success" onClick={pinIssue}>
-              {issue.pinned ? "Unpin" : "Pin"} Issue
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        <div className="mt-5 pt-5" />
-
-        <Header />
-        <div className="container">
-          <div className="d-flex justify-content-between">
-            {showEditTitle && (
-              <Formik
-                initialValues={{
-                  name: ""
-                }}
-                // validationSchema={IssueCreationSchema}
-                onSubmit={(values, { setSubmitting, setFieldError }) => {
-                  axios
-                    .put(`/api/${namespaceName}/${projectName}/issues`, {
-                      issueId: issueId,
-                      name: values.name
-                    })
-                    .then((response) => {
-                      console.log("RESPONSE:", response)
-                      props.issuesData.name = values.name // TODO: Probably a better way to do this
-                      setShowEditTitle(false)
-                    })
-                    .catch((error) => {
-                      console.log("ERROR:", error)
-                    })
-                    .finally(() => {
-                      setSubmitting(false)
-                    })
-                }}
-              >
-                {({
-                  errors,
-                  isSubmitting,
-                  values,
-                  setFieldValue,
-                  setValues
-                }) => (
-                  <Form>
-                    <Field
-                      className="form-control"
-                      type="text"
-                      name="name"
-                      placeholder={issue.name}
-                    />
-
-                    {showEditTitle && (
-                      <>
-                        <button
-                          type="submit"
-                          className="btn btn-success"
-                          onClick={editIssueTitle}
-                        >
-                          Save
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-danger"
-                          onClick={() => setShowEditTitle(false)}
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    )}
-                  </Form>
-                )}
-              </Formik>
-            )}
-
-            {!showEditTitle && <h2>{issue.name}</h2>}
-
-            {!showEditTitle && session && session.user.id === issue.user.id && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setShowEditTitle(true)}
-              >
-                Edit
+      <Dialog.Root open={show} onOpenChange={handleClose}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="DialogOverlay" />
+          <Dialog.Content className="DialogContent">
+            <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
+            <Dialog.Description className="DialogDescription">
+              Are you sure you want to delete this comment?
+            </Dialog.Description>
+            <div
+              className="gap-2"
+              style={{
+                display: "flex",
+                marginTop: 25,
+                justifyContent: "flex-end"
+              }}
+            >
+              <Dialog.Close asChild>
+                <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                  Cancel
+                </button>
+              </Dialog.Close>
+              <Dialog.Close asChild>
+                <button
+                  className="btn bg-red-500 hover:bg-red-600 text-white"
+                  onClick={deleteComment}
+                >
+                  Confirm
+                </button>
+              </Dialog.Close>
+            </div>
+            <Dialog.Close asChild>
+              <button className="IconButton" aria-label="Close">
+                <FontAwesomeIcon icon={faXmark} />
               </button>
-            )}
-          </div>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
-          <p>
-            {issue.pinned && (
-              <>
-                <span className="badge bg-success">Pinned</span>{" "}
-              </>
-            )}
-            {issue.open && (
-              <>
-                <span className="badge bg-success">Open</span>Opened{" "}
-              </>
-            )}
-            {!issue.open && (
-              <>
-                <span className="badge bg-danger">Closed</span>Closed{" "}
-              </>
-            )}
-            {new Date(issue.createdAt).toLocaleString("default", {
-              year: "numeric",
-              month: "long",
-              day: "numeric"
-            })}{" "}
-            by{" "}
-            <Link href={`/${issue.user.username}`}>{issue.user.username}</Link>
-          </p>
-          <hr />
-        </div>
+      {/* <Modal show={showCloseIssue} onHide={() => setCloseIssue(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to close this issue?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setCloseIssue(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={closeIssue}>
+            Close Issue
+          </Button>
+        </Modal.Footer>
+      </Modal> */}
 
-        <main className="container">
-          <div className="row g-5">
-            <div className="col-md-8">
-              <article>
-                <div className="d-flex justify-content-end align-self-center">
-                  {!showEditDescription &&
-                    session &&
-                    session.user.id === issue.user.id && (
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => setShowDescription(true)}
-                      >
-                        Edit
-                      </button>
-                    )}
-                </div>
+      <Dialog.Root
+        open={showCloseIssue}
+        onOpenChange={() => setCloseIssue(false)}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="DialogOverlay" />
+          <Dialog.Content className="DialogContent">
+            <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
+            <Dialog.Description className="DialogDescription">
+              Are you sure you want to {issue.open ? <>close</> : <>reopen</>}{" "}
+              this issue?
+            </Dialog.Description>
+            <div
+              className="gap-2"
+              style={{
+                display: "flex",
+                marginTop: 25,
+                justifyContent: "flex-end"
+              }}
+            >
+              <Dialog.Close asChild>
+                <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                  Cancel
+                </button>
+              </Dialog.Close>
+              <Dialog.Close asChild>
+                <button
+                  className="btn bg-red-500 hover:bg-red-600 text-white"
+                  onClick={closeIssue}
+                >
+                  Confirm
+                </button>
+              </Dialog.Close>
+            </div>
+            <Dialog.Close asChild>
+              <button className="IconButton" aria-label="Close">
+                <FontAwesomeIcon icon={faXmark} />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
-                {showEditDescription ? (
+      {/* <Modal show={showDeleteIssue} onHide={() => setDeleteIssue(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this issue?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setDeleteIssue(false)}>
+            Close
+          </Button>
+          <Button variant="danger" onClick={deleteIssue}>
+            Delete Issue
+          </Button>
+        </Modal.Footer>
+      </Modal> */}
+
+      <Dialog.Root
+        open={showDeleteIssue}
+        onOpenChange={() => setDeleteIssue(false)}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="DialogOverlay" />
+          <Dialog.Content className="DialogContent">
+            <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
+            <Dialog.Description className="DialogDescription">
+              Are you sure you want to delete this issue?
+            </Dialog.Description>
+            <div
+              className="gap-2"
+              style={{
+                display: "flex",
+                marginTop: 25,
+                justifyContent: "flex-end"
+              }}
+            >
+              <Dialog.Close asChild>
+                <button
+                  className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                  onClick={() => setDeleteIssue(false)}
+                >
+                  Cancel
+                </button>
+              </Dialog.Close>
+              <Dialog.Close asChild>
+                <button
+                  className="btn bg-red-500 hover:bg-red-600 text-white"
+                  onClick={deleteComment}
+                >
+                  Confirm
+                </button>
+              </Dialog.Close>
+            </div>
+            <Dialog.Close asChild>
+              <button className="IconButton" aria-label="Close">
+                <FontAwesomeIcon icon={faXmark} />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* <Modal show={showPinIssue} onHide={() => setPinIssue(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to {issue.pinned ? "unpin" : "pin"} this issue?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setPinIssue(false)}>
+            Close
+          </Button>
+          <Button variant="success" onClick={pinIssue}>
+            {issue.pinned ? "Unpin" : "Pin"} Issue
+          </Button>
+        </Modal.Footer>
+      </Modal> */}
+
+      <Dialog.Root open={showPinIssue} onOpenChange={() => setPinIssue(false)}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="DialogOverlay" />
+          <Dialog.Content className="DialogContent">
+            <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
+            <Dialog.Description className="DialogDescription">
+              Are you sure you want to {issue.pinned ? "unpin" : "pin"} this
+              issue?
+            </Dialog.Description>
+            <div
+              className="gap-2"
+              style={{
+                display: "flex",
+                marginTop: 25,
+                justifyContent: "flex-end"
+              }}
+            >
+              <Dialog.Close asChild>
+                <button
+                  className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                  onClick={() => setPinIssue(false)}
+                >
+                  Cancel
+                </button>
+              </Dialog.Close>
+              <Dialog.Close asChild>
+                <button
+                  className="btn bg-red-500 hover:bg-red-600 text-white"
+                  onClick={pinIssue}
+                >
+                  {issue.pinned ? "Unpin" : "Pin"} Issue
+                </button>
+              </Dialog.Close>
+            </div>
+            <Dialog.Close asChild>
+              <button className="IconButton" aria-label="Close">
+                <FontAwesomeIcon icon={faXmark} />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      <div className="flex h-screen overflow-hidden">
+        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          <Header />
+
+          <main>
+            <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
+              <div class="col-start-2 col-span-6">
+                {" "}
+                {/* Title Section */}
+                <section>
+                  {/* Title and Edit buttons */}
                   <Formik
                     initialValues={{
-                      description: issue.description
+                      name: ""
                     }}
                     // validationSchema={IssueCreationSchema}
-                    onSubmit={(values, { setSubmitting, setFieldError }) => {
+                    onSubmit={(values, { setSubmitting }) => {
                       axios
                         .put(`/api/${namespaceName}/${projectName}/issues`, {
                           issueId: issueId,
-                          description: values.description
+                          name: values.name
                         })
                         .then((response) => {
                           console.log("RESPONSE:", response)
-                          // props.issuesData.name = values.name // TODO: Probably a better way to do this
-                          // setShowEditTitle(false)
+                          props.issuesData.name = values.name // TODO: Probably a better way to do this
+                          setShowEditTitle(false)
                         })
                         .catch((error) => {
                           console.log("ERROR:", error)
@@ -403,112 +608,542 @@ export default function IssuesView(props) {
                         })
                     }}
                   >
-                    {({
-                      errors,
-                      isSubmitting,
-                      values,
-                      setFieldValue,
-                      setValues
-                    }) => (
-                      <Form>
-                        <MarkdownEditor
-                          placeholder={issue.description}
-                          onChange={(text) =>
-                            setFieldValue("description", text)
-                          }
-                        >
-                          <div className="d-flex flex-row-reverse">
-                            <button
-                              type="submit"
-                              className="btn btn-danger"
-                              onClick={() => setShowDescription(false)}
-                            >
-                              Cancel
-                            </button>
-                            <button type="submit" className="btn btn-success">
-                              Submit
-                            </button>
-                          </div>
-                        </MarkdownEditor>
-                      </Form>
-                    )}
+                    <Form>
+                      <div className="flex justify-between">
+                        {showEditTitle ? (
+                          <Field
+                            className="form-input w-1/2"
+                            type="text"
+                            name="name"
+                            placeholder={issue.name}
+                          />
+                        ) : (
+                          <h2 className="text-2xl text-slate-800 font-bold">
+                            {issue.name}
+                          </h2>
+                        )}
+
+                        <div className="flex flex-row gap-x-4">
+                          {showEditTitle ? (
+                            <>
+                              <FormButton
+                                submit={true}
+                                className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
+                              >
+                                Save
+                              </FormButton>
+
+                              <FormButton
+                                submit={false}
+                                onClick={() => setShowEditTitle(false)}
+                                className="btn-xs h-8 shrink bg-rose-500 hover:bg-rose-600 text-white"
+                              >
+                                Cancel
+                              </FormButton>
+                            </>
+                          ) : (
+                            <>
+                              {session && session.user.id === issue.user.id && (
+                                <FormButton
+                                  submit={false}
+                                  onClick={() => setShowEditTitle(true)}
+                                  className="btn-xs h-8 bg-indigo-500 hover:bg-indigo-600 text-white"
+                                >
+                                  Edit
+                                </FormButton>
+                              )}
+                              <FormButton
+                                submit={false}
+                                className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white"
+                              >
+                                New Issue
+                              </FormButton>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </Form>
                   </Formik>
-                ) : (
-                  <MarkdownViewer text={issue.description} />
-                )}
-              </article>
 
-              <hr />
-
-              {issue.comments.map((comment, index) => (
-                <div key={index} className="card mb-5">
-                  <div className="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                      <Link href={`/${comment.user.username}`}>
-                        {comment.user.username}
-                      </Link>{" "}
-                      commented{" "}
-                      {
-                        <TimeAgo
-                          date={comment.createdAt}
-                          live={false}
-                          now={() => props.now}
-                          formatter={formatter}
-                        />
-                      }
-                    </div>
-
-                    {session &&
-                    session.user &&
-                    session.user.id === comment.user.id ? (
-                      <Dropdown>
-                        <Dropdown.Toggle
-                          as={CustomToggle}
-                          id="dropdown-custom-components"
-                        >
-                          Custom toggle
-                        </Dropdown.Toggle>
-
-                        <Dropdown.Menu>
-                          <Dropdown.Item
-                            onClick={() => setEditComment({ id: comment.id })}
+                  {/* Issue Information */}
+                  <div className="pt-2">
+                    <div className="flex flex-row">
+                      <div className="flex flex-row">
+                        {issue.pinned && (
+                          <>
+                            <div className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full">
+                              Pinned
+                            </div>{" "}
+                          </>
+                        )}
+                        {issue.open && (
+                          <>
+                            <div className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full">
+                              Open
+                            </div>
+                            Opened{" "}
+                          </>
+                        )}
+                        {!issue.open && (
+                          <>
+                            <div className="text-sm text-center font-semibold px-1.5 bg-rose-100 text-rose-600 rounded-full">
+                              Closed
+                            </div>
+                            Closed{" "}
+                          </>
+                        )}
+                      </div>
+                      <div className="pl-1">
+                        <p>
+                          {new Date(issue.createdAt).toLocaleString("default", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric"
+                          })}{" "}
+                          by{" "}
+                          <Link
+                            className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
+                            href={`/${issue.user.username}`}
                           >
-                            Edit
-                          </Dropdown.Item>
-                          <Dropdown.Item onClick={() => handleShow(comment)}>
-                            Delete
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    ) : (
-                      <div></div>
+                            {issue.user.username}
+                          </Link>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </section>{" "}
+                <hr className="mt-3 mb-6" />
+              </div>
+
+              <div className="col-start-2 col-span-4">
+                {/* Start Main Content */}
+                <main>
+                  <div className="row g-5">
+                    {/* Issue body and Comment section */}
+                    <section className="col-md-8">
+                      {/* Issue body */}
+                      <section>
+                        <article>
+                          {/* <div className="d-flex justify-content-end align-self-center">
+                            {!showEditDescription &&
+                              session &&
+                              session.user.id === issue.user.id && (
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary"
+                                  onClick={() => setShowDescription(true)}
+                                >
+                                  Edit
+                                </button>
+                              )}
+                          </div> */}
+
+                          {showEditDescription ? (
+                            <Formik
+                              initialValues={{
+                                description: issue.description
+                              }}
+                              // validationSchema={IssueCreationSchema}
+                              onSubmit={(
+                                values,
+                                { setSubmitting, setFieldError }
+                              ) => {
+                                axios
+                                  .put(
+                                    `/api/${namespaceName}/${projectName}/issues`,
+                                    {
+                                      issueId: issueId,
+                                      description: values.description
+                                    }
+                                  )
+                                  .then((response) => {
+                                    console.log("RESPONSE:", response)
+                                    // props.issuesData.name = values.name // TODO: Probably a better way to do this
+                                    // setShowEditTitle(false)
+                                  })
+                                  .catch((error) => {
+                                    console.log("ERROR:", error)
+                                  })
+                                  .finally(() => {
+                                    setSubmitting(false)
+                                  })
+                              }}
+                            >
+                              {({
+                                errors,
+                                isSubmitting,
+                                values,
+                                setFieldValue,
+                                setValues
+                              }) => (
+                                <Form>
+                                  <MarkdownEditor
+                                    placeholder={issue.description}
+                                    onChange={(text) =>
+                                      setFieldValue("description", text)
+                                    }
+                                  >
+                                    <div className="d-flex flex-row-reverse">
+                                      <button
+                                        type="submit"
+                                        className="btn btn-danger"
+                                        onClick={() =>
+                                          setShowDescription(false)
+                                        }
+                                      >
+                                        Cancel
+                                      </button>
+                                      <button
+                                        type="submit"
+                                        className="btn btn-success"
+                                      >
+                                        Submit
+                                      </button>
+                                    </div>
+                                  </MarkdownEditor>
+                                </Form>
+                              )}
+                            </Formik>
+                          ) : (
+                            <Yzma2
+                              issue={issue}
+                              createdAt={issue.createdAt}
+                              isEditing={true}
+                              canEdit={
+                                session && session.user.id === issue.user.id
+                              }
+                              canDelete={false}
+                              now={() => props.now}
+                              formatter={formatter}
+                            ></Yzma2>
+                          )}
+                        </article>
+                      </section>
+                      {/* End Issue body */}
+
+                      <hr className="mt-3 mb-6 divide-y divide-gray-400 hover:divide-y-8" />
+
+                      {/* Comment Section */}
+                      {issue.comments.length > 0 && (
+                        <section className="flex flex-col gap-y-12">
+                          <div className="font-bold text-slate-800 text-3xl">
+                            Comments ({issue.comments.length})
+                          </div>
+
+                          {/* const Comment = ({ placeholder, editing, createdAt, now, formatter}) => { */}
+
+                          {issue.comments.map((comment, index) => (
+                            <Comment key={index} placeholder={comment.description} text={comment.description} editing={false} canEdit={true} createdAt={comment.createdAt} now={props.now} formatter={formatter} />
+                            // <div key={index} className="card mb-5">
+                            //   <div className="card-header d-flex justify-content-between align-items-center">
+                            //     <div>
+                            //       <Link href={`/${comment.user.username}`}>
+                            //         {comment.user.username}
+                            //       </Link>{" "}
+                            //       commented{" "}
+                            //       {
+                            //         <TimeAgo
+                            //           date={comment.createdAt}
+                            //           live={false}
+                            //           now={() => props.now}
+                            //           formatter={formatter}
+                            //         />
+                            //       }
+                            //     </div>
+
+                            //     {session &&
+                            //     session.user &&
+                            //     session.user.id === comment.user.id ? (
+                            //       <Dropdown>
+                            //         <Dropdown.Toggle
+                            //           as={CustomToggle}
+                            //           id="dropdown-custom-components"
+                            //         >
+                            //           Custom toggle
+                            //         </Dropdown.Toggle>
+
+                            //         <Dropdown.Menu>
+                            //           <Dropdown.Item
+                            //             onClick={() =>
+                            //               setEditComment({ id: comment.id })
+                            //             }
+                            //           >
+                            //             Edit
+                            //           </Dropdown.Item>
+                            //           <Dropdown.Item
+                            //             onClick={() => handleShow(comment)}
+                            //           >
+                            //             Delete
+                            //           </Dropdown.Item>
+                            //         </Dropdown.Menu>
+                            //       </Dropdown>
+                            //     ) : (
+                            //       <div></div>
+                            //     )}
+                            //   </div>
+                            //   <div className="card-body">
+                            //     {showEditComment &&
+                            //     showEditComment.id === comment.id ? (
+                            //       <Formik
+                            //         initialValues={{
+                            //           description: comment.description
+                            //         }}
+                            //         // validationSchema={IssueCreationSchema}
+                            //         onSubmit={(
+                            //           values,
+                            //           { setSubmitting, setFieldError }
+                            //         ) => {
+                            //           axios
+                            //             .put(
+                            //               `/api/${namespaceName}/${projectName}/comments`,
+                            //               {
+                            //                 commentId: comment.id,
+                            //                 description: values.description
+                            //               }
+                            //             )
+                            //             .then((response) => {
+                            //               console.log("RESPONSE:", response)
+                            //               // props.issuesData.name = values.name // TODO: Probably a better way to do this
+                            //               // setShowEditTitle(false)
+                            //             })
+                            //             .catch((error) => {
+                            //               console.log("ERROR:", error)
+                            //             })
+                            //             .finally(() => {
+                            //               setSubmitting(false)
+                            //             })
+                            //         }}
+                            //       >
+                            //         {({
+                            //           errors,
+                            //           isSubmitting,
+                            //           values,
+                            //           setFieldValue,
+                            //           setValues
+                            //         }) => (
+                            //           <Form>
+                            //             <MarkdownEditor
+                            //               placeholder={comment.description}
+                            //               onChange={(text) =>
+                            //                 setFieldValue("description", text)
+                            //               }
+                            //             >
+                            //               <div className="d-flex flex-row-reverse">
+                            //                 <button
+                            //                   type="submit"
+                            //                   className="btn btn-danger"
+                            //                   onClick={() => setEditComment(null)}
+                            //                 >
+                            //                   Cancel
+                            //                 </button>
+                            //                 <button
+                            //                   type="submit"
+                            //                   className="btn btn-success"
+                            //                 >
+                            //                   Submit
+                            //                 </button>
+                            //               </div>
+                            //             </MarkdownEditor>
+                            //           </Form>
+                            //         )}
+                            //       </Formik>
+                            //     ) : (
+                            //       <MarkdownViewer text={comment.description} />
+                            //     )}
+                            //   </div>
+                            // </div>
+                          ))}
+                        </section>
+                      )}
+
+                      {/* End Comment Section  */}
+
+                      <hr className="mb-3 mt-3" />
+                      {/* Create Comment Section  */}
+                      <section>
+                        <div className="font-bold text-slate-800 text-3xl">
+                          Create a comment
+                        </div>
+
+                        <Formik
+                          initialValues={{
+                            description: ""
+                          }}
+                          // validationSchema={IssueCreationSchema}
+                          onSubmit={(
+                            values,
+                            { setSubmitting, setFieldError }
+                          ) => {
+                            axios
+                              .post(
+                                `/api/${namespaceName}/${projectName}/comments`,
+                                {
+                                  issueId: issueId,
+                                  description: values.description
+                                }
+                              )
+                              .then((response) => {
+                                console.log("RESPONSE:", response)
+                                // TODO: Render to the screen - don't refresh the page
+                              })
+                              .catch((error) => {
+                                console.log("ERROR:", error.response.data)
+                                console.log("ERROR:", error)
+                              })
+                              .finally(() => {
+                                setSubmitting(false)
+                              })
+                          }}
+                        >
+                          {({
+                            errors,
+                            isSubmitting,
+                            values,
+                            setFieldValue,
+                            setValues
+                          }) => (
+                            <Form>
+                              {(errors.name ||
+                                errors.description ||
+                                errors.private) && (
+                                <div
+                                  className="alert alert-danger"
+                                  role="alert"
+                                >
+                                  <ul>
+                                    {errors.description && (
+                                      <li>Description: {errors.description}</li>
+                                    )}
+                                  </ul>
+                                </div>
+                              )}
+
+                              <MarkdownEditor
+                                onChange={(text) =>
+                                  setFieldValue("description", text)
+                                }
+                              >
+                                <div className="d-flex flex-row-reverse">
+                                  <button
+                                    type="submit"
+                                    className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white"
+                                    disabled={
+                                      isSubmitting ||
+                                      values.description.length === 0
+                                    }
+                                  >
+                                    Submit
+                                  </button>
+                                </div>
+                              </MarkdownEditor>
+                            </Form>
+                          )}
+                        </Formik>
+                      </section>
+                      {/* End Create Comment Section  */}
+                    </section>
+                    {/* End Issue Description and Comment section */}
+                  </div>
+                </main>
+                {/* End Main Content */}
+              </div>
+
+              {/* Issue Actions */}
+              <div className="flex flex-col gap-y-2 col-md-4 col-span-2">
+                {/* Asignees Action */}
+                <div>
+                  <div className="flex justify-between">
+                    <span className="font-bold">Asignees </span>
+                    <FontAwesomeIcon
+                      className="mr-4 align-self-center align-middle"
+                      icon={faGear}
+                    />
+                  </div>
+                  <Link
+                    className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
+                    href={`/${issue.user.username}`}
+                  >
+                    {issue.user.username}
+                  </Link>
+                </div>
+                {/* End Asignees Action */}
+
+                <hr />
+
+                {/* Labels Actions */}
+                <div className="">
+                  <div className="flex justify-between align-self-center">
+                    <span className="font-bold">Labels</span>
+                    {issue.project.labels.length !== 0 && (
+                      <DropdownMenu.Root>
+                        <DropdownMenu.Trigger asChild>
+                          <FontAwesomeIcon
+                            className="mr-4 align-self-center align-middle"
+                            icon={faGear}
+                          />
+                        </DropdownMenu.Trigger>
+
+                        <DropdownMenu.Portal>
+                          <DropdownMenu.Content
+                            className="DropdownMenuContent"
+                            sideOffset={5}
+                          >
+                            {issue.project.labels.map((label, index) => (
+                              <DropdownMenu.Item
+                                key={index}
+                                className="DropdownMenuItem"
+                                onClick={() => onLabelClick(label)}
+                              >
+                                <span>
+                                  <FontAwesomeIcon
+                                    className="mr-4 align-self-center align-middle"
+                                    style={{
+                                      color: `#${label.color}`
+                                    }}
+                                    icon={faCircle}
+                                  />
+                                </span>
+                                {label.name}
+                              </DropdownMenu.Item>
+                            ))}
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                      </DropdownMenu.Root>
                     )}
                   </div>
-                  <div className="card-body">
-                    {showEditComment && showEditComment.id === comment.id ? (
+                  {issue.project.labels.length === 0 ? (
+                    <div>This project has no labels yet</div>
+                  ) : (
+                    <div>
                       <Formik
                         initialValues={{
-                          description: comment.description
+                          labels: labels
                         }}
                         // validationSchema={IssueCreationSchema}
                         onSubmit={(
                           values,
                           { setSubmitting, setFieldError }
                         ) => {
+                          console.log(labels)
+                          const map = labels.map((e) => {
+                            return { id: e.id }
+                          })
+
+                          console.log("map: ", map)
                           axios
                             .put(
-                              `/api/${namespaceName}/${projectName}/comments`,
+                              `/api/${namespaceName}/${projectName}/issues`,
                               {
-                                commentId: comment.id,
-                                description: values.description
+                                issueId: issueId,
+                                labels: map
                               }
                             )
                             .then((response) => {
                               console.log("RESPONSE:", response)
-                              // props.issuesData.name = values.name // TODO: Probably a better way to do this
-                              // setShowEditTitle(false)
+                              // TODO: Render to the screen - don't refresh the page
                             })
                             .catch((error) => {
+                              console.log("ERROR:", error.response.data)
                               console.log("ERROR:", error)
                             })
                             .finally(() => {
@@ -524,249 +1159,82 @@ export default function IssuesView(props) {
                           setValues
                         }) => (
                           <Form>
-                            <MarkdownEditor
-                              placeholder={comment.description}
-                              onChange={(text) =>
-                                setFieldValue("description", text)
-                              }
-                            >
-                              <div className="d-flex flex-row-reverse">
-                                <button
-                                  type="submit"
-                                  className="btn btn-danger"
-                                  onClick={() => setEditComment(null)}
+                            <div className="flex gap-x-1 pt-2">
+                              {labels.map((label, index) => (
+                                <span
+                                  className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full"
+                                  style={{
+                                    color: "white",
+                                    background: `#${label.color}`
+                                  }}
+                                  key={index}
                                 >
-                                  Cancel
-                                </button>
-                                <button
-                                  type="submit"
-                                  className="btn btn-success"
-                                >
-                                  Submit
-                                </button>
-                              </div>
-                            </MarkdownEditor>
+                                  {label.name}
+                                </span>
+                              ))}
+                            </div>
+
+                            {!arraysEqual(labels, defaultLabels) && (
+                              <>
+                                <div className="d-flex flex-row-reverse pt-5">
+                                  <button
+                                    type="submit"
+                                    className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white"
+                                    disabled={isSubmitting}
+                                  >
+                                    Save Changes
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </Form>
                         )}
                       </Formik>
-                    ) : (
-                      <MarkdownViewer text={comment.description} />
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              <hr />
-
-              <h3 className="mb-4">Create a comment</h3>
-
-              <Formik
-                initialValues={{
-                  description: ""
-                }}
-                // validationSchema={IssueCreationSchema}
-                onSubmit={(values, { setSubmitting, setFieldError }) => {
-                  axios
-                    .post(`/api/${namespaceName}/${projectName}/comments`, {
-                      issueId: issueId,
-                      description: values.description
-                    })
-                    .then((response) => {
-                      console.log("RESPONSE:", response)
-                      // TODO: Render to the screen - don't refresh the page
-                    })
-                    .catch((error) => {
-                      console.log("ERROR:", error.response.data)
-                      console.log("ERROR:", error)
-                    })
-                    .finally(() => {
-                      setSubmitting(false)
-                    })
-                }}
-              >
-                {({
-                  errors,
-                  isSubmitting,
-                  values,
-                  setFieldValue,
-                  setValues
-                }) => (
-                  <Form>
-                    {(errors.name || errors.description || errors.private) && (
-                      <div className="alert alert-danger" role="alert">
-                        <ul>
-                          {errors.description && (
-                            <li>Description: {errors.description}</li>
-                          )}
-                        </ul>
-                      </div>
-                    )}
-
-                    <MarkdownEditor
-                      onChange={(text) => setFieldValue("description", text)}
-                    >
-                      <div className="d-flex flex-row-reverse">
-                        <button
-                          type="submit"
-                          className="btn btn-success"
-                          disabled={
-                            isSubmitting || values.description.length === 0
-                          }
-                        >
-                          Submit
-                        </button>
-                      </div>
-                    </MarkdownEditor>
-                  </Form>
-                )}
-              </Formik>
-            </div>
-
-            <div className="col-md-4">
-              <div>
-                <div className="d-flex justify-content-between">
-                  <span className="text-secondary h5">Asignees </span>
-                  <FontAwesomeIcon
-                    className="mr-4 align-self-center align-middle"
-                    icon={faGear}
-                  />
-                </div>
-                <Link href={`/${issue.user.username}`}>
-                  {issue.user.username}
-                </Link>
-              </div>
-
-              <hr />
-
-              <div>
-                <div className="d-flex justify-content-between align-self-center">
-                  <span className="text-secondary h5">Labels </span>
-                  {issue.labels.length === 0 ? (
-                    <div></div>
-                  ) : (
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle2}
-                        id="dropdown-custom-components"
-                      >
-                        Custom toggle
-                      </Dropdown.Toggle>
-
-                      <Dropdown.Menu>
-                        {issue.labels.map((label, index) => (
-                          <Dropdown.Item
-                            key={index}
-                            lable-id={label.id}
-                            onClick={() => onLabelClick(label)}
-                          >
-                            {label.name}
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown.Menu>
-                    </Dropdown>
+                    </div>
                   )}
                 </div>
-                {issue.labels.length === 0 ? (
-                  <div>This project has no labels yet</div>
-                ) : (
+                {/* End Labels Actions */}
+
+                <hr />
+
+                {/* Issue Action Links */}
+                <section className="flex flex-col gap-y-2">
                   <div>
-                    <Formik
-                      initialValues={{
-                        labels: labels
-                      }}
-                      // validationSchema={IssueCreationSchema}
-                      onSubmit={(values, { setSubmitting, setFieldError }) => {
-                        console.log(labels)
-                        const map = labels.map((e) => {
-                          return { id: e.id }
-                        })
-
-                        console.log("map: ", map)
-                        axios
-                          .put(`/api/${namespaceName}/${projectName}/issues`, {
-                            issueId: issueId,
-                            labels: map
-                          })
-                          .then((response) => {
-                            console.log("RESPONSE:", response)
-                            // TODO: Render to the screen - don't refresh the page
-                          })
-                          .catch((error) => {
-                            console.log("ERROR:", error.response.data)
-                            console.log("ERROR:", error)
-                          })
-                          .finally(() => {
-                            setSubmitting(false)
-                          })
-                      }}
+                    <FontAwesomeIcon className="mr-2" icon={faLock} />
+                    <a
+                      className="text-gray-600 font-semibold hover:text-gray-900 hover:underline hover:cursor-pointer"
+                      onClick={() => setCloseIssue(true)}
                     >
-                      {({
-                        errors,
-                        isSubmitting,
-                        values,
-                        setFieldValue,
-                        setValues
-                      }) => (
-                        <Form>
-                          {labels.map((label, index) => (
-                            <span
-                              className="badge"
-                              style={{
-                                color: "white",
-                                background: `#${label.color}`
-                              }}
-                              key={index}
-                            >
-                              {label.name}
-                            </span>
-                          ))}
-
-                          {!arraysEqual(labels, defaultLabels) && (
-                            <>
-                              <div className="d-flex flex-row-reverse">
-                                <button
-                                  type="submit"
-                                  className="btn btn-success"
-                                  disabled={isSubmitting}
-                                >
-                                  Save Changes
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </Form>
-                      )}
-                    </Formik>
+                      {issue.open ? <>Close Issue</> : <>Reopen Issue</>}
+                    </a>
                   </div>
-                )}
-              </div>
 
-              <hr />
+                  <div>
+                    <FontAwesomeIcon className="mr-2" icon={faThumbTack} />
+                    <a
+                      className="text-gray-600 font-semibold hover:text-gray-900 hover:underline hover:cursor-pointer"
+                      onClick={() => setPinIssue(true)}
+                    >
+                      {issue.pinned ? "Unpin" : "Pin"} Issue
+                    </a>
+                  </div>
 
-              <div>
-                <FontAwesomeIcon className="mr-4" icon={faLock} />
-                <a href="#" onClick={() => setCloseIssue(true)}>
-                  Close Issue
-                </a>
-              </div>
-
-              <div>
-                <FontAwesomeIcon className="mr-4" icon={faThumbTack} />
-                <a href="#" onClick={() => setPinIssue(true)}>
-                  {issue.pinned ? "Unpin" : "Pin"} Issue
-                </a>
-              </div>
-
-              <div>
-                <FontAwesomeIcon className="mr-4" icon={faTrash} />
-                <a href="#" onClick={() => setDeleteIssue(true)}>
-                  Delete Issue
-                </a>
+                  <div>
+                    <FontAwesomeIcon className="mr-2" icon={faTrash} />
+                    <a
+                      className="text-gray-600 font-semibold hover:text-gray-900 hover:underline hover:cursor-pointer"
+                      onClick={() => setDeleteIssue(true)}
+                    >
+                      Delete Issue
+                    </a>
+                  </div>
+                </section>
+                {/* End Issue Action Links */}
               </div>
             </div>
-          </div>
-        </main>
-      </SSRProvider>
+          </main>
+        </div>
+      </div>
     </>
   )
 }
@@ -795,6 +1263,12 @@ export async function getServerSideProps(context) {
         select: {
           id: true,
           username: true
+        }
+      },
+
+      project: {
+        select: {
+          labels: true
         }
       },
 
