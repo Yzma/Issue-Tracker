@@ -230,12 +230,13 @@ export default function IssuesView(props) {
   const { namespaceName, projectName, issueId } = router.query
 
   const issue = props.issuesData
+  const [issueState, setIssueState] = useState(props.issuesData)
 
   // TODO: Sort this client side?
-  issue.comments.sort((a, b) => {
+  issueState.comments.sort((a, b) => {
     return new Date(b.createdAt) - new Date(a.createdAt)
   })
-  console.log(issue)
+  console.log("ISSUE STATE: ", issueState)
 
   const formatter = buildFormatter(englishStrings)
 
@@ -264,9 +265,9 @@ export default function IssuesView(props) {
     return true
   }
 
-  const [defaultLabels, setDefaultLabels] = useState(issue.labels)
+  const [defaultLabels, setDefaultLabels] = useState(issueState.labels)
 
-  const [labels, setLabels] = useState(issue.labels)
+  const [labels, setLabels] = useState(issueState.labels)
 
   // TODO: Schema doesn't validate label ids - figure out a way to check them
   const onLabelClick = (label) => {
@@ -290,10 +291,14 @@ export default function IssuesView(props) {
     axios
       .put(`/api/${namespaceName}/${projectName}/issues`, {
         issueId: issueId,
-        open: !issue.open
+        open: !issueState.open
       })
       .then((response) => {
         console.log("RESPONSE:", response)
+        setIssueState((prevState) => ({
+          ...prevState,
+          open: response.data.result.open
+        }));
       })
       .catch((error) => {
         console.log("ERROR:", error)
@@ -301,7 +306,7 @@ export default function IssuesView(props) {
   }
 
   const pinIssue = () => {
-    const inverse = !issue.pinned
+    const inverse = !issueState.pinned
     axios
       .put(`/api/${namespaceName}/${projectName}/issues`, {
         issueId: issueId,
@@ -309,6 +314,10 @@ export default function IssuesView(props) {
       })
       .then((response) => {
         console.log("RESPONSE:", response)
+        setIssueState((prevState) => ({
+          ...prevState,
+          pinned: response.data.result.pinned
+        }));
       })
       .catch((error) => {
         console.log("ERROR:", error)
@@ -317,7 +326,7 @@ export default function IssuesView(props) {
 
   const deleteIssue = async () => {
     const data = {
-      issueId: issue.id
+      issueId: issueState.id
     }
     console.log("deleting data ", data)
 
@@ -420,7 +429,7 @@ export default function IssuesView(props) {
           <Dialog.Content className="DialogContent">
             <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
             <Dialog.Description className="DialogDescription">
-              Are you sure you want to {issue.open ? <>close</> : <>reopen</>}{" "}
+              Are you sure you want to {issueState.open ? <>close</> : <>reopen</>}{" "}
               this issue?
             </Dialog.Description>
             <div
@@ -537,7 +546,7 @@ export default function IssuesView(props) {
           <Dialog.Content className="DialogContent">
             <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
             <Dialog.Description className="DialogDescription">
-              Are you sure you want to {issue.pinned ? "unpin" : "pin"} this
+              Are you sure you want to {issueState.pinned ? "unpin" : "pin"} this
               issue?
             </Dialog.Description>
             <div
@@ -561,7 +570,7 @@ export default function IssuesView(props) {
                   className="btn bg-red-500 hover:bg-red-600 text-white"
                   onClick={pinIssue}
                 >
-                  {issue.pinned ? "Unpin" : "Pin"} Issue
+                  {issueState.pinned ? "Unpin" : "Pin"} Issue
                 </button>
               </Dialog.Close>
             </div>
@@ -586,7 +595,6 @@ export default function IssuesView(props) {
           <main>
             <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
               <div class="col-start-2 col-span-6">
-                {" "}
                 {/* Title Section */}
                 <section>
                   {/* Title and Edit buttons */}
@@ -603,7 +611,10 @@ export default function IssuesView(props) {
                         })
                         .then((response) => {
                           console.log("RESPONSE:", response)
-                          props.issuesData.name = values.name // TODO: Probably a better way to do this
+                          setIssueState((prevState) => ({
+                            ...prevState,
+                            name: response.data.result.name
+                          }));
                           setShowEditTitle(false)
                         })
                         .catch((error) => {
@@ -621,11 +632,11 @@ export default function IssuesView(props) {
                             className="form-input w-1/2"
                             type="text"
                             name="name"
-                            placeholder={issue.name}
+                            placeholder={issueState.name}
                           />
                         ) : (
                           <h2 className="text-2xl text-slate-800 font-bold">
-                            {issue.name}
+                            {issueState.name}
                           </h2>
                         )}
 
@@ -649,7 +660,7 @@ export default function IssuesView(props) {
                             </>
                           ) : (
                             <>
-                              {session && session.user.id === issue.user.id && (
+                              {session && session.user.id === issueState.user.id && (
                                 <FormButton
                                   submit={false}
                                   onClick={() => setShowEditTitle(true)}
@@ -675,14 +686,14 @@ export default function IssuesView(props) {
                   <div className="pt-2">
                     <div className="flex flex-row">
                       <div className="flex flex-row">
-                        {issue.pinned && (
+                        {issueState.pinned && (
                           <>
                             <div className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full">
                               Pinned
                             </div>{" "}
                           </>
                         )}
-                        {issue.open && (
+                        {issueState.open && (
                           <>
                             <div className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full">
                               Open
@@ -690,7 +701,7 @@ export default function IssuesView(props) {
                             Opened{" "}
                           </>
                         )}
-                        {!issue.open && (
+                        {!issueState.open && (
                           <>
                             <div className="text-sm text-center font-semibold px-1.5 bg-rose-100 text-rose-600 rounded-full">
                               Closed
@@ -701,7 +712,7 @@ export default function IssuesView(props) {
                       </div>
                       <div className="pl-1">
                         <p>
-                          {new Date(issue.createdAt).toLocaleString("default", {
+                          {new Date(issueState.createdAt).toLocaleString("default", {
                             year: "numeric",
                             month: "long",
                             day: "numeric"
@@ -709,16 +720,16 @@ export default function IssuesView(props) {
                           by{" "}
                           <Link
                             className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
-                            href={`/${issue.user.username}`}
+                            href={`/${issueState.user.username}`}
                           >
-                            {issue.user.username}
+                            {issueState.user.username}
                           </Link>
                         </p>
                       </div>
                     </div>
                   </div>
                 </section>{" "}
-                <hr className="mt-3 mb-6" />
+                <hr className="mt-3 mb-2" />
               </div>
 
               <div className="col-start-2 col-span-4">
@@ -747,7 +758,7 @@ export default function IssuesView(props) {
                           {showEditDescription ? (
                             <Formik
                               initialValues={{
-                                description: issue.description
+                                description: issueState.description
                               }}
                               // validationSchema={IssueCreationSchema}
                               onSubmit={(
@@ -784,7 +795,7 @@ export default function IssuesView(props) {
                               }) => (
                                 <Form>
                                   <MarkdownEditor
-                                    placeholder={issue.description}
+                                    placeholder={issueState.description}
                                     onChange={(text) =>
                                       setFieldValue("description", text)
                                     }
@@ -813,10 +824,10 @@ export default function IssuesView(props) {
                           ) : (
                             <Yzma2
                               issue={issue}
-                              createdAt={issue.createdAt}
+                              createdAt={issueState.createdAt}
                               isEditing={true}
                               canEdit={
-                                session && session.user.id === issue.user.id
+                                session && session.user.id === issueState.user.id
                               }
                               canDelete={false}
                               now={() => props.now}
@@ -830,15 +841,15 @@ export default function IssuesView(props) {
                       <hr className="mt-3 mb-6 divide-y divide-gray-400 hover:divide-y-8" />
 
                       {/* Comment Section */}
-                      {issue.comments.length > 0 && (
+                      {issueState.comments.length > 0 && (
                         <section className="flex flex-col gap-y-12">
                           <div className="font-bold text-slate-800 text-3xl">
-                            Comments ({issue.comments.length})
+                            Comments ({issueState.comments.length})
                           </div>
 
                           {/* const Comment = ({ placeholder, editing, createdAt, now, formatter}) => { */}
 
-                          {issue.comments.map((comment, index) => (
+                          {issueState.comments.map((comment, index) => (
                             <Comment
                               key={index}
                               placeholder={comment.description}
@@ -1076,9 +1087,9 @@ export default function IssuesView(props) {
                   </div>
                   <Link
                     className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
-                    href={`/${issue.user.username}`}
+                    href={`/${issueState.user.username}`}
                   >
-                    {issue.user.username}
+                    {issueState.user.username}
                   </Link>
                 </div>
                 {/* End Asignees Action */}
@@ -1089,7 +1100,7 @@ export default function IssuesView(props) {
                 <div className="">
                   <div className="flex justify-between align-self-center">
                     <span className="font-bold">Labels</span>
-                    {issue.project.labels.length !== 0 && (
+                    {issueState.project.labels.length !== 0 && (
                       <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
                           <FontAwesomeIcon
@@ -1103,7 +1114,7 @@ export default function IssuesView(props) {
                             className="DropdownMenuContent"
                             sideOffset={5}
                           >
-                            {issue.project.labels.map((label, index) => (
+                            {issueState.project.labels.map((label, index) => (
                               <DropdownMenu.Item
                                 key={index}
                                 className="DropdownMenuItem"
@@ -1126,7 +1137,7 @@ export default function IssuesView(props) {
                       </DropdownMenu.Root>
                     )}
                   </div>
-                  {issue.project.labels.length === 0 ? (
+                  {issueState.project.labels.length === 0 ? (
                     <div>This project has no labels yet</div>
                   ) : (
                     <div>
@@ -1220,7 +1231,7 @@ export default function IssuesView(props) {
                       className="text-gray-600 font-semibold hover:text-gray-900 hover:underline hover:cursor-pointer"
                       onClick={() => setCloseIssue(true)}
                     >
-                      {issue.open ? <>Close Issue</> : <>Reopen Issue</>}
+                      {issueState.open ? <>Close Issue</> : <>Reopen Issue</>}
                     </a>
                   </div>
 
@@ -1230,7 +1241,7 @@ export default function IssuesView(props) {
                       className="text-gray-600 font-semibold hover:text-gray-900 hover:underline hover:cursor-pointer"
                       onClick={() => setPinIssue(true)}
                     >
-                      {issue.pinned ? "Unpin" : "Pin"} Issue
+                      {issueState.pinned ? "Unpin" : "Pin"} Issue
                     </a>
                   </div>
 
