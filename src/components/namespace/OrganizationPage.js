@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-
+import { useRouter } from "next/router"
 import layoutStyles from "@/styles/usersLayout.module.css"
 import Head from "next/head"
 
@@ -9,7 +9,9 @@ import UserSection from "@/components/OrgUserSection"
 import OrganizationBelowNavbar from "../navbar/OrganizationBelowNavbar"
 
 const OrganizationPage = ({ props }) => {
-  console.log("Orgh props ", props)
+  const router = useRouter()
+  const { namespaceName } = router.query
+  console.log("Org props ", props)
 
   const [activeTab, setActiveTab] = useState("projects")
 
@@ -24,7 +26,7 @@ const OrganizationPage = ({ props }) => {
         <meta name="description" content="TODO: Description?" />
       </Head>
 
-      <OrganizationBelowNavbar namespaceName={"AliceOrg"} />
+      <OrganizationBelowNavbar namespaceName={namespaceName} />
 
       <div className={layoutStyles.projectSection}>
         <Tabs activeTab={activeTab} onTabClick={handleTabClick} />
