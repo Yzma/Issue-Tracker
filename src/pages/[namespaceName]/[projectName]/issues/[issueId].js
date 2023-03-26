@@ -16,6 +16,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import Header from "@/components/Header"
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
 import Comment from "@/components/comment/Comment"
+import CommentApi from "@/components/comment-api/CommentApi"
 
 import MarkdownViewer from "@/components/markdown/MarkdownViewer"
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
@@ -36,6 +37,7 @@ import axios from "axios"
 
 import { useSession } from "next-auth/react"
 import prisma from "@/lib/prisma/prisma"
+import IssueComment from "@/components/comment-api/IssueComment"
 
 const FormButton = (props) => {
   return (
@@ -43,7 +45,7 @@ const FormButton = (props) => {
       <button
         {...props}
         onClick={(e) => {
-          if (!props.submit) {
+          if (!props.shouldSubmit) {
             e.preventDefault(e)
           }
           props.onClick?.(e)
@@ -55,159 +57,6 @@ const FormButton = (props) => {
   )
 }
 
-const YzmaCard = (props) => {
-  return (
-    <div className="col-span-full xl:col-span-8 bg-white shadow-lg rounded border border-slate-200">
-      <header className="flex flex-row justify-between px-3 py-2 border-b border-slate-100">
-        <div className="font-semibold text-slate-800">
-          Yzma posted{" "}
-          <TimeAgo
-            date={props.createdAt}
-            live={false}
-            now={() => props.now}
-            formatter={props.formatter}
-          />
-        </div>
-        <div className="font-semibold text-slate-800">
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <svg className="w-8 h-8 fill-current " viewBox="0 0 32 32">
-                <circle cx="16" cy="16" r="2" />
-                <circle cx="10" cy="16" r="2" />
-                <circle cx="22" cy="16" r="2" />
-              </svg>
-            </DropdownMenu.Trigger>
-
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content
-                className="DropdownMenuContent"
-                sideOffset={5}
-              >
-                <DropdownMenu.Item className="DropdownMenuItem">
-                  Edit
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem">
-                  Copy Link
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
-        </div>
-      </header>
-      <div className="p-3">{props.children}</div>
-    </div>
-  )
-}
-
-// placeholder={issue.description}
-// onChange={(text) =>
-//   setFieldValue("description", text)
-// }
-// <MarkdownViewer text={comment.description} />
-const Yzma2 = (props) => {
-  const [text, setText] = useState("")
-  return (
-    <div className="col-span-full xl:col-span-8 bg-white shadow-lg rounded border border-slate-200">
-      {props.isEditing ? (
-        <Tab.Group>
-          <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
-            <Tab
-              className={({ selected }) =>
-                classNames(
-                  "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
-                  "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
-                  selected
-                    ? "bg-white shadow"
-                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
-                )
-              }
-            >
-              Write
-            </Tab>
-
-            <Tab
-              className={({ selected }) =>
-                classNames(
-                  "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
-                  "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
-                  selected
-                    ? "bg-white shadow"
-                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
-                )
-              }
-            >
-              Preview
-            </Tab>
-          </Tab.List>
-          <Tab.Panels className="mt-2">
-            <Tab.Panel
-              className={classNames(
-                "rounded-xl bg-white p-3",
-                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-              )}
-            >
-              <MarkdownEditor
-                placeholder={text}
-                onChange={(text) => setText(text)}
-              />
-            </Tab.Panel>
-
-            <Tab.Panel
-              className={classNames(
-                "rounded-xl bg-white p-3",
-                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-              )}
-            >
-              <MarkdownViewer text={text} />
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>
-      ) : (
-        <header className="flex flex-row justify-between px-3 py-2 border-b border-slate-100">
-          <div className="font-semibold text-slate-800">
-            Yzma posted{" "}
-            <TimeAgo
-              date={props.createdAt}
-              live={false}
-              now={() => props.now}
-              formatter={props.formatter}
-            />
-          </div>
-          <div className="font-semibold text-slate-800">
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <svg className="w-8 h-8 fill-current " viewBox="0 0 32 32">
-                  <circle cx="16" cy="16" r="2" />
-                  <circle cx="10" cy="16" r="2" />
-                  <circle cx="22" cy="16" r="2" />
-                </svg>
-              </DropdownMenu.Trigger>
-
-              <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                  className="DropdownMenuContent"
-                  sideOffset={5}
-                >
-                  <DropdownMenu.Item className="DropdownMenuItem">
-                    Edit
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item className="DropdownMenuItem">
-                    Copy Link
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Portal>
-            </DropdownMenu.Root>
-          </div>
-        </header>
-      )}
-
-      <div className="p-3">{props.children}</div>
-    </div>
-  )
-}
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ")
-}
 export default function IssuesView(props) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -282,7 +131,7 @@ export default function IssuesView(props) {
         setIssueState((prevState) => ({
           ...prevState,
           open: response.data.result.open
-        }));
+        }))
       })
       .catch((error) => {
         console.log("ERROR:", error)
@@ -301,7 +150,7 @@ export default function IssuesView(props) {
         setIssueState((prevState) => ({
           ...prevState,
           pinned: response.data.result.pinned
-        }));
+        }))
       })
       .catch((error) => {
         console.log("ERROR:", error)
@@ -324,6 +173,15 @@ export default function IssuesView(props) {
       .catch((error) => {
         console.log("ERROR:", error)
       })
+  }
+
+  const copyIssueLink = async () => {
+    const link = `/${namespaceName}/${projectName}/issues/${issueId}`
+    if ("clipboard" in navigator) {
+      return await navigator.clipboard.writeText(link)
+    } else {
+      return document.execCommand("copy", true, link)
+    }
   }
 
   return (
@@ -413,8 +271,8 @@ export default function IssuesView(props) {
           <Dialog.Content className="DialogContent">
             <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
             <Dialog.Description className="DialogDescription">
-              Are you sure you want to {issueState.open ? <>close</> : <>reopen</>}{" "}
-              this issue?
+              Are you sure you want to{" "}
+              {issueState.open ? <>close</> : <>reopen</>} this issue?
             </Dialog.Description>
             <div
               className="gap-2"
@@ -530,8 +388,8 @@ export default function IssuesView(props) {
           <Dialog.Content className="DialogContent">
             <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
             <Dialog.Description className="DialogDescription">
-              Are you sure you want to {issueState.pinned ? "unpin" : "pin"} this
-              issue?
+              Are you sure you want to {issueState.pinned ? "unpin" : "pin"}{" "}
+              this issue?
             </Dialog.Description>
             <div
               className="gap-2"
@@ -598,7 +456,7 @@ export default function IssuesView(props) {
                           setIssueState((prevState) => ({
                             ...prevState,
                             name: response.data.result.name
-                          }));
+                          }))
                           setShowEditTitle(false)
                         })
                         .catch((error) => {
@@ -628,14 +486,14 @@ export default function IssuesView(props) {
                           {showEditTitle ? (
                             <>
                               <FormButton
-                                submit={true}
+                                shouldSubmit={true}
                                 className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
                               >
                                 Save
                               </FormButton>
 
                               <FormButton
-                                submit={false}
+                                shouldSubmit={false}
                                 onClick={() => setShowEditTitle(false)}
                                 className="btn-xs h-8 shrink bg-rose-500 hover:bg-rose-600 text-white"
                               >
@@ -644,16 +502,20 @@ export default function IssuesView(props) {
                             </>
                           ) : (
                             <>
-                              {session && session.user.id === issueState.user.id && (
-                                <FormButton
-                                  submit={false}
-                                  onClick={() => setShowEditTitle(true)}
-                                  className="btn-xs h-8 bg-indigo-500 hover:bg-indigo-600 text-white"
-                                >
-                                  Edit
-                                </FormButton>
-                              )}
-                              <Link className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white" href={`/${namespaceName}/${projectName}/new`}>
+                              {session &&
+                                session.user.id === issueState.user.id && (
+                                  <FormButton
+                                    shouldSubmit={false}
+                                    onClick={() => setShowEditTitle(true)}
+                                    className="btn-xs h-8 bg-indigo-500 hover:bg-indigo-600 text-white"
+                                  >
+                                    Edit
+                                  </FormButton>
+                                )}
+                              <Link
+                                className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white"
+                                href={`/${namespaceName}/${projectName}/new`}
+                              >
                                 New Issue
                               </Link>
                             </>
@@ -693,11 +555,14 @@ export default function IssuesView(props) {
                       </div>
                       <div className="pl-1">
                         <p>
-                          {new Date(issueState.createdAt).toLocaleString("default", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric"
-                          })}{" "}
+                          {new Date(issueState.createdAt).toLocaleString(
+                            "default",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric"
+                            }
+                          )}{" "}
                           by{" "}
                           <Link
                             className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
@@ -736,46 +601,71 @@ export default function IssuesView(props) {
                               )}
                           </div> */}
 
-                          {showEditDescription ? (
-                            <Formik
-                              initialValues={{
-                                description: issueState.description
-                              }}
-                              // validationSchema={IssueCreationSchema}
-                              onSubmit={(
-                                values,
-                                { setSubmitting, setFieldError }
-                              ) => {
-                                axios
-                                  .put(
-                                    `/api/${namespaceName}/${projectName}/issues`,
-                                    {
-                                      issueId: issueId,
-                                      description: values.description
-                                    }
-                                  )
-                                  .then((response) => {
-                                    console.log("RESPONSE:", response)
-                                    // props.issuesData.name = values.name // TODO: Probably a better way to do this
-                                    // setShowEditTitle(false)
-                                  })
-                                  .catch((error) => {
-                                    console.log("ERROR:", error)
-                                  })
-                                  .finally(() => {
-                                    setSubmitting(false)
-                                  })
-                              }}
-                            >
-                              {({
-                                errors,
-                                isSubmitting,
-                                values,
-                                setFieldValue,
-                                setValues
-                              }) => (
-                                <Form>
-                                  <MarkdownEditor
+                          <Formik
+                            initialValues={{
+                              description: issueState.description
+                            }}
+                            // validationSchema={IssueCreationSchema}
+                            onSubmit={(
+                              values,
+                              { setSubmitting, setFieldError }
+                            ) => {
+                              axios
+                                .put(
+                                  `/api/${namespaceName}/${projectName}/issues`,
+                                  {
+                                    issueId: issueId,
+                                    description: values.description
+                                  }
+                                )
+                                .then((response) => {
+                                  console.log("RESPONSE:", response)
+                                  setIssueState((prevState) => ({
+                                    ...prevState,
+                                    description:
+                                      response.data.result.description
+                                  }))
+                                  setShowDescription(false)
+                                  // props.issuesData.name = values.name // TODO: Probably a better way to do this
+                                  // setShowEditTitle(false)
+                                })
+                                .catch((error) => {
+                                  console.log("ERROR:", error)
+                                })
+                                .finally(() => {
+                                  setSubmitting(false)
+                                })
+                            }}
+                          >
+                            {({
+                              errors,
+                              submitForm,
+                              isSubmitting,
+                              values,
+                              setFieldValue,
+                              setValues
+                            }) => (
+                              <Form>
+                                <IssueComment
+                                  text={issueState.description}
+                                  username={issueState.user.username}
+                                  createdAt={issueState.createdAt}
+                                  formatter={formatter}
+                                  canEdit={
+                                    session &&
+                                    session.namespace === issue.user.username
+                                  }
+                                  now={props.now}
+                                  onChange={(text) =>
+                                    setFieldValue("description", text)
+                                  }
+                                  onEdit={() => setShowDescription(true)}
+                                  onCancel={() => setShowDescription(false)}
+                                  onSubmit={() => submitForm()}
+                                  editing={showEditDescription}
+                                />
+
+                                {/* <MarkdownEditor
                                     placeholder={issueState.description}
                                     onChange={(text) =>
                                       setFieldValue("description", text)
@@ -798,23 +688,10 @@ export default function IssuesView(props) {
                                         Submit
                                       </button>
                                     </div>
-                                  </MarkdownEditor>
-                                </Form>
-                              )}
-                            </Formik>
-                          ) : (
-                            <Yzma2
-                              issue={issue}
-                              createdAt={issueState.createdAt}
-                              isEditing={true}
-                              canEdit={
-                                session && session.user.id === issueState.user.id
-                              }
-                              canDelete={false}
-                              now={() => props.now}
-                              formatter={formatter}
-                            ></Yzma2>
-                          )}
+                                  </MarkdownEditor> */}
+                              </Form>
+                            )}
+                          </Formik>
                         </article>
                       </section>
                       {/* End Issue body */}
@@ -828,19 +705,91 @@ export default function IssuesView(props) {
                             Comments ({issueState.comments.length})
                           </div>
 
-                          {/* const Comment = ({ placeholder, editing, createdAt, now, formatter}) => { */}
-
                           {issueState.comments.map((comment, index) => (
-                            <Comment
-                              key={index}
-                              placeholder={comment.description}
-                              text={comment.description}
-                              editing={false}
-                              canEdit={true}
-                              createdAt={comment.createdAt}
-                              now={props.now}
-                              formatter={formatter}
-                            />
+                            <div key={index}>
+                              <Formik
+                                initialValues={{
+                                  description: comment.description
+                                }}
+                                // validationSchema={IssueCreationSchema}
+                                onSubmit={(
+                                  values,
+                                  { setSubmitting, setFieldError }
+                                ) => {
+                                  axios
+                                    .put(
+                                      `/api/${namespaceName}/${projectName}/comments`,
+                                      {
+                                        commentId: comment.id,
+                                        description: values.description
+                                      }
+                                    )
+                                    .then((response) => {
+                                      console.log("RESPONSE:", response)
+
+                                      setIssueState((prevState) => ({
+                                        ...prevState,
+                                        comments: prevState.comments.map((comment, index) => {
+                                          if(comment.id === response.data.result.id) {
+                                            return {
+                                              ...comment,
+                                              description: response.data.result.description
+                                            }
+                                          }
+                                          return {
+                                            ...comment,
+                                          }
+                                        }) 
+                                      }))
+                                      setEditComment(null)
+                                    })
+                                    .catch((error) => {
+                                      console.log("ERROR:", error)
+                                    })
+                                    .finally(() => {
+                                      setSubmitting(false)
+                                    })
+                                }}
+                              >
+                                {({
+                                  errors,
+                                  isSubmitting,
+                                  values,
+                                  setFieldValue,
+                                  submitForm,
+                                  setValues
+                                }) => (
+                                  <Form>
+                                     <IssueComment
+                                text={comment.description}
+                                username={comment.user.username}
+                                createdAt={comment.createdAt}
+                                formatter={formatter}
+                                canEdit={
+                                  session &&
+                                  session.namespace === comment.user.username
+                                }
+                                now={props.now}
+                                onChange={(text) =>
+                                  setFieldValue("description", text)
+                                }
+                                onEdit={() =>
+                                  setEditComment({ id: comment.id })
+                                } //setShowDescription(true)
+                                onCancel={() => setEditComment(null)}
+                                onSubmit={() => submitForm()}
+                                editing={
+                                  showEditComment !== null &&
+                                  showEditComment.id === comment.id
+                                }
+                              />
+                                  </Form>
+                                )}
+                              </Formik>
+
+                             
+                            </div>
+
                             // <div key={index} className="card mb-5">
                             //   <div className="card-header d-flex justify-content-between align-items-center">
                             //     <div>
@@ -891,69 +840,69 @@ export default function IssuesView(props) {
                             //   <div className="card-body">
                             //     {showEditComment &&
                             //     showEditComment.id === comment.id ? (
-                            //       <Formik
-                            //         initialValues={{
-                            //           description: comment.description
-                            //         }}
-                            //         // validationSchema={IssueCreationSchema}
-                            //         onSubmit={(
-                            //           values,
-                            //           { setSubmitting, setFieldError }
-                            //         ) => {
-                            //           axios
-                            //             .put(
-                            //               `/api/${namespaceName}/${projectName}/comments`,
-                            //               {
-                            //                 commentId: comment.id,
-                            //                 description: values.description
-                            //               }
-                            //             )
-                            //             .then((response) => {
-                            //               console.log("RESPONSE:", response)
-                            //               // props.issuesData.name = values.name // TODO: Probably a better way to do this
-                            //               // setShowEditTitle(false)
-                            //             })
-                            //             .catch((error) => {
-                            //               console.log("ERROR:", error)
-                            //             })
-                            //             .finally(() => {
-                            //               setSubmitting(false)
-                            //             })
-                            //         }}
+                            // <Formik
+                            //   initialValues={{
+                            //     description: comment.description
+                            //   }}
+                            //   // validationSchema={IssueCreationSchema}
+                            //   onSubmit={(
+                            //     values,
+                            //     { setSubmitting, setFieldError }
+                            //   ) => {
+                            //     axios
+                            //       .put(
+                            //         `/api/${namespaceName}/${projectName}/comments`,
+                            //         {
+                            //           commentId: comment.id,
+                            //           description: values.description
+                            //         }
+                            //       )
+                            //       .then((response) => {
+                            //         console.log("RESPONSE:", response)
+                            //         // props.issuesData.name = values.name // TODO: Probably a better way to do this
+                            //         // setShowEditTitle(false)
+                            //       })
+                            //       .catch((error) => {
+                            //         console.log("ERROR:", error)
+                            //       })
+                            //       .finally(() => {
+                            //         setSubmitting(false)
+                            //       })
+                            //   }}
+                            // >
+                            //   {({
+                            //     errors,
+                            //     isSubmitting,
+                            //     values,
+                            //     setFieldValue,
+                            //     setValues
+                            //   }) => (
+                            //     <Form>
+                            //       <MarkdownEditor
+                            //         placeholder={comment.description}
+                            //         onChange={(text) =>
+                            //           setFieldValue("description", text)
+                            //         }
                             //       >
-                            //         {({
-                            //           errors,
-                            //           isSubmitting,
-                            //           values,
-                            //           setFieldValue,
-                            //           setValues
-                            //         }) => (
-                            //           <Form>
-                            //             <MarkdownEditor
-                            //               placeholder={comment.description}
-                            //               onChange={(text) =>
-                            //                 setFieldValue("description", text)
-                            //               }
-                            //             >
-                            //               <div className="d-flex flex-row-reverse">
-                            //                 <button
-                            //                   type="submit"
-                            //                   className="btn btn-danger"
-                            //                   onClick={() => setEditComment(null)}
-                            //                 >
-                            //                   Cancel
-                            //                 </button>
-                            //                 <button
-                            //                   type="submit"
-                            //                   className="btn btn-success"
-                            //                 >
-                            //                   Submit
-                            //                 </button>
-                            //               </div>
-                            //             </MarkdownEditor>
-                            //           </Form>
-                            //         )}
-                            //       </Formik>
+                            //         <div className="d-flex flex-row-reverse">
+                            //           <button
+                            //             type="submit"
+                            //             className="btn btn-danger"
+                            //             onClick={() => setEditComment(null)}
+                            //           >
+                            //             Cancel
+                            //           </button>
+                            //           <button
+                            //             type="submit"
+                            //             className="btn btn-success"
+                            //           >
+                            //             Submit
+                            //           </button>
+                            //         </div>
+                            //       </MarkdownEditor>
+                            //     </Form>
+                            //   )}
+                            // </Formik>
                             //     ) : (
                             //       <MarkdownViewer text={comment.description} />
                             //     )}
@@ -1007,6 +956,7 @@ export default function IssuesView(props) {
                             isSubmitting,
                             values,
                             setFieldValue,
+                            submitForm,
                             setValues
                           }) => (
                             <Form>
@@ -1025,7 +975,17 @@ export default function IssuesView(props) {
                                 </div>
                               )}
 
-                              <MarkdownEditor
+                              <IssueComment
+                                text={""}
+                                canEdit={false}
+                                onChange={(text) =>
+                                  setFieldValue("description", text)
+                                }
+                                onSubmit={() => submitForm()}
+                                editing={true}
+                              />
+
+                              {/* <MarkdownEditor
                                 onChange={(text) =>
                                   setFieldValue("description", text)
                                 }
@@ -1042,7 +1002,7 @@ export default function IssuesView(props) {
                                     Submit
                                   </button>
                                 </div>
-                              </MarkdownEditor>
+                              </MarkdownEditor> */}
                             </Form>
                           )}
                         </Formik>
@@ -1150,8 +1110,7 @@ export default function IssuesView(props) {
                               setIssueState((prevState) => ({
                                 ...prevState,
                                 labels: response.data.result.labels
-                              }));
-                              
+                              }))
                             })
                             .catch((error) => {
                               console.log("ERROR:", error.response.data)
