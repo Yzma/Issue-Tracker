@@ -4,6 +4,7 @@ import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faBug,
+  faTag,
   faEnvelope,
   faUserGroup
 } from "@fortawesome/free-solid-svg-icons"
@@ -32,6 +33,13 @@ const ProjectBelowNavbar = ({namespaceName, projectName}) => {
           <FontAwesomeIcon icon={faBug} />
         </div>
         <div className="pl-2">Issues</div>
+      </BelowNavbar.MenuListItem>
+
+      <BelowNavbar.MenuListItem href={`/${namespaceName}/${projectName}/labels`}>
+        <div>
+          <FontAwesomeIcon icon={faTag} />
+        </div>
+        <div className="pl-2">Labels</div>
       </BelowNavbar.MenuListItem>
 
       <BelowNavbar.MenuListItem href={`/${namespaceName}/${projectName}/members`}>
