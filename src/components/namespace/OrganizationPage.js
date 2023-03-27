@@ -26,7 +26,7 @@ const OrganizationPage = ({ props }) => {
         <meta name="description" content="TODO: Description?" />
       </Head>
 
-      <OrganizationBelowNavbar namespaceName={namespaceName} />
+      <OrganizationBelowNavbar namespaceName={namespaceName} selected={"projects"} />
 
       <div className={layoutStyles.projectSection}>
         <Tabs activeTab={activeTab} onTabClick={handleTabClick} />

@@ -9,7 +9,7 @@ import {
   faUserGroup
 } from "@fortawesome/free-solid-svg-icons"
 
-const ProjectBelowNavbar = ({namespaceName, projectName}) => {
+const ProjectBelowNavbar = ({namespaceName, projectName, selected}) => {
   return (
     <BelowNavbar>
     <BelowNavbar.BreadcrumbLinks>
@@ -26,30 +26,30 @@ const ProjectBelowNavbar = ({namespaceName, projectName}) => {
       </BelowNavbar.BreadcrumbLink>
     </BelowNavbar.BreadcrumbLinks>
 
-    <BelowNavbar.MenuList>
+    <BelowNavbar.MenuList selected={selected}>
 
-      <BelowNavbar.MenuListItem href={`/${namespaceName}/${projectName}`}>
+      <BelowNavbar.MenuListItem id={"issues"} href={`/${namespaceName}/${projectName}`}>
         <div>
           <FontAwesomeIcon icon={faBug} />
         </div>
         <div className="pl-2">Issues</div>
       </BelowNavbar.MenuListItem>
 
-      <BelowNavbar.MenuListItem href={`/${namespaceName}/${projectName}/labels`}>
+      <BelowNavbar.MenuListItem id={"labels"} href={`/${namespaceName}/${projectName}/labels`}>
         <div>
           <FontAwesomeIcon icon={faTag} />
         </div>
         <div className="pl-2">Labels</div>
       </BelowNavbar.MenuListItem>
 
-      <BelowNavbar.MenuListItem href={`/${namespaceName}/${projectName}/members`}>
+      <BelowNavbar.MenuListItem id={"members"} href={`/${namespaceName}/${projectName}/members`}>
         <div>
           <FontAwesomeIcon icon={faUserGroup} />
         </div>
         <div className="pl-2">Members</div>
       </BelowNavbar.MenuListItem>
 
-      <BelowNavbar.MenuListItem href={`/${namespaceName}/${projectName}/invite`}>
+      <BelowNavbar.MenuListItem id={"invites"} href={`/${namespaceName}/${projectName}/invite`}>
         <div>
           <FontAwesomeIcon icon={faEnvelope} />
         </div>

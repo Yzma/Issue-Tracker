@@ -52,6 +52,7 @@ export default function IssuesCreate(props) {
           <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
+            selected={"issues"}
           />
           <main>
             <Formik

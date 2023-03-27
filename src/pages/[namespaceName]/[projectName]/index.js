@@ -35,6 +35,7 @@ export default function Issues({ issuesData }) {
             <ProjectBelowNavbar
               namespaceName={namespaceName}
               projectName={projectName}
+              selected={"issues"}
             />
             <div className="flex justify-center">
               <IssueButtons
