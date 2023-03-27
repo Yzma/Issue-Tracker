@@ -75,6 +75,11 @@ export async function getServerSideProps(context) {
 
       select: {
         username: true,
+        bio: true,
+        linkedIn: true,
+        twitter: true,
+        github: true,
+        publicEmail: true,
         members: {
           where: {
             project: null
