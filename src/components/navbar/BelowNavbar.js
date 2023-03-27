@@ -1,4 +1,5 @@
-import React from "react"
+import React, { createContext, useContext } from "react"
+
 import Link from "next/link"
 
 export default function BelowNavbar({ children }) {
@@ -40,11 +41,33 @@ function BreadcrumbLink({ children }) {
 
 BelowNavbar.BreadcrumbLink = BreadcrumbLink
 
-function MenuListItem({ children, href }) {
+const NavbarContext = createContext({ selected: "" })
+
+function MenuList({ children, selected = false }) {
+  return (
+    <>
+      <NavbarContext.Provider value={{ selected: selected }}>
+        <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full max-w-9xl mx-auto border-b-2 border-gray-400">
+          <div className="flex flex-row gap-x-4">{children}</div>
+        </div>
+      </NavbarContext.Provider>
+    </>
+  )
+}
+
+BelowNavbar.MenuList = MenuList
+
+function MenuListItem({ children, id, href }) {
+  let { selected } = useContext(NavbarContext)
+  console.log(`Selected from context (${selected})`)
   return (
     <>
       <Link href={href}>
-        <div className="flex flex-row px-2 py-2 rounded hover:bg-gray-300">
+        <div
+          className={`flex flex-row px-2 py-2 rounded hover:bg-gray-300 ${
+            selected === id && "border-b-4 border-indigo-500"
+          }`}
+        >
           {children}
         </div>
       </Link>
@@ -53,15 +76,3 @@ function MenuListItem({ children, href }) {
 }
 
 BelowNavbar.MenuListItem = MenuListItem
-
-function MenuList({ children }) {
-  return (
-    <>
-      <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full max-w-9xl mx-auto border-b-2 border-gray-400">
-        <div className="flex flex-row gap-x-4">{children}</div>
-      </div>
-    </>
-  )
-}
-
-BelowNavbar.MenuList = MenuList
