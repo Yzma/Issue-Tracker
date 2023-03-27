@@ -71,6 +71,15 @@ export async function getServerSideProps(context) {
     }
   })
 
+  if(!project) {
+    return {
+      redirect: {
+        destination: "/404",
+        permanent: false
+      }
+    }
+  }
+
   console.log("Project: ", project)
 
   if (project.private) {
