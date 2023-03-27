@@ -72,10 +72,17 @@ export default function ProjectInvites(props) {
                                 })
                                 .catch((error) => {
                                   console.log("ERROR:", error.response.data)
-                                  console.log("ERROR:", error)
-                                  setResponse({
-                                    error: "That user does not exist"
-                                  })
+                                  console.log("ERROR:", error.response.data.error)
+                                  if(error.response.data.error === 'P2002') {
+                                    setResponse({
+                                      error: "That user was already invited!"
+                                    })
+                                  } else {
+                                    setResponse({
+                                      error: "That user does not exist"
+                                    })
+                                  }
+     
                                 })
                                 .finally(() => {
                                   setSubmitting(false)
