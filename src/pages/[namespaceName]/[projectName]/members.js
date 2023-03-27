@@ -98,6 +98,7 @@ export default function ProjectMembers(props) {
           <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
+            selected={"members"}
           />
 
           <main>
