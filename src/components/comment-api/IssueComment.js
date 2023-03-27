@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react"
+import React, { createContext, useState, Fragment } from "react"
 
 import { Tab } from "@headlessui/react"
 
@@ -34,8 +34,37 @@ const IssueComment = ({
           <CommentApi>
             <CommentApi.Header>
               <Tab.List class="tabs">
-                <Tab class="tab">Write</Tab>
-                <Tab class="tab tab-active">Preview</Tab>
+                <Tab as={Fragment}>
+                  {({ selected }) => (
+                    /* Use the `selected` state to conditionally style the selected tab. */
+                    <button
+                      className={
+                        selected
+                        ? "tab tab-active bg-gray-400 rounded-lg"
+                          : "tab"
+                      }
+                    >
+                      Write
+                    </button>
+                  )}
+                </Tab>
+                <Tab as={Fragment}>
+                  {({ selected }) => (
+                    /* Use the `selected` state to conditionally style the selected tab. */
+                    <button
+                      className={
+                        selected
+                          ? "tab tab-active bg-gray-400 rounded-lg"
+                          : "tab"
+                      }
+                    >
+                      Preview
+                    </button>
+                  )}
+                  
+                </Tab>
+                {/* <Tab class="tab">Write</Tab>
+                <Tab class="tab tab-active">Preview</Tab> */}
               </Tab.List>
             </CommentApi.Header>
 
@@ -77,7 +106,13 @@ const IssueComment = ({
               <Tab.Panel>
                 <CommentApi.Body>
                   <div className="border">
-                    <MarkdownViewer text={text} />
+                    {!text ? (
+                      <p>Nothing to preview</p>
+                    ) : (
+                      <>
+                        <MarkdownViewer text={text} />{" "}
+                      </>
+                    )}
                   </div>
 
                   {showButtons && (
@@ -125,8 +160,7 @@ const IssueComment = ({
         <>
           <header className="flex flex-row justify-between px-3 py-2 h-12 rounded-t bg-gray-300 border border-slate-100">
             <div className="font-semibold text-slate-800">
-              {username} commented{" "}
-              {moment(createdAt).fromNow()}
+              {username} commented {moment(createdAt).fromNow()}
               {/* <TimeAgo
                 date={createdAt}
                 live={false}
