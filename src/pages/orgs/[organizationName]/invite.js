@@ -26,7 +26,7 @@ export default function OrganizationInvitation(props) {
       <div className="flex h-screen overflow-hidden">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <Header />
-          <OrganizationBelowNavbar namespaceName={organizationName} />
+          <OrganizationBelowNavbar namespaceName={organizationName} selected={"invite"} />
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
               <div className="mb-8">
