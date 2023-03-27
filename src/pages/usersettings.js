@@ -8,6 +8,8 @@ import { Formik, Form, Field } from "formik"
 import { getSession, useSession } from "next-auth/react"
 import prisma from "@/lib/prisma/prisma"
 import Link from "next/link"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBug } from "@fortawesome/free-solid-svg-icons";
 
 export default function UserSettings(props) {
   console.log(props)
@@ -121,6 +123,12 @@ export default function UserSettings(props) {
             </Formik>
           </div>
         </div>
+        <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
+        <div className="text-center">
+          <FontAwesomeIcon icon={faBug} />
+          <p className="mt-2">Bug-Zapper</p>
+        </div>
+      </div>
       </main>
     </>
   )

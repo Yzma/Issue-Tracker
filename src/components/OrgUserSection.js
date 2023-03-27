@@ -32,6 +32,7 @@ const UserSection = ({ users }) => {
         </tbody>
       </table>
     </section>
+    
   );
 };
 

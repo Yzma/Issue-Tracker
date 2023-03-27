@@ -6,7 +6,6 @@ import {
 } from "next-auth/react";
 import Head from "next/head";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
@@ -67,7 +66,12 @@ function signin({ providers }) {
             />
           </div>
         </div>
-        <Footer className="footer" />
+        <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
+        <div className="text-center">
+          <FontAwesomeIcon icon={faBug} />
+          <p className="mt-2">Bug-Zapper</p>
+        </div>
+      </div>
       </main>
     </>
   );

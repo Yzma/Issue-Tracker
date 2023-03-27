@@ -7,6 +7,7 @@ import Footer from "@/components/Footer"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
+import { faBug } from "@fortawesome/free-solid-svg-icons";
 
 import moment from "moment/moment"
 import * as Dialog from "@radix-ui/react-dialog"
@@ -328,7 +329,9 @@ export default function MyInvites(props) {
                 </div>
               </div>
             </div>
+            
           </main>
+          
         </div>
       </div>
 

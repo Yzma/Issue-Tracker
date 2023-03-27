@@ -7,6 +7,8 @@ import prisma from "@/lib/prisma/prisma"
 import { useRouter } from "next/router"
 import { getServerSession } from "@/lib/sessions"
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBug } from "@fortawesome/free-solid-svg-icons";
 
 export default function Issues({ issuesData }) {
   console.log(issuesData)
@@ -37,21 +39,29 @@ export default function Issues({ issuesData }) {
               projectName={projectName}
               selected={"issues"}
             />
-            <div className="flex justify-center">
+            <div className="container mx-auto px-4 py-8 max-w-3/4">
               <IssueButtons
                 onSearch={handleSearch}
                 path={`/${namespaceName}/${projectName}`}
               />
+              <div className="bg-white shadow-md rounded-md">
+                <IssueList
+                  issues={filteredIssues}
+                  routePath={`/${namespaceName}/${projectName}`}
+                />
+              </div>
             </div>
-            <IssueList
-              issues={filteredIssues}
-              routePath={`/${namespaceName}/${projectName}`}
-            />
           </div>
         </div>
+        <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
+        <div className="text-center">
+          <FontAwesomeIcon icon={faBug} />
+          <p className="mt-2">Bug-Zapper</p>
+        </div>
+      </div>
       </main>
     </>
-  )
+  );
 }
 
 export async function getServerSideProps(context) {
