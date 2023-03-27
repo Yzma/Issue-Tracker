@@ -1,18 +1,15 @@
-import Head from "next/head";
+import Head from "next/head"
 
-import layoutStyles from "@/styles/usersLayout.module.css";
-import Header from "@/components/Header";
-import prisma from "@/lib/prisma/prisma";
+import Header from "@/components/Header"
+import prisma from "@/lib/prisma/prisma"
 
-import { useSession } from "next-auth/react";
-
-import UserPage from "@/components/namespace/UserPage";
-import OrganizationPage from "@/components/namespace/OrganizationPage";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBug } from "@fortawesome/free-solid-svg-icons";
+import UserPage from "@/components/namespace/UserPage"
+import OrganizationPage from "@/components/namespace/OrganizationPage"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faBug } from "@fortawesome/free-solid-svg-icons"
 
 export default function UserProfile(props) {
-  console.log(props);
+  console.log(props)
 
   return (
     <>
@@ -20,29 +17,33 @@ export default function UserProfile(props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={`${layoutStyles.main} ${layoutStyles.mainContent}`}>
-        <Header />
-        {props.type === "User" ? (
-          <UserPage props={props} />
-        ) : (
-          <OrganizationPage props={props} />
-        )}
-      </main>
-      <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
-        <div className="text-center">
-          <FontAwesomeIcon icon={faBug} />
-          <p className="mt-2">Bug-Zapper</p>
+      <main>
+        <div className="flex h-screen overflow-hidden">
+          <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+            <Header />
+            {props.type === "User" ? (
+              <UserPage props={props} />
+            ) : (
+              <OrganizationPage props={props} />
+            )}
+            <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
+              <div className="text-center">
+                <FontAwesomeIcon icon={faBug} />
+                <p className="mt-2">Bug-Zapper</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
     </>
-  );
+  )
 }
 export async function getServerSideProps(context) {
-  const { namespaceName } = context.query;
+  const { namespaceName } = context.query
 
   const namespace = await prisma.namespace.findUnique({
     where: {
-      name: namespaceName,
+      name: namespaceName
     },
 
     select: {
@@ -50,20 +51,20 @@ export async function getServerSideProps(context) {
       name: true,
       userId: true,
       organizationId: true,
-      projects: true,
-    },
-  });
+      projects: true
+    }
+  })
 
   if (!namespace) {
     return {
       redirect: {
         destination: "/404",
-        permanent: false,
-      },
-    };
+        permanent: false
+      }
+    }
   }
 
-  let result;
+  let result
 
   if (namespace.userId) {
     // TODO: Fetch the users organizations that their apart of
@@ -101,11 +102,10 @@ export async function getServerSideProps(context) {
         }
       }))
     }
-
   } else {
     result = await prisma.organization.findUnique({
       where: {
-        name: namespaceName,
+        name: namespaceName
       },
 
       select: {
@@ -120,40 +120,40 @@ export async function getServerSideProps(context) {
             createdAt: true,
             user: {
               select: {
-                username: true,
-              },
-            },
-          },
-        },
-      },
-    });
+                username: true
+              }
+            }
+          }
+        }
+      }
+    })
 
     result = {
       ...result,
       members: result.members.map((member) => ({
         ...member,
-        createdAt: member.createdAt.toISOString(),
-      })),
-    };
+        createdAt: member.createdAt.toISOString()
+      }))
+    }
   }
 
-  console.log("namespace", namespace);
-  console.log("res", result);
+  console.log("namespace", namespace)
+  console.log("res", result)
 
   const mappedNamespace = {
     ...namespace,
     projects: namespace.projects.map((project) => ({
       ...project,
       createdAt: project.createdAt.toISOString(),
-      updatedAt: project.updatedAt.toISOString(),
-    })),
-  };
+      updatedAt: project.updatedAt.toISOString()
+    }))
+  }
 
   return {
     props: {
       type: namespace.userId ? "User" : "Organization",
       namespace: JSON.parse(JSON.stringify(namespace)),
       data: JSON.parse(JSON.stringify(result))
-    },
-  };
+    }
+  }
 }
