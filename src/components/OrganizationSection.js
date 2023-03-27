@@ -44,7 +44,11 @@ const OrganizationSection = ({ organizations }) => {
                     </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(organization.createdAt).toLocaleDateString()}
+                    {new Date(organization.createdAt).toLocaleString("default", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    })}
                   </td>
                 </tr>
               ))}
@@ -53,7 +57,7 @@ const OrganizationSection = ({ organizations }) => {
         </>
       )}
     </section>
-  );
+  )
 };
 
 export default OrganizationSection;
