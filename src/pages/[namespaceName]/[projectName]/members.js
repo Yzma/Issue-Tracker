@@ -5,6 +5,7 @@ import { useRouter } from "next/router"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
+import { faBug } from "@fortawesome/free-solid-svg-icons";
 
 import * as Dialog from "@radix-ui/react-dialog"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
@@ -216,6 +217,12 @@ export default function ProjectMembers(props) {
                     </table>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
+              <div className="text-center">
+                <FontAwesomeIcon icon={faBug} />
+                <p className="mt-2">Bug-Zapper</p>
               </div>
             </div>
           </main>

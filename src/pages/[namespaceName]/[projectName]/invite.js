@@ -8,6 +8,8 @@ import Header from "@/components/Header"
 
 import axios from "axios"
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBug } from "@fortawesome/free-solid-svg-icons";
 
 export default function ProjectInvites(props) {
   const router = useRouter()
@@ -135,6 +137,12 @@ export default function ProjectInvites(props) {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
+              <div className="text-center">
+                <FontAwesomeIcon icon={faBug} />
+                <p className="mt-2">Bug-Zapper</p>
               </div>
             </div>
           </main>

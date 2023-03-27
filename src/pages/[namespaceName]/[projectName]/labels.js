@@ -1,29 +1,30 @@
-import Head from "next/head"
-import { useRouter } from "next/router"
-import layoutStyles from "@/styles/usersLayout.module.css"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import LabelList from "@/components/LabelList"
-import LabelSearchBar from "@/components/LabelSearchBar"
-import { useState } from "react"
+import Head from "next/head";
+import { useRouter } from "next/router";
+import layoutStyles from "@/styles/usersLayout.module.css";
+import Header from "@/components/Header";
+import LabelList from "@/components/LabelList";
+import LabelSearchBar from "@/components/LabelSearchBar";
+import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBug } from "@fortawesome/free-solid-svg-icons";
 
-import prisma from "@/lib/prisma/prisma"
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+import prisma from "@/lib/prisma/prisma";
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar";
 
 export default function LabelPage(props) {
-  const router = useRouter()
-  const { namespaceName, projectName } = router.query
-  console.log(props)
+  const router = useRouter();
+  const { namespaceName, projectName } = router.query;
+  console.log(props);
 
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = (searchTerm) => {
-    setSearchTerm(searchTerm)
-  }
+    setSearchTerm(searchTerm);
+  };
 
   const filteredLabels = props.labelData.filter((label) =>
     label.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  );
 
   return (
     <>
@@ -53,30 +54,35 @@ export default function LabelPage(props) {
                 <LabelList labels={filteredLabels} />
               </div>
             </div>
-            <Footer />
+            <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
+              <div className="text-center">
+                <FontAwesomeIcon icon={faBug} />
+                <p className="mt-2">Bug-Zapper</p>
+              </div>
+            </div>
           </main>
         </div>
       </div>
     </>
-  )
+  );
 }
 
 export async function getServerSideProps(context) {
-  const { namespaceName, projectName } = context.query
+  const { namespaceName, projectName } = context.query;
   const labelData = await prisma.label.findMany({
     where: {
       project: {
         name: projectName,
         namespace: {
-          name: namespaceName
-        }
-      }
-    }
-  })
+          name: namespaceName,
+        },
+      },
+    },
+  });
 
-  console.log(labelData)
+  console.log(labelData);
 
   return {
-    props: { labelData }
-  }
+    props: { labelData },
+  };
 }
