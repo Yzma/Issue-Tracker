@@ -79,7 +79,7 @@ export default async function handler(req, res) {
         console.log("error: ", err)
         return res
           .status(400)
-          .json({ error: "Error creating entry in database" })
+          .json({ error: err.code })
       })
   }
 
