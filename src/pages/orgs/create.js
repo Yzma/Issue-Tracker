@@ -42,7 +42,7 @@ export default function OrganizationCreate() {
                       })
                       .then((response) => {
                         console.log("RESPONSE:", response)
-                        router.push(`/${response.name}`)
+                        router.push(`/${response.data.name}`)
                       })
                       .catch((error) => {
                         console.log("ERROR:", error)

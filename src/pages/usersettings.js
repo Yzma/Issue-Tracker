@@ -5,12 +5,14 @@ import Header from "@/components/Header"
 import axios from "axios"
 import { Formik, Form, Field } from "formik"
 
-import { getSession } from "next-auth/react"
+import { getSession, useSession } from "next-auth/react"
 import prisma from "@/lib/prisma/prisma"
+import Link from "next/link"
 
 export default function UserSettings(props) {
   console.log(props)
 
+  const { data: session } = useSession()
   const [data, setData] = useState(props.settings)
 
   return (
@@ -98,28 +100,22 @@ export default function UserSettings(props) {
                           name={platform}
                         />
                       </div>
-
-                      // <div className="mb-4" key={platform}>
-                      //   <label
-                      //     htmlFor={platform}
-                      //     className="block text-sm font-medium text-gray-700"
-                      //   >
-                      // {`${platform.charAt(0).toUpperCase()}${platform.slice(
-                      //   1
-                      // )}:`}
-                      //   </label>
-                      //   <input
-                      //     type={platform === "email" ? "email" : "text"}
-                      //     id={platform}
-                      //     className="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                      //   />
-                      // </div>
                     )
                   )}
-
-                  <button type="submit" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Save
-                  </button>
+                  <div className="flex flex-row gap-3">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Save
+                    </button>
+                    <Link
+                      href={session ? `/${session.namespace}` : "/"}
+                      className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Back
+                    </Link>
+                  </div>
                 </Form>
               )}
             </Formik>
