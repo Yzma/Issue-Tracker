@@ -37,22 +37,82 @@ export default function Issues({ issuesData }) {
               projectName={projectName}
               selected={"issues"}
             />
-            <div className="flex justify-center">
+            <div className="container mx-auto px-4 py-8 max-w-3/4">
+              {/* Move the IssueButtons inside the container div */}
               <IssueButtons
                 onSearch={handleSearch}
                 path={`/${namespaceName}/${projectName}`}
               />
+              <div className="bg-white shadow-md rounded-md">
+                {/* Move the IssueList inside the div with bg-white */}
+                <IssueList
+                  issues={filteredIssues}
+                  routePath={`/${namespaceName}/${projectName}`}
+                />
+              </div>
             </div>
-            <IssueList
-              issues={filteredIssues}
-              routePath={`/${namespaceName}/${projectName}`}
-            />
           </div>
         </div>
       </main>
     </>
-  )
+  );
 }
+
+// import Head from "next/head"
+// import Header from "@/components/Header"
+// import IssueList from "@/components/IssueList"
+// import IssueButtons from "@/components/IssueButtons"
+// import { useState } from "react"
+// import prisma from "@/lib/prisma/prisma"
+// import { useRouter } from "next/router"
+// import { getServerSession } from "@/lib/sessions"
+// import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+
+// export default function Issues({ issuesData }) {
+//   console.log(issuesData)
+
+//   const router = useRouter()
+//   const { namespaceName, projectName } = router.query
+
+//   const [filteredIssues, setFilteredIssues] = useState(issuesData)
+
+//   const handleSearch = (searchTerm) => {
+//     const filtered = issuesData.filter((issue) =>
+//       issue.labels.some((label) =>
+//         label.name.toLowerCase().includes(searchTerm.toLowerCase())
+//       )
+//     )
+//     setFilteredIssues(filtered)
+//   }
+
+//   return (
+//     <>
+//       <Head></Head>
+//       <main>
+//         <div className="flex h-screen overflow-hidden">
+//           <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+//             <Header />
+//             <ProjectBelowNavbar
+//               namespaceName={namespaceName}
+//               projectName={projectName}
+//               selected={"issues"}
+//             />
+//             <div className="flex justify-center">
+//               <IssueButtons
+//                 onSearch={handleSearch}
+//                 path={`/${namespaceName}/${projectName}`}
+//               />
+//             </div>
+//             <IssueList
+//               issues={filteredIssues}
+//               routePath={`/${namespaceName}/${projectName}`}
+//             />
+//           </div>
+//         </div>
+//       </main>
+//     </>
+//   )
+// }
 
 export async function getServerSideProps(context) {
   const { namespaceName, projectName } = context.query

@@ -58,12 +58,12 @@ const ProjectBelowNavbar = ({namespaceName, projectName, selected}) => {
         <div className="pl-2">Invites</div>
       </BelowNavbar.MenuListItem>
 
-      <BelowNavbar.MenuListItem id={"createIssue"} href={`/${namespaceName}/${projectName}/new`}>
+      {/* <BelowNavbar.MenuListItem id={"createIssue"} href={`/${namespaceName}/${projectName}/new`}>
         <div>
           <FontAwesomeIcon icon={faPlus} />
         </div>
         <div className="pl-2">Create Issue</div>
-      </BelowNavbar.MenuListItem>
+      </BelowNavbar.MenuListItem> */}
 
     </BelowNavbar.MenuList>
   </BelowNavbar>
