@@ -1,28 +1,17 @@
-import { useState } from "react";
-import Head from "next/head";
-import Header from "@/components/Header";
+import { useState } from "react"
+import Head from "next/head"
+import Header from "@/components/Header"
 
-export default function UserSettings() {
-  const [bio, setBio] = useState("This is a random bio, nothing of value here. Move on.");
-  const [socialLinks, setSocialLinks] = useState({
-    linkedIn: "https://www.linkedin.com/in/jpared3s/",
-    twitter: "https://twitter.com",
-    github: "https://github.com/jpared3s",
-    email: "https://gmail.com",
-  });
+import axios from "axios"
+import { Formik, Form, Field } from "formik"
 
-  const handleChange = (e, platform) => {
-    setSocialLinks({ ...socialLinks, [platform]: e.target.value });
-  };
+import { getSession } from "next-auth/react"
+import prisma from "@/lib/prisma/prisma"
 
-  const handleSave = () => {
-    console.log("Bio:", bio);
-    console.log("Social Links:", socialLinks);
-  };
+export default function UserSettings(props) {
+  console.log(props)
 
-  const handleCancel = () => {
-    console.log("Changes canceled");
-  };
+  const [data, setData] = useState(props.settings)
 
   return (
     <>
@@ -40,55 +29,135 @@ export default function UserSettings() {
             User Settings
           </h1>
           <div className="bg-white shadow-lg rounded-sm p-6">
-            <div className="mb-4">
-              <label
-                htmlFor="bio"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Bio:
-              </label>
-              <textarea
-                id="bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-              ></textarea>
-            </div>
-            {["linkedIn", "twitter", "github", "email"].map((platform) => (
-              <div className="mb-4" key={platform}>
-                <label
-                  htmlFor={platform}
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  {`${platform.charAt(0).toUpperCase()}${platform.slice(1)}:`}
-                </label>
-                <input
-                  type={platform === "email" ? "email" : "text"}
-                  id={platform}
-                  value={socialLinks[platform]}
-                  onChange={(e) => handleChange(e, platform)}
-                  className="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-            ))}
-            <div>
-              <button
-                onClick={handleSave}
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Save
-              </button>
-              <button
-                onClick={handleCancel}
-                className="ml-2 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-green-600 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Cancel
-              </button>
-            </div>
+            <Formik
+              initialValues={{
+                bio: data.bio,
+                linkedIn: data.linkedIn,
+                twitter: data.twitter,
+                github: data.github,
+                publicEmail: data.publicEmail
+              }}
+              onSubmit={(values, { setSubmitting, setFieldError }) => {
+                console.log(values)
+                axios
+                  .put(`/api/user`, {
+                    bio: values.bio,
+                    linkedIn: values.linkedIn,
+                    twitter: values.twitter,
+                    github: values.github,
+                    publicEmail: values.publicEmail
+                  })
+                  .then((response) => {
+                    console.log("RESPONSE:", response)
+                    setData((prev) => ({
+                      ...prev,
+                      ...response.data.result
+                    }))
+                  })
+                  .catch((error) => {
+                    console.log("ERROR:", error)
+                  })
+                  .finally(() => {
+                    setSubmitting(false)
+                  })
+              }}
+            >
+              {({
+                errors,
+                isSubmitting,
+                values,
+                setFieldValue,
+                submitForm,
+                setValues
+              }) => (
+                <Form>
+                  <div className="mb-4">
+                    <div className="block text-sm font-medium text-gray-700 mb-2">
+                      Bio:
+                    </div>
+
+                    <Field
+                      className="form-input w-full"
+                      type="textarea"
+                      name="bio"
+                    />
+                  </div>
+
+                  {["linkedIn", "twitter", "github", "publicEmail"].map(
+                    (platform) => (
+                      <div className="mb-4" key={platform}>
+                        <div className="block text-sm font-medium text-gray-700 mb-2">
+                          {`${platform.charAt(0).toUpperCase()}${platform.slice(
+                            1
+                          )}:`}
+                        </div>
+
+                        <Field
+                          className="form-input w-full"
+                          type="textarea"
+                          name={platform}
+                        />
+                      </div>
+
+                      // <div className="mb-4" key={platform}>
+                      //   <label
+                      //     htmlFor={platform}
+                      //     className="block text-sm font-medium text-gray-700"
+                      //   >
+                      // {`${platform.charAt(0).toUpperCase()}${platform.slice(
+                      //   1
+                      // )}:`}
+                      //   </label>
+                      //   <input
+                      //     type={platform === "email" ? "email" : "text"}
+                      //     id={platform}
+                      //     className="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      //   />
+                      // </div>
+                    )
+                  )}
+
+                  <button type="submit" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Save
+                  </button>
+                </Form>
+              )}
+            </Formik>
           </div>
         </div>
       </main>
     </>
-  );
+  )
 }
 
+export async function getServerSideProps(context) {
+  const session = await getSession(context)
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false
+      }
+    }
+  }
+
+  const settings = await prisma.user.findUnique({
+    where: {
+      id: session.user.id
+    },
+
+    select: {
+      bio: true,
+      linkedIn: true,
+      twitter: true,
+      github: true,
+      publicEmail: true
+    }
+  })
+
+  return {
+    props: {
+      settings
+    }
+  }
+}
