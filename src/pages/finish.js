@@ -30,7 +30,9 @@ export default function Home() {
               <h1 className="text-xl leading-snug text-slate-800 font-semibold mb-2">
                 Complete Registration
               </h1>
-              <div className="text-sm">What do you want your username to be?</div>
+              <div className="text-sm">
+                What do you want your username to be?
+              </div>
             </div>
 
             <div>
@@ -40,6 +42,8 @@ export default function Home() {
                     name: ""
                   }}
                   validationSchema={NamespaceNameCreationSchema}
+                  validateOnChange={false}
+                  validateOnBlur={false}
                   onSubmit={(values, { setSubmitting, setFieldError }) => {
                     axios
                       .post("/api/user", {
@@ -58,13 +62,13 @@ export default function Home() {
                       })
                   }}
                 >
-                  {({ errors, isSubmitting, values }) => (
-                    <Form>
-                      {(errors.name ||
-                        errors.description ||
-                        errors.private) && (
-                        <div className="alert alert-danger" role="alert">
-                          <ul>{errors.name && <li>Name: {errors.name}</li>}</ul>
+                  {({ errors, isSubmitting, values, setFieldError }) => (
+                    <Form onChange={() => setFieldError("name", false)}>
+                      {errors.name && (
+                        <div className="py-3">
+                          <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                            <div>You must enter a valid username!</div>
+                          </div>
                         </div>
                       )}
 
@@ -80,9 +84,13 @@ export default function Home() {
                         />
                       </div>
                       <div className="text-sm pt-4">
-                        <p>This will be the name of your account on GitHub.</p>
                         <p>
-                          Your URL will be: https://github.com/{values.name}
+                          This will be the name of your account on Issue
+                          Tracker.
+                        </p>
+                        <p>
+                          Your URL will be:{" "}
+                          {`${window.location.origin}/${values.name}`}
                         </p>
                       </div>
 

@@ -1,3 +1,4 @@
+import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
@@ -15,6 +16,7 @@ export default function ProjectInvites(props) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
+  const [response, setResponse] = useState({})
   return (
     <>
       <Head>
@@ -47,6 +49,8 @@ export default function ProjectInvites(props) {
                             initialValues={{
                               name: ""
                             }}
+                            validateOnChange={false}
+                            validateOnBlur={false}
                             validationSchema={NamespaceNameCreationSchema}
                             onSubmit={(
                               values,
@@ -62,20 +66,57 @@ export default function ProjectInvites(props) {
                                 )
                                 .then((response) => {
                                   console.log("RESPONSE:", response)
+                                  setResponse({
+                                    success: `You have invited ${values.name}!`
+                                  })
                                   // TODO: Redirect to new project page
                                   // router.push("/")
                                 })
                                 .catch((error) => {
                                   console.log("ERROR:", error.response.data)
-                                  console.log("ERROR:", error)
+                                  console.log("ERROR:", error.response.data.error)
+                                  if(error.response.data.error === 'P2002') {
+                                    setResponse({
+                                      error: "That user was already invited!"
+                                    })
+                                  } else {
+                                    setResponse({
+                                      error: "That user does not exist"
+                                    })
+                                  }
+     
                                 })
                                 .finally(() => {
                                   setSubmitting(false)
                                 })
                             }}
                           >
-                            {({ values, errors, isSubmitting }) => (
-                              <Form>
+                            {({
+                              values,
+                              errors,
+                              isSubmitting,
+                              touched,
+                              setFieldError
+                            }) => (
+                              <Form
+                                onChange={() => setFieldError("name", false)}
+                              >
+                                {response && response.error && (
+                                  <div className="py-3">
+                                    <div className="flex w-1/3 px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                                      <div>{response.error}</div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {response && response.success && (
+                                  <div className="py-3">
+                                    <div className="flex w-1/3 px-4 py-2 rounded-sm text-sm border bg-emerald-100 border-emerald-200 text-emerald-600">
+                                      <div>{response.success}</div>
+                                    </div>
+                                  </div>
+                                )}
+
                                 <section className="flex flex-row mb-4 gap-x-4">
                                   <div className="sm:w-1/3">
                                     <label
@@ -112,9 +153,9 @@ export default function ProjectInvites(props) {
                                   </div>
                                 </section>
 
-                                {errors.name && (
+                                {/* {errors.name && (
                                   <div>Name errors:{errors.name}</div>
-                                )}
+                                )} */}
 
                                 <hr />
 

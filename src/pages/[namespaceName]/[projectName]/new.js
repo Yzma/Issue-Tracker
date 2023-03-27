@@ -62,6 +62,8 @@ export default function IssuesCreate(props) {
                 labels: []
               }}
               validationSchema={IssueCreationSchema}
+              validateOnChange={false}
+              validateOnBlur={false}
               onSubmit={(values, { setSubmitting, setFieldError }) => {
                 const labelIds = labels.map((e) => e.id)
                 axios
@@ -87,21 +89,39 @@ export default function IssuesCreate(props) {
                   })
               }}
             >
-              {({ values, errors, isSubmitting, setFieldValue }) => (
-                <Form>
-                  {(errors.name || errors.description || errors.private) && (
-                    <div className="alert alert-danger" role="alert">
-                      <ul>
-                        {errors.name && <li>Name: {errors.name}</li>}
-                        {errors.description && (
-                          <li>Description: {errors.description}</li>
-                        )}
-                        {errors.private && <li>private: {errors.private}</li>}
-                      </ul>
-                    </div>
-                  )}
+              {({
+                values,
+                errors,
+                isSubmitting,
+                setFieldValue,
+                setFieldError
+              }) => (
+                <Form
+                  onChange={() => {
+                    setFieldError("name", false)
+                    setFieldError("description", false)
+                  }}
+                >
 
                   <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
+                    <div className="col-start-2 col-span-6">
+                      {errors.name && (
+                        <div className="py-3">
+                          <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                            <div>You must enter a valid issue title!</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {errors.description && (
+                        <div className="py-3">
+                          <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                            <div>You must enter a valid description!</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="col-start-2 col-span-4">
                       {/* Start Main Content */}
 
@@ -148,19 +168,7 @@ export default function IssuesCreate(props) {
                             </div>
 
                             <hr />
-
-                            {errors.name && (
-                              <div>Name errors:{errors.name}</div>
-                            )}
-                            {errors.description && (
-                              <div>
-                                Description errors: {errors.description}
-                              </div>
-                            )}
-                            {errors.private && (
-                              <div>Private error: {errors.private}</div>
-                            )}
-
+                            
                             <div className="flex flex-col py-5 border-t border-slate-200">
                               <div className="flex self-start">
                                 <button
@@ -187,7 +195,7 @@ export default function IssuesCreate(props) {
                         </div>
                         <Link
                           className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
-                          href={session ? `/${session.namespace}/` : ''}
+                          href={session ? `/${session.namespace}/` : ""}
                         >
                           {session && session.namespace}
                         </Link>
