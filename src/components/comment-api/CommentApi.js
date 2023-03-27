@@ -40,7 +40,7 @@ export default function CommentApi({ children }) {
 function Header({ children }) {
   return (
     <>
-      <header className="flex flex-row justify-between px-3 py-2 h-12 rounded-t bg-gray-300 border-l border-t border-r border-slate-100">
+      <header className="flex flex-row justify-between px-3 py-2 h-12 rounded-t bg-gray-300">
         {children}
       </header>
     </>
@@ -51,7 +51,7 @@ function Body({ children }) {
   return (
     <>
       <div className="flex flex-col">
-        <div className="p-3 bg-gray-50 mb-8 border-slate-100">
+        <div className="p-3 bg-gray-50 border-slate-100">
           {children}
         </div>
       </div>

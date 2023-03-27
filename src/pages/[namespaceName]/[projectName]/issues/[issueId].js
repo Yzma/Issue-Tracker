@@ -3,7 +3,6 @@ import Head from "next/head"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
-import TimeAgo from "react-timeago"
 import englishStrings from "react-timeago/lib/language-strings/en"
 import buildFormatter from "react-timeago/lib/formatters/buildFormatter"
 
@@ -15,13 +14,6 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
 import Header from "@/components/Header"
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
-import Comment from "@/components/comment/Comment"
-import CommentApi from "@/components/comment-api/CommentApi"
-
-import MarkdownViewer from "@/components/markdown/MarkdownViewer"
-import MarkdownEditor from "@/components/markdown/MarkdownEditor"
-
-import { Tab } from "@headlessui/react"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
