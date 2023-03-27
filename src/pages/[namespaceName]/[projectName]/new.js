@@ -1,16 +1,22 @@
 import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
+import Link from "next/link"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
 
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import Header from "@/components/Header"
-import MarkdownEditor from "@/components/markdown/MarkdownEditor"
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+import IssueComment from "@/components/comment-api/IssueComment"
 
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faGear, faCircle } from "@fortawesome/free-solid-svg-icons"
+
+import { useSession } from "next-auth/react"
 import axios from "axios"
-
 import prisma from "@/lib/prisma/prisma"
 
 export default function IssuesCreate(props) {
@@ -18,7 +24,7 @@ export default function IssuesCreate(props) {
   const { namespaceName, projectName } = router.query
 
   const [labels, setLabels] = useState([])
-
+  const { data: session } = useSession()
   // TODO: Schema doesn't validate label ids - figure out a way to check them
   const onLabelClick = (label) => {
     if (labels.find((e) => e.id === label.id)) {
@@ -43,8 +49,223 @@ export default function IssuesCreate(props) {
       <div className="flex h-screen overflow-hidden">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-white">
           <Header />
+          <ProjectBelowNavbar
+            namespaceName={namespaceName}
+            projectName={projectName}
+          />
+          <main>
+            <Formik
+              initialValues={{
+                name: "",
+                description: "",
+                labels: []
+              }}
+              validationSchema={IssueCreationSchema}
+              onSubmit={(values, { setSubmitting, setFieldError }) => {
+                const labelIds = labels.map((e) => e.id)
+                axios
+                  .post(`/api/${namespaceName}/${projectName}/issues`, {
+                    name: values.name,
+                    description: values.description,
+                    labels: labelIds
+                  })
+                  .then((response) => {
+                    console.log("RESPONSE:", response)
+                    // TODO: Ensure proper data is returned on route, this could probably break easily...
+                    console.log("id: ", response.data.result.id)
+                    router.push(
+                      `/${namespaceName}/${projectName}/issues/${response.data.result.id}`
+                    )
+                  })
+                  .catch((error) => {
+                    console.log("ERROR:", error.response.data)
+                    console.log("ERROR:", error)
+                  })
+                  .finally(() => {
+                    setSubmitting(false)
+                  })
+              }}
+            >
+              {({ values, errors, isSubmitting, setFieldValue }) => (
+                <Form>
+                  {(errors.name || errors.description || errors.private) && (
+                    <div className="alert alert-danger" role="alert">
+                      <ul>
+                        {errors.name && <li>Name: {errors.name}</li>}
+                        {errors.description && (
+                          <li>Description: {errors.description}</li>
+                        )}
+                        {errors.private && <li>private: {errors.private}</li>}
+                      </ul>
+                    </div>
+                  )}
 
-          <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+                  <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
+                    <div className="col-start-2 col-span-4">
+                      {/* Start Main Content */}
+
+                      <main>
+                        <div className="row g-5">
+                          <section>
+                            <section className="flex flex-row mb-4">
+                              <div className="sm:w-1/3 grow">
+                                <label
+                                  className="block text-sm font-medium mb-1"
+                                  htmlFor="name"
+                                >
+                                  Title <span className="text-rose-500">*</span>
+                                </label>
+                                <Field
+                                  className="form-input w-full"
+                                  type="text"
+                                  name="name"
+                                />
+                              </div>
+                            </section>
+
+                            <hr />
+
+                            <div className="flex flex-row">
+                              <section className="mt-4 grow">
+                                <label
+                                  className="block text-sm font-medium mb-1"
+                                  htmlFor="name"
+                                >
+                                  Description{" "}
+                                  <span className="text-rose-500">*</span>
+                                </label>
+                                <IssueComment
+                                  text={""}
+                                  onChange={(text) =>
+                                    setFieldValue("description", text)
+                                  }
+                                  onSubmit={() => submitForm()}
+                                  editing={true}
+                                  showButtons={false}
+                                />
+                              </section>
+                            </div>
+
+                            <hr />
+
+                            {errors.name && (
+                              <div>Name errors:{errors.name}</div>
+                            )}
+                            {errors.description && (
+                              <div>
+                                Description errors: {errors.description}
+                              </div>
+                            )}
+                            {errors.private && (
+                              <div>Private error: {errors.private}</div>
+                            )}
+
+                            <div className="flex flex-col py-5 border-t border-slate-200">
+                              <div className="flex self-start">
+                                <button
+                                  className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                                  type="submit"
+                                  disabled={isSubmitting}
+                                >
+                                  Submit Issue
+                                </button>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </main>
+                      {/* End Main Content */}
+                    </div>
+
+                    {/* Issue Actions */}
+                    <div className="flex flex-col gap-y-2 col-md-4 col-span-2">
+                      {/* Asignees Action */}
+                      <div>
+                        <div className="flex justify-between">
+                          <span className="font-bold">Asignees </span>
+                        </div>
+                        <Link
+                          className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
+                          href={session ? `/${session.namespace}/` : ''}
+                        >
+                          {session && session.namespace}
+                        </Link>
+                      </div>
+                      {/* End Asignees Action */}
+
+                      <hr />
+
+                      {/* Labels Actions */}
+                      <div className="">
+                        <div className="flex justify-between align-self-center">
+                          <span className="font-bold">Labels</span>
+                          {props.labels.length !== 0 && (
+                            <DropdownMenu.Root>
+                              <DropdownMenu.Trigger asChild>
+                                <FontAwesomeIcon
+                                  className="mr-4 align-self-center align-middle"
+                                  icon={faGear}
+                                />
+                              </DropdownMenu.Trigger>
+
+                              <DropdownMenu.Portal>
+                                <DropdownMenu.Content
+                                  className="DropdownMenuContent"
+                                  sideOffset={5}
+                                >
+                                  {props.labels.map((label, index) => (
+                                    <DropdownMenu.Item
+                                      key={index}
+                                      className="DropdownMenuItem"
+                                      onClick={() => onLabelClick(label)}
+                                    >
+                                      <span>
+                                        <FontAwesomeIcon
+                                          className="mr-4 align-self-center align-middle"
+                                          style={{
+                                            color: `#${label.color}`
+                                          }}
+                                          icon={faCircle}
+                                        />
+                                      </span>
+                                      {label.name}
+                                    </DropdownMenu.Item>
+                                  ))}
+                                </DropdownMenu.Content>
+                              </DropdownMenu.Portal>
+                            </DropdownMenu.Root>
+                          )}
+                        </div>
+                        <div className="flex gap-x-1 pt-2">
+                          {labels.map((label, index) => (
+                            <span
+                              className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full"
+                              style={{
+                                color: "white",
+                                background: `#${label.color}`
+                              }}
+                              key={index}
+                            >
+                              {label.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {/* End Labels Actions */}
+                    </div>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </main>
+        </div>
+      </div>
+    </>
+  )
+}
+
+{
+  /* <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
             <div className="mb-8">
               <div className="flex flex-col md:flex-row md:-mr-px">
                 <div className="grow">
@@ -249,11 +470,7 @@ export default function IssuesCreate(props) {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </>
-  )
+          </div> */
 }
 
 export async function getServerSideProps(context) {
