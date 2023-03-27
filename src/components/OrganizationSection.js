@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import moment from "moment";
 
 const OrganizationSection = ({ organizations }) => {
   const router = useRouter();
@@ -44,11 +45,7 @@ const OrganizationSection = ({ organizations }) => {
                     </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(organization.createdAt).toLocaleString("default", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric"
-                    })}
+                    {moment(organization.createdAt).format("MMM Do YY")}
                   </td>
                 </tr>
               ))}

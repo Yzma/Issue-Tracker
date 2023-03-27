@@ -9,6 +9,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import CommentApi from "./CommentApi"
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 import MarkdownViewer from "@/components/markdown/MarkdownViewer"
+import moment from "moment"
 
 const IssueComment = ({
   text: placeholder,
@@ -125,12 +126,13 @@ const IssueComment = ({
           <header className="flex flex-row justify-between px-3 py-2 h-12 rounded-t bg-gray-300 border border-slate-100">
             <div className="font-semibold text-slate-800">
               {username} commented{" "}
-              <TimeAgo
+              {moment(createdAt).fromNow()}
+              {/* <TimeAgo
                 date={createdAt}
                 live={false}
                 now={() => now}
                 formatter={formatter}
-              />
+              /> */}
             </div>
 
             {canEdit && (

@@ -16,6 +16,7 @@ import axios from "axios"
 import prisma from "@/lib/prisma/prisma"
 import Header from "@/components/Header"
 import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
+import moment from "moment"
 
 export default function OrganizationMembers(props) {
   const router = useRouter()
@@ -181,7 +182,7 @@ export default function OrganizationMembers(props) {
 
                             <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                               <div className="text-center">
-                                {invite.createdAt}
+                                {moment(invite.createdAt).format("MMM Do YY")}
                               </div>
                             </td>
 

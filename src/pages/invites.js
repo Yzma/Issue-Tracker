@@ -8,6 +8,7 @@ import Footer from "@/components/Footer"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 
+import moment from "moment/moment"
 import * as Dialog from "@radix-ui/react-dialog"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
@@ -266,7 +267,7 @@ export default function MyInvites(props) {
 
                             <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                               <div className="text-center">
-                                {invite.createdAt}
+                                {moment(invite.createdAt).format("MMM Do YY")}
                               </div>
                             </td>
 
