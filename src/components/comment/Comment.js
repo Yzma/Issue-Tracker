@@ -7,6 +7,7 @@ import MarkdownViewer from "@/components/markdown/MarkdownViewer"
 import TimeAgo from "react-timeago"
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import moment from "moment"
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ")
@@ -30,12 +31,13 @@ const Comment = ({
             <header className="flex flex-row justify-between px-3 py-2 h-12 rounded-t bg-gray-300 border border-slate-100">
               <div className="font-semibold text-slate-800">
                 Yzma commented{" "}
-                <TimeAgo
+                {moment(createdAt).format("MMM Do YY")}
+                {/* <TimeAgo
                   date={createdAt}
                   live={false}
                   now={() => now}
                   formatter={formatter}
-                />
+                /> */}
               </div>
 
               <div className="font-semibold text-slate-800">

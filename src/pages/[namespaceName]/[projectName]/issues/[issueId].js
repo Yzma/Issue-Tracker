@@ -38,6 +38,7 @@ import axios from "axios"
 import { useSession } from "next-auth/react"
 import prisma from "@/lib/prisma/prisma"
 import IssueComment from "@/components/comment-api/IssueComment"
+import moment from "moment"
 
 const FormButton = (props) => {
   return (
@@ -555,14 +556,8 @@ export default function IssuesView(props) {
                       </div>
                       <div className="pl-1">
                         <p>
-                          {new Date(issueState.createdAt).toLocaleString(
-                            "default",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric"
-                            }
-                          )}{" "}
+                          {moment(issueState.createdAt).format("MMM Do YY")}
+                          {" "}
                           by{" "}
                           <Link
                             className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"

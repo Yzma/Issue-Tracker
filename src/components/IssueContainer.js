@@ -1,6 +1,7 @@
 import React from "react"
 import styles from "@/styles/IssueContainer.module.css"
 import Link from "next/link"
+import moment from "moment"
 
 // TODO: We're prop drilling here, figure out a way to make the routing nicer. Context API?
 const Issue = ({ issue, routePath }) => {
@@ -15,13 +16,11 @@ const Issue = ({ issue, routePath }) => {
       </td>
       <td className={styles.cell}>{issue.open ? "Open" : "Closed"}</td>
       <td className={styles.cell}>
-        {new Date(issue.createdAt).toLocaleString("default", {
-          year: "numeric",
-          month: "long",
-          day: "numeric"
-        })}
+        {moment(issue.createdAt).format("MMM Do YY")}
       </td>
-      <td className={styles.cell}>{issue.updatedAt}</td>
+      <td className={styles.cell}>
+        {moment(issue.updatedAt).format("MMM Do YY")}
+      </td>
     </tr>
   )
 }

@@ -15,6 +15,7 @@ import axios from "axios"
 import prisma from "@/lib/prisma/prisma"
 import Header from "@/components/Header"
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+import moment from "moment"
 
 export default function ProjectMembers(props) {
   const router = useRouter()
@@ -166,7 +167,7 @@ export default function ProjectMembers(props) {
 
                             <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                               <div className="text-center">
-                                {member.createdAt}
+                                {moment(member.createdAt).format("MMM Do YY")}
                               </div>
                             </td>
 
