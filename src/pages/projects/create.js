@@ -63,6 +63,8 @@ export default function ProjectCreate(props) {
                               owner: session?.namespace
                             }}
                             validationSchema={ProjectCreationSchema}
+                            validateOnChange={false}
+                            validateOnBlur={false}
                             onSubmit={(
                               values,
                               { setSubmitting, setFieldError }
@@ -89,28 +91,24 @@ export default function ProjectCreate(props) {
                                 })
                             }}
                           >
-                            {({ values, errors, isSubmitting }) => (
-                              <Form>
-                                {(errors.name ||
-                                  errors.description ||
-                                  errors.private) && (
-                                  <div
-                                    className="alert alert-danger"
-                                    role="alert"
-                                  >
-                                    <ul>
-                                      {errors.name && (
-                                        <li>Name: {errors.name}</li>
-                                      )}
-                                      {errors.description && (
-                                        <li>
-                                          Description: {errors.description}
-                                        </li>
-                                      )}
-                                      {errors.private && (
-                                        <li>private: {errors.private}</li>
-                                      )}
-                                    </ul>
+                            {({
+                              values,
+                              errors,
+                              isSubmitting,
+                              setFieldError
+                            }) => (
+                              <Form
+                                onChange={() => {
+                                  setFieldError("name", false)
+                                }}
+                              >
+                                {errors.name && (
+                                  <div className="py-3">
+                                    <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                                      <div>
+                                        You must enter a valid project name
+                                      </div>
+                                    </div>
                                   </div>
                                 )}
 
@@ -220,18 +218,6 @@ export default function ProjectCreate(props) {
                                     </div>
                                   </div>
                                 </section>
-
-                                {errors.name && (
-                                  <div>Name errors:{errors.name}</div>
-                                )}
-                                {errors.description && (
-                                  <div>
-                                    Description errors: {errors.description}
-                                  </div>
-                                )}
-                                {errors.private && (
-                                  <div>Private error: {errors.private}</div>
-                                )}
 
                                 <hr />
 

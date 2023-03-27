@@ -26,6 +26,7 @@ export const ProjectCreationSchema = Yup.object().shape({
   name: Yup.string()
     .min(3, 'Too Short!')
     .max(25, 'Too Long!')
+    .matches(VALID_CHARACTER_REGEX, "Invalid name!")
     .required('Required'),
   description: Yup.string()
     .max(75, 'Too Long!')
