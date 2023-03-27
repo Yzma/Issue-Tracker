@@ -1,7 +1,4 @@
-import React, {
-  createContext,
-  useState,
-} from "react"
+import React, { createContext, useState } from "react"
 
 import { Tab } from "@headlessui/react"
 
@@ -21,6 +18,7 @@ const IssueComment = ({
   canEdit,
   now,
   editing,
+  showButtons = true,
   onChange,
   onSubmit,
   onEdit,
@@ -53,23 +51,25 @@ const IssueComment = ({
                     />
                   </div>
 
-                  <div className="flex flex-row justify-end pt-3 gap-3">
-                    {canEdit && (
-                      <button
-                        className="btn-xs h-7 w-28 bg-red-500 hover:bg-red-600 text-white"
-                        onClick={() => onCancel()}
-                      >
-                        Cancel
-                      </button>
-                    )}
+                  {showButtons && (
+                    <div className="flex flex-row justify-end pt-3 gap-3">
+                      {canEdit && (
+                        <button
+                          className="btn-xs h-7 w-28 bg-red-500 hover:bg-red-600 text-white"
+                          onClick={() => onCancel()}
+                        >
+                          Cancel
+                        </button>
+                      )}
 
-                    <button
-                      className="btn-xs h-7 w-28 bg-emerald-500 hover:bg-emerald-600 text-white"
-                      onClick={() => onSubmit()}
-                    >
-                      {canEdit ? <>Update Issue</> : <>Submit</>}
-                    </button>
-                  </div>
+                      <button
+                        className="btn-xs h-7 w-28 bg-emerald-500 hover:bg-emerald-600 text-white"
+                        onClick={() => onSubmit()}
+                      >
+                        {canEdit ? <>Update Issue</> : <>Submit</>}
+                      </button>
+                    </div>
+                  )}
                 </CommentApi.Body>
               </Tab.Panel>
 
@@ -79,7 +79,27 @@ const IssueComment = ({
                     <MarkdownViewer text={text} />
                   </div>
 
-                  <div className="flex flex-row justify-end pt-3 gap-3">
+                  {showButtons && (
+                    <div className="flex flex-row justify-end pt-3 gap-3">
+                      {canEdit && (
+                        <button
+                          className="btn-xs h-7 w-28 bg-red-500 hover:bg-red-600 text-white"
+                          onClick={() => onCancel()}
+                        >
+                          Cancel
+                        </button>
+                      )}
+
+                      <button
+                        className="btn-xs h-7 w-28 bg-emerald-500 hover:bg-emerald-600 text-white"
+                        onClick={() => onSubmit()}
+                      >
+                        {canEdit ? <>Update Issue</> : <>Submit</>}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* <div className="flex flex-row justify-end pt-3 gap-3">
                   {canEdit && (
                       <button
                         className="btn-xs h-7 w-28 bg-red-500 hover:bg-red-600 text-white"
@@ -94,7 +114,7 @@ const IssueComment = ({
                     >
                       Update Issue
                     </button>
-                  </div>
+                  </div> */}
                 </CommentApi.Body>
               </Tab.Panel>
             </Tab.Panels>
