@@ -433,6 +433,7 @@ export default function IssuesView(props) {
           <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
+            selected={"issues"}
           />
 
           <main>
