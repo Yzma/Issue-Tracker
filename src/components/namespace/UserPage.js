@@ -3,7 +3,6 @@ import ProfileContainer from "../ProfileContainer";
 import ProjectSection from "../OrgProjectSection";
 import OrganizationSection from "../OrganizationSection";
 import Head from "next/head";
-import BelowNavbar from "../other/BelowNavbar";
 
 const UserPage = ({ props }) => {
   const [activeTab, setActiveTab] = useState("projects");

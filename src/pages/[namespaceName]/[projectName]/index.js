@@ -37,9 +37,6 @@ export default function Issues({ issuesData }) {
             namespaceName={namespaceName}
             projectName={projectName}
           />
-        <h3>
-          <Link href={`/${namespaceName}`}>{namespaceName}(href)</Link>
-        </h3>
         <div className="flex justify-center">
           <IssueButtons
             onSearch={handleSearch}
