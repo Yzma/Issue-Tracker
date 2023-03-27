@@ -158,7 +158,7 @@ const IssueComment = ({
         </Tab.Group>
       ) : (
         <>
-          <header className="flex flex-row justify-between px-3 py-2 h-12 rounded-t bg-gray-300 border border-slate-100">
+          <header className="flex flex-row justify-between px-3 py-2 h-12 bg-gray-300 border rounded-t">
             <div className="font-semibold text-slate-800">
               {username} commented {moment(createdAt).fromNow()}
               {/* <TimeAgo
