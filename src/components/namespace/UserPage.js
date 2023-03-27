@@ -17,7 +17,7 @@ const UserPage = ({ props }) => {
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-center items-start">
           <div className="w-1/4 mt-20"> {/* Add margin-top here */}
-            <ProfileContainer username={props.data.username} bio={""} />
+            <ProfileContainer data={props.data} username={props.data.username} bio={""} />
           </div>
           <div className="w-3/4 pl-8">
             <div className="flex flex-col h-full">
