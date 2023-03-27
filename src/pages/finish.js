@@ -3,13 +3,10 @@ import Head from "next/head"
 
 import { useSession } from "next-auth/react"
 
-import styles from "@/styles/Home.module.css"
-
 import { Formik, Form, Field } from "formik"
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 
 import axios from "axios"
-import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function Home() {
   const router = useRouter()
@@ -26,55 +23,87 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <Formik
-          initialValues={{
-            name: ""
-          }}
-          validationSchema={NamespaceNameCreationSchema}
-          onSubmit={(values, { setSubmitting, setFieldError }) => {
-            axios
-              .post("/api/user", {
-                name: values.name
-              })
-              .then((response) => {
-                console.log("RESPONSE:", response)
-                router.push(`/${values.name}`)
-              })
-              .catch((error) => {
-                console.log("ERROR:", error.response.data)
-                console.log("ERROR:", error)
-              })
-              .finally(() => {
-                setSubmitting(false)
-              })
-          }}
-        >
-          {({ errors, isSubmitting }) => (
-            <Form>
-              {(errors.name || errors.description || errors.private) && (
-                <div className="alert alert-danger" role="alert">
-                  <ul>{errors.name && <li>Name: {errors.name}</li>}</ul>
-                </div>
-              )}
+      <main className="flex absolute inset-0  justify-center items-center">
+        <div className="relative px-4 sm:px-6 lg:px-8 pb-8  max-w-lg mx-auto">
+          <div className="bg-white px-8 pb-6 pt-9 rounded-b shadow-lg">
+            <div className="text-center mb-6">
+              <h1 className="text-xl leading-snug text-slate-800 font-semibold mb-2">
+                Complete Registration
+              </h1>
+              <div className="text-sm">What do you want your username to be?</div>
+            </div>
 
-              <label htmlFor="name" className="form-label">
-                Username
-              </label>
-              <Field className="form-control" type="text" name="name" />
+            <div>
+              <div className="space-y-4">
+                <Formik
+                  initialValues={{
+                    name: ""
+                  }}
+                  validationSchema={NamespaceNameCreationSchema}
+                  onSubmit={(values, { setSubmitting, setFieldError }) => {
+                    axios
+                      .post("/api/user", {
+                        name: values.name
+                      })
+                      .then((response) => {
+                        console.log("RESPONSE:", response)
+                        router.push(`/${values.name}`)
+                      })
+                      .catch((error) => {
+                        console.log("ERROR:", error.response.data)
+                        console.log("ERROR:", error)
+                      })
+                      .finally(() => {
+                        setSubmitting(false)
+                      })
+                  }}
+                >
+                  {({ errors, isSubmitting, values }) => (
+                    <Form>
+                      {(errors.name ||
+                        errors.description ||
+                        errors.private) && (
+                        <div className="alert alert-danger" role="alert">
+                          <ul>{errors.name && <li>Name: {errors.name}</li>}</ul>
+                        </div>
+                      )}
 
-              {errors.name && <div>Name errors:{errors.name}</div>}
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Username
+                          <span className="text-rose-500">*</span>
+                        </label>
+                        <Field
+                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          type="text"
+                          name="name"
+                        />
+                      </div>
+                      <div className="text-sm pt-4">
+                        <p>This will be the name of your account on GitHub.</p>
+                        <p>
+                          Your URL will be: https://github.com/{values.name}
+                        </p>
+                      </div>
 
-              <button
-                type="submit"
-                className="btn btn-success"
-                disabled={isSubmitting}
-              >
-                Submit
-              </button>
-            </Form>
-          )}
-        </Formik>
+                      <div className="mt-6">
+                        <div className="mb-4">
+                          <button
+                            className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                            type="submit"
+                            disabled={isSubmitting}
+                          >
+                            Finish Registration
+                          </button>
+                        </div>
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </>
   )
