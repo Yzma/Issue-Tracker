@@ -30,6 +30,12 @@ model User {
 
   username String? @unique
 
+  bio String?
+  linkedIn String?
+  twitter String?
+  github String?
+  publicEmail String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -41,7 +41,11 @@ export default async function handler(req, res) {
     }
 
     const options = token.payload.session.options
-    setCookie(NEXT_AUTH_SESSION_COOKIE, token.payload.session.value, { req, res, options })
+    setCookie(NEXT_AUTH_SESSION_COOKIE, token.payload.session.value, {
+      req,
+      res,
+      options
+    })
 
     // TODO: Next-Auth getServerSession relies on the 'NEXT_AUTH_SESSION_COOKIE' being set, we probably have to implement a custom version of this
     // to get better optimization and cleaner code
@@ -79,6 +83,43 @@ export default async function handler(req, res) {
           .status(400)
           .json({ error: "Error creating entry in database" })
       })
+
+  } else if (req.method === "PUT") {
+
+    const { bio, linkedIn, twitter, github, publicEmail } = req.body
+
+    const session = await getServerSession(req, res, authOptions(req, res))
+    if (!session) {
+      return res.status(400).json({ error: "Invalid session" })
+    }
+
+    return await prisma.user
+      .update({
+        where: {
+          id: session.user.id
+        },
+        data: {
+          bio,
+          linkedIn,
+          twitter,
+          github,
+          publicEmail
+        }
+      })
+
+      .then((result) => {
+
+        return res.status(200).json({ result: result })
+      })
+      .catch((err) => {
+        // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
+        console.log("error: ", err)
+        return res
+          .status(400)
+          .json({ error: "Error creating entry in database" })
+      })
+
+
   } else {
     res.json({ error: "Not supported" })
   }
