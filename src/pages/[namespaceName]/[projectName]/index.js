@@ -105,41 +105,40 @@ export async function getServerSideProps(context) {
     }
 
     // Is the user apart of the project separately?
-    if (project.namespace.projectId) {
-      const isMember = await prisma.member.findFirst({
-        where: {
-          userId: session.user.id,
-          projectId: project.id
-        }
-      })
+    let isMember = await prisma.member.findFirst({
+      where: {
+        userId: session.user.id,
+        projectId: project.id
+      }
+    })
 
-      if (!isMember) {
-        console.log("private - is not member")
-        return {
-          redirect: {
-            destination: "/404",
-            permanent: false
+    if(!isMember) {
+      // If the project belongs to an organization, then check if they are apart of that organization
+      if (project.namespace.organizationId) {
+        const isOrganizationMember = await prisma.member.findFirst({
+          where: {
+            userId: session.user.id,
+            organizationId: project.namespace.organizationId
+          }
+        })
+
+        if (!isOrganizationMember) {
+          console.log("private - is not organization member")
+          return {
+            redirect: {
+              destination: "/404",
+              permanent: false
+            }
           }
         }
       }
     }
 
-    // If the project belongs to an organization, then check if they are apart of that organization
-    if (project.namespace.organizationId) {
-      const isOrganizationMember = await prisma.member.findFirst({
-        where: {
-          userId: session.user.id,
-          organizationId: project.namespace.organizationId
-        }
-      })
-
-      if (!isOrganizationMember) {
-        console.log("private - is not organization member")
-        return {
-          redirect: {
-            destination: "/404",
-            permanent: false
-          }
+    if(!isMember) {
+      return {
+        redirect: {
+          destination: "/404",
+          permanent: false
         }
       }
     }
