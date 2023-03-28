@@ -112,6 +112,9 @@ export async function getServerSideProps(context) {
       }
     })
 
+    console.log("isMember ", isMember)
+
+
     if(!isMember) {
       // If the project belongs to an organization, then check if they are apart of that organization
       if (project.namespace.organizationId) {
@@ -122,6 +125,8 @@ export async function getServerSideProps(context) {
           }
         })
 
+        console.log("isOrganizationMember ", isOrganizationMember)
+
         if (!isOrganizationMember) {
           console.log("private - is not organization member")
           return {
@@ -130,6 +135,8 @@ export async function getServerSideProps(context) {
               permanent: false
             }
           }
+        } else {
+          isMember = true
         }
       }
     }
