@@ -90,7 +90,7 @@ export default function Home() {
                         </p>
                         <p>
                           Your URL will be:{" "}
-                          {`${window.location.origin}/${values.name}`}
+                          {/* {`${window.location.origin}/${values.name}`} */}
                         </p>
                       </div>
 
