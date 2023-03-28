@@ -50,8 +50,7 @@ export async function getServerSideProps(context) {
       id: true,
       name: true,
       userId: true,
-      organizationId: true,
-      projects: true
+      organizationId: true
     }
   })
 
@@ -81,12 +80,23 @@ export async function getServerSideProps(context) {
         github: true,
         publicEmail: true,
         members: {
-          where: {
-            project: null
-          },
-
           select: {
-            organization: true
+            organization: true,
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                private: true,
+                createdAt: true,
+                updatedAt: true,
+                namespace: {
+                  select: {
+                    name: true
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -96,17 +106,17 @@ export async function getServerSideProps(context) {
 
     console.log("resss", JSON.stringify(result))
     console.log(result.members)
-    result = {
-      ...result,
-      members: result.members.map((member) => ({
-        ...member,
-        organization: {
-          ...member.organization,
-          createdAt: member.organization.createdAt.toISOString(),
-          updatedAt: member.organization.createdAt.toISOString()
-        }
-      }))
-    }
+    // result = {
+    //   ...result,
+    //   members: result.members.map((member) => ({
+    //     ...member,
+    //     organization: {
+    //       ...member.organization,
+    //       createdAt: member.organization.createdAt.toISOString(),
+    //       updatedAt: member.organization.createdAt.toISOString()
+    //     }
+    //   }))
+    // }
   } else {
     result = await prisma.organization.findUnique({
       where: {
@@ -118,6 +128,25 @@ export async function getServerSideProps(context) {
         name: true,
         createdAt: true,
         updatedAt: true,
+        namespace: {
+          select: {
+            projects: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                private: true,
+                createdAt: true,
+                updatedAt: true,
+                namespace: {
+                  select: {
+                    name: true
+                  }
+                }
+              }
+            }
+          }
+        },
         members: {
           select: {
             id: true,
@@ -133,26 +162,18 @@ export async function getServerSideProps(context) {
       }
     })
 
-    result = {
-      ...result,
-      members: result.members.map((member) => ({
-        ...member,
-        createdAt: member.createdAt.toISOString()
-      }))
-    }
+  //   result = {
+  //     ...result,
+  //     members: result.members.map((member) => ({
+  //       ...member,
+  //       createdAt: member.createdAt.toISOString()
+  //     }))
+  //   }
   }
 
   console.log("namespace", namespace)
   console.log("res", result)
 
-  const mappedNamespace = {
-    ...namespace,
-    projects: namespace.projects.map((project) => ({
-      ...project,
-      createdAt: project.createdAt.toISOString(),
-      updatedAt: project.updatedAt.toISOString()
-    }))
-  }
 
   return {
     props: {

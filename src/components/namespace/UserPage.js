@@ -7,6 +7,15 @@ import Head from "next/head";
 const UserPage = ({ props }) => {
   const [activeTab, setActiveTab] = useState("projects");
 
+  const projects = props.data.members
+    .filter(e => e.organization === null)
+    .map(e => e.project)
+
+  console.log("PROJECT ", projects)
+
+  const organizations = props.data.members
+    .filter(e => e.project === null)
+    .map(e => e.organization)
   return (
     <>
       <Head>
@@ -45,12 +54,10 @@ const UserPage = ({ props }) => {
               </div>
               <div className="w-full max-w-5xl mt-4 flex-1">
                 {activeTab === "projects" ? (
-                  <ProjectSection projects={props.namespace.projects} />
+                  <ProjectSection projects={projects} />
                 ) : (
                   <OrganizationSection
-                    organizations={props.data.members.map(
-                      (member) => member.organization
-                    )}
+                    organizations={organizations}
                   />
                 )}
               </div>

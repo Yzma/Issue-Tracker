@@ -21,6 +21,9 @@ const OrganizationPage = ({ props }) => {
     setActiveTab(tab);
   };
 
+  const projects = props.data.namespace.projects
+  console.log("ORG PROJECT", projects)
+  console.log("ORG", props)
   return (
     <>
       <Head>
@@ -37,14 +40,8 @@ const OrganizationPage = ({ props }) => {
         {" "}
         {/* Add the mt-4 class here */}
         {/* <Tabs activeTab={activeTab} onTabClick={handleTabClick} /> */}
-        {activeTab === "projects" && (
-          <OrgProjectSection projects={props.namespace.projects} />
-        )}
-        {activeTab === "users" && (
-          <UserSection
-            users={props.data.members.map((member) => member.user.username)}
-          />
-        )}
+       <OrgProjectSection projects={projects} />
+        
       </div>
       <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
         <div className="text-center">

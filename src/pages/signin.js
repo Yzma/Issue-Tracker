@@ -7,8 +7,9 @@ import {
 import Head from "next/head";
 import Header from "@/components/Header";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGithub } from "@fortawesome/free-brands-svg-icons";
-import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { faBug } from "@fortawesome/free-solid-svg-icons";
+
 import Image from 'next/image';
 
 function signin({ providers }) {
