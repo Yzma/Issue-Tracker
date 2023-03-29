@@ -50,9 +50,7 @@ export default function ProjectCreate(props) {
                           Create a new project
                         </h2>
                         <div className="font-light">
-                          A repository contains all project files, including the
-                          revision history. Already have a project repository
-                          elsewhere?
+                          A project contains all stored issues.
                         </div>
                         <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-5">
                           <Formik
@@ -197,7 +195,7 @@ export default function ProjectCreate(props) {
                                       <p className="font-bold">Public</p>
                                       <p className="text-sm font-light">
                                         Anyone on the internet can see this
-                                        repository. You choose who can commit.
+                                        project.
                                       </p>
                                     </div>
                                   </div>
@@ -212,8 +210,8 @@ export default function ProjectCreate(props) {
                                     <div>
                                       <p className="font-bold">Private</p>
                                       <p className="text-sm font-light">
-                                        You choose who can see and commit to
-                                        this repository.
+                                        Only invited users and users that are part of the same organization the project is created{" "}
+                                        will be able to view the project
                                       </p>
                                     </div>
                                   </div>

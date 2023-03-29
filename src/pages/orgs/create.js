@@ -68,9 +68,9 @@ export default function OrganizationCreate() {
                       </div>
 
                       <div className="text-sm pt-4">
-                        <p>This will be the name of your account on GitHub.</p>
+                        <p>This will be the name of your account on Issue Tracker.</p>
                         <p>
-                          Your URL will be: https://github.com/{values.name}
+                          Your URL will be: http://localhost:3000/{values.name}
                         </p>
                       </div>
 
