@@ -684,11 +684,13 @@ export default function IssuesView(props) {
                       </section>
                       {/* End Issue body */}
 
-                      <hr className="mt-3 mb-6 divide-y divide-gray-400 hover:divide-y-8" />
+                     
 
                       {/* Comment Section */}
                       {issueState.comments.length > 0 && (
-                        <section className="flex flex-col gap-y-12">
+                        <>
+                         <hr className="mt-3 mb-6 divide-y divide-gray-400 hover:divide-y-8" />
+                         <section className="flex flex-col gap-y-12">
                           <div className="font-bold text-slate-800 text-3xl">
                             Comments ({issueState.comments.length})
                           </div>
@@ -898,6 +900,8 @@ export default function IssuesView(props) {
                             // </div>
                           ))}
                         </section>
+                        </>
+
                       )}
 
                       {/* End Comment Section  */}
