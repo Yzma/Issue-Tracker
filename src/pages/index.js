@@ -31,7 +31,7 @@ export default function Home() {
       </Head>
       <Header />
 
-      <main className="bg-white min-h-screen">
+      <main className="bg-slate-100 min-h-screen">
         <div className="relative md:flex">
           <div className="md:w-1/2">
             <div className="min-h-screen h-full flex flex-col">

@@ -29,7 +29,7 @@ function signin({ providers }) {
           }
         `}</style>
       </Head>
-      <main className="bg-white min-h-screen">
+      <main className="bg-slate-100 min-h-screen">
         <Header className="header" />
         <div className="relative md:flex">
           <div className="md:w-1/2">

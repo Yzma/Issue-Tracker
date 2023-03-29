@@ -20,7 +20,7 @@ export default function OrganizationCreate() {
      
       <Header />
 
-      <main className="flex absolute inset-0  justify-center items-center">
+      <main className="flex absolute inset-0  bg-slate-100 justify-center items-center">
         <div className="relative px-4 sm:px-6 lg:px-8 pb-8  max-w-lg mx-auto">
           <div className="bg-white px-8 pb-6 pt-9 rounded-b shadow-lg">
             <div className="text-center mb-6">
