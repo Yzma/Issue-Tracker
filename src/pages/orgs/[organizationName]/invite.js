@@ -1,3 +1,4 @@
+import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
@@ -12,7 +13,7 @@ import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar
 export default function OrganizationInvitation(props) {
   const router = useRouter()
   const { organizationName } = router.query
-
+  const [response, setResponse] = useState({})
   console.log(props)
 
   return (
@@ -26,7 +27,10 @@ export default function OrganizationInvitation(props) {
       <div className="flex h-screen overflow-hidden">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <Header />
-          <OrganizationBelowNavbar namespaceName={organizationName} selected={"invite"} />
+          <OrganizationBelowNavbar
+            namespaceName={organizationName}
+            selected={"invite"}
+          />
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
               <div className="mb-8">
@@ -47,30 +51,59 @@ export default function OrganizationInvitation(props) {
                               values,
                               { setSubmitting, setFieldError }
                             ) => {
-                    
                               axios
-                              .post(`/api/organization/${organizationName}/invites`, {
-                                name: values.name,
-                                role: values.role
-                              })
-                              .then((response) => {
-                                console.log("RESPONSE:", response)
-                                // TODO: Redirect to new project page
-                                // router.push("/")
-                              })
-                              .catch((error) => {
-                                console.log("ERROR:", error.response.data)
-                                console.log("ERROR:", error)
-                              })
-                              .finally(() => {
-                                setSubmitting(false)
-                              })
-
-
+                                .post(
+                                  `/api/organization/${organizationName}/invites`,
+                                  {
+                                    name: values.name,
+                                    role: values.role
+                                  }
+                                )
+                                .then((response) => {
+                                  console.log("RESPONSE:", response)
+                                  setResponse({
+                                    success: `You have invited ${values.name}!`
+                                  })
+                                  // TODO: Redirect to new project page
+                                  // router.push("/")
+                                })
+                                .catch((error) => {
+                                  console.log("ERROR:", error.response.data)
+                                  console.log("ERROR:", error)
+                                  setResponse({
+                                    error: "That user does not exist!"
+                                  })
+                                })
+                                .finally(() => {
+                                  setSubmitting(false)
+                                })
                             }}
                           >
-                            {({ values, errors, isSubmitting }) => (
-                              <Form>
+                            {({
+                              values,
+                              errors,
+                              isSubmitting,
+                              setFieldError
+                            }) => (
+                              <Form
+                                onChange={() => setFieldError("name", false)}
+                              >
+                                {response && response.error && (
+                                  <div className="py-3">
+                                    <div className="flex w-1/3 px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                                      <div>{response.error}</div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {response && response.success && (
+                                  <div className="py-3">
+                                    <div className="flex w-1/3 px-4 py-2 rounded-sm text-sm border bg-emerald-100 border-emerald-200 text-emerald-600">
+                                      <div>{response.success}</div>
+                                    </div>
+                                  </div>
+                                )}
+
                                 <section className="flex flex-row mb-4 gap-x-4">
                                   <div className="sm:w-1/3">
                                     <label
@@ -106,10 +139,6 @@ export default function OrganizationInvitation(props) {
                                     </Field>
                                   </div>
                                 </section>
-
-                                {errors.name && (
-                                  <div>Name errors:{errors.name}</div>
-                                )}
 
                                 <hr />
 
