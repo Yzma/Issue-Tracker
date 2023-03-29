@@ -46,8 +46,8 @@ export default function IssuesCreate(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex h-screen overflow-hidden">
-        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <div className="flex h-screen bg-slate-100 overflow-hidden">
+        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <Header />
           <ProjectBelowNavbar
             namespaceName={namespaceName}

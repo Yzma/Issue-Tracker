@@ -29,14 +29,14 @@ function signin({ providers }) {
           }
         `}</style>
       </Head>
-      <main className="bg-white min-h-screen">
+      <main className="bg-slate-100 min-h-screen">
         <Header className="header" />
         <div className="relative md:flex">
           <div className="md:w-1/2">
             <div className="min-h-screen h-full flex flex-col">
               <div className="flex-1 flex justify-center items-center">
                 <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-sm mx-auto">
-                  <h1 className="text-3xl text-gray-800 font-bold mb-6">Welcome back! ✨</h1>
+                  <h1 className="text-3xl text-gray-800 font-bold mb-6">Sign In</h1>
                   {Object.values(providers).map((provider) => {
                     const icon = provider.name === "GitHub" ? faGithub : faGoogle;
                     return (
