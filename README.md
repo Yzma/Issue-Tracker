@@ -51,8 +51,9 @@ The project itself right now is stable enough to be used in production (with a c
 2. Redis Implementation
 3. Implement a way to assign users issues
 4. Add a milestone system
-5. Add a notifications system
-6. General optimizations
+5. Add more permissions with User Roles
+6. Add a notifications system
+7. General optimizations
 
 ## Media
 
