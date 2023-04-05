@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   
   const { pathname } = request.nextUrl
 
-  if(pathname !== "/finish") {
+  if(pathname === "/finish") {
     if(!request.cookies.has(NEW_USER_COOKIE)) {
       return NextResponse.redirect("/");
     }
