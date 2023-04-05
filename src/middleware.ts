@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
 
   if(pathname === "/finish") {
     if(!request.cookies.has(NEW_USER_COOKIE)) {
-      return NextResponse.redirect("/");
+      return NextResponse.redirect(new URL('/', request.url))
     }
   }
 }
