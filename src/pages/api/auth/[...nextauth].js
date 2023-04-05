@@ -6,10 +6,9 @@ import GoogleProvider from "next-auth/providers/google"
 import CustomPrismaAdapter from "@/lib/prisma/prisma-adapter"
 import prisma from "@/lib/prisma/prisma"
 
+import { generateToken } from "@/lib/jwt"
 import { NEW_USER_COOKIE } from "@/lib/constants"
 import { setCookie } from "cookies-next"
-
-import jwt from "jsonwebtoken"
 
 export const authOptions = (req, res) => {
   return {
@@ -44,6 +43,10 @@ export const authOptions = (req, res) => {
         if (!obj.user.namespace) {
           return await setupUserOnboarding(obj, req, res)
             .then((result) => {
+              console.log("setupUserOnboarding result: ", result)
+              if(result) {
+                return true
+              }
               return "/finish"
             })
             .catch((e) => {
@@ -68,7 +71,7 @@ export default async function auth(req, res) {
   return await NextAuth(req, res, authOptions(req, res))
 }
 
-// TODO: Comment
+// TODO: Comment, rename function, and figure out how code should be written for readability
 async function setupUserOnboarding(userObj, req, res) {
   const { user, account, profile } = userObj
 
@@ -91,6 +94,7 @@ async function setupUserOnboarding(userObj, req, res) {
         throw new Error(`profile is missing an email`)
       }
 
+      // TODO: Only select fields that are needed
       const upsertUser = await tx.user.upsert({
         where: {
           email: profile.email
@@ -124,15 +128,17 @@ async function setupUserOnboarding(userObj, req, res) {
         }
       })
 
-      console.log("Upsert result: ", newAccount)
-      return newAccount
+      // console.log("Upsert result: ", newAccount)
+      return upsertUser
     })
     .then((result) => {
       console.log()
       console.log("Result from promise: ", result)
-      const token = jwt.sign({ data: result.userId }, process.env.NEXTAUTH_SECRET, {
-        expiresIn: "1h"
-      })
+      if (result.username) {
+        console.log("User already has username, they linked another account and logged in")
+        return true
+      }
+      const token = generateToken({ data: result.id }, { expiresIn: "1h" })
       setCookie(NEW_USER_COOKIE, token, { req, res })
     })
 }
