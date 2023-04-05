@@ -71,3 +71,7 @@ The project itself right now is stable enough to be used in production (with a c
 #### Create Project Page
 
 !["Create Project Page"](./screenshots/CreateProject.png)
+
+## Authors
+[Andrew Caruso](https://github.com/Yzma)\
+[Julian Paredes](https://github.com/jpared3s)
