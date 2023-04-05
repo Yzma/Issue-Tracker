@@ -1,5 +1,21 @@
 
 import * as jose from 'jose'
+import jwt from "jsonwebtoken"
+
+export const generateToken = (data, options) => {
+  return jwt.sign(data, process.env.NEXTAUTH_SECRET, options)
+}
+
+export const decodeToken = (token) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, process.env.NEXTAUTH_SECRET, (err, decoded) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve(decoded)
+    })
+  })
+}
 
 // TODO: Move this to env variable
 const SECRET = Buffer.from("62197fc8886bd3b739dd2cc8aa109d0be93acdea64c07b8908168b80daf1dc47", "hex");
