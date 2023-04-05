@@ -2,6 +2,8 @@
 
 Inspired by GitHub, Issue-Tracker is an open-sourced project designed to help teams track and manage issues for their software. Users can create projects to help manage and track their issues, as well as invite other users to join and contribute issues to their projects. Users can also create organizations to help manage their team members and projects to keep everything in one place. The front-end is designed with ease of use in mind so users and teams can easily search and manage issues in a fast, efficient, and organized manner.
 
+#### Note: The project is still in active development! Check the [Future Development](#future-development) section to see future plans.
+
 ## Quick Links
 
 - [Issue-Tracker](#issue-tracker)
