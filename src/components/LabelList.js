@@ -1,5 +1,4 @@
 import React from "react"
-import styles from "@/styles/LabelList.module.css"
 
 const LabelList = ({ labels }) => {
   return (
