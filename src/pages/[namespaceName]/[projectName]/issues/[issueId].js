@@ -3,8 +3,6 @@ import Head from "next/head"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
-import englishStrings from "react-timeago/lib/language-strings/en"
-import buildFormatter from "react-timeago/lib/formatters/buildFormatter"
 
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
@@ -63,8 +61,6 @@ export default function IssuesView(props) {
     return new Date(b.createdAt) - new Date(a.createdAt)
   })
   console.log("ISSUE STATE: ", issueState)
-
-  const formatter = buildFormatter(englishStrings)
 
   const [showEditTitle, setShowEditTitle] = useState(false)
   const [showEditDescription, setShowDescription] = useState(false)
@@ -638,7 +634,6 @@ export default function IssuesView(props) {
                                   text={issueState.description}
                                   username={issueState.user.username}
                                   createdAt={issueState.createdAt}
-                                  formatter={formatter}
                                   canEdit={
                                     session &&
                                     session.namespace === issue.user.username

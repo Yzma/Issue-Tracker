@@ -2,8 +2,6 @@ import React, { createContext, useState, Fragment } from "react"
 
 import { Tab } from "@headlessui/react"
 
-import TimeAgo from "react-timeago"
-
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
 import CommentApi from "./CommentApi"

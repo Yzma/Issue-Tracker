@@ -4,7 +4,6 @@ import { Tab } from "@headlessui/react"
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 import MarkdownViewer from "@/components/markdown/MarkdownViewer"
 
-import TimeAgo from "react-timeago"
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import moment from "moment"
