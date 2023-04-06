@@ -1,8 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["extendedWhereUnique"]
 }
 
 datasource db {
@@ -206,7 +205,7 @@ model Label {
 
 model Account {
   id                String  @id @default(cuid())
-  userId            String
+  userId            String?
   type              String
   provider          String
   providerAccountId String
@@ -218,8 +217,9 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([provider, userId])
   @@unique([provider, providerAccountId])
 }
 
@@ -239,14 +239,14 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-enum ColorScheme {
-  Dark
-  Light
-}
-
 enum OrganizationRole {
   Owner
   Admin
   Maintainer
   User
+}
+
+enum ColorScheme {
+  Dark
+  Light
 }

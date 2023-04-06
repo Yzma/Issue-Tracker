@@ -51,7 +51,7 @@ export default function Home() {
                       })
                       .then((response) => {
                         console.log("RESPONSE:", response)
-                        router.push(`/${values.name}`)
+                        // router.push(`/${values.name}`)
                       })
                       .catch((error) => {
                         console.log("ERROR:", error.response.data)

@@ -6,17 +6,14 @@ import GoogleProvider from "next-auth/providers/google"
 import CustomPrismaAdapter from "@/lib/prisma/prisma-adapter"
 import prisma from "@/lib/prisma/prisma"
 
-import { setCookie } from "cookies-next"
-
+import { generateToken } from "@/lib/jwt"
 import { NEW_USER_COOKIE } from "@/lib/constants"
-
-import { generateEncryptedJwt } from "@/lib/jwt"
-
-const DEFAULT_MAX_AGE = 24 * 60 * 60 // 1 day
+import { setCookie } from "cookies-next"
 
 export const authOptions = (req, res) => {
   return {
     adapter: CustomPrismaAdapter(prisma),
+    // TODO: Other providers to add: Gitlab, LinkedIn
     providers: [
       GitHubProvider({
         clientId: process.env.GITHUB_CLIENT_ID,
@@ -35,74 +32,36 @@ export const authOptions = (req, res) => {
       })
     ],
     pages: {
-      signIn: "/signin",
+      signIn: "/signin"
     },
 
     callbacks: {
-      async signIn({ user, account, profile, email, credentials }) {
-        // FIRST TIME LOGIN
-        if (!user.namespace) {
-          return { redirect: "/finish", stayLoggedIn: true }
-        }
+      async signIn(obj) {
+        console.log("signIn obj: ", obj)
 
-        console.log("User already has namespace")
-        return { redirect: `/${user.namespace.name}`, stayLoggedIn: true }
-      },
-
-      async session({ session, token, user }) {
-        session.user.id = user.id
-        session.namespace = user.namespace?.name
-
-        // session.user.settings = {
-        //   colorScheme: user.settings.colorScheme
-        // }
-        return session
-      }
-    },
-
-    events: {
-      async signIn(message) {
-        console.log("SIGN IN ")
-        console.log(message)
-        if (!message.user.namespace) {
-          return new Promise((resolve, reject) => {
-            const sessionToken = message.cookies.pop()
-
-            const toSign = {
-              id: message.user.id,
-              session: sessionToken
-            }
-            // console.log("toSign = ", toSign)
-
-            try {
-              return resolve(generateEncryptedJwt("testsub", toSign))
-            } catch (e) {
-              console.log("JOSE error", e)
-              return reject(e)
-            }
-          })
-            .then((token) => {
-              // console.log("MESSAGE COOKIES: ", message.cookies)
-              // console.log()
-              // console.log("TOKEN = ", token)
-
-              setCookie(NEW_USER_COOKIE, token, {
-                req,
-                res,
-                maxAge: DEFAULT_MAX_AGE
-              })
-
-              //SELECT * FROM "Session" WHERE "userId"='clfes6o2g0000qqbw070cmzaq' order by expires desc limit 1;
-
+        // If the user doesn't have a namespace yet, then their still in the process of creating their account
+        if (!obj.user.namespace) {
+          return await setupUserOnboarding(obj, req, res)
+            .then((result) => {
+              console.log("setupUserOnboarding result: ", result)
+              if(result) {
+                return true
+              }
               return "/finish"
             })
-            .catch((err) => {
-              console.error("Error signing JSON Web token", err)
+            .catch((e) => {
+              console.log("Error during onboarding: ", e)
               return "/500"
             })
         }
+        return true
+      },
 
-        return `/${message.user.namespace.name}`
+      async session({ session, user }) {
+        console.log("Session callback")
+        session.user.id = user.id
+        session.namespace = user.namespace?.name
+        return session
       }
     }
   }
@@ -110,4 +69,75 @@ export const authOptions = (req, res) => {
 
 export default async function auth(req, res) {
   return await NextAuth(req, res, authOptions(req, res))
+}
+
+// TODO: Comment, rename function, and figure out how code should be written for readability
+async function setupUserOnboarding(userObj, req, res) {
+  const { user, account, profile } = userObj
+
+  return prisma
+    .$transaction(async (tx) => {
+      const accountInfo = {
+        type: account.type,
+        provider: account.provider,
+        providerAccountId: account.providerAccountId,
+        refresh_token: account.refresh_token,
+        access_token: account.access_token,
+        expires_at: account.expires_at,
+        token_type: account.token_type,
+        scope: account.scope,
+        id_token: account.id_token,
+        session_state: account.session_state
+      }
+
+      if (!profile.email) {
+        throw new Error(`profile is missing an email`)
+      }
+
+      // TODO: Only select fields that are needed
+      const upsertUser = await tx.user.upsert({
+        where: {
+          email: profile.email
+        },
+        update: {},
+        create: {
+          name: user.name,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          image: user.image
+        }
+      })
+
+      await tx.account.upsert({
+        where: {
+          provider_providerAccountId: {
+            providerAccountId: account.providerAccountId,
+            provider: account.provider
+          }
+        },
+        update: {
+          ...accountInfo
+        },
+        create: {
+          ...accountInfo,
+          user: {
+            connect: {
+              id: upsertUser.id
+            }
+          }
+        }
+      })
+
+      return upsertUser
+    })
+    .then((result) => {
+      console.log()
+      console.log("Result from promise: ", result)
+      if (result.username) {
+        console.log("User already has username, they linked another account and logged in")
+        return true
+      }
+      const token = generateToken({ data: result.id }, { expiresIn: "1h" })
+      setCookie(NEW_USER_COOKIE, token, { req, res })
+    })
 }

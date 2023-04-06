@@ -5,42 +5,39 @@ export default function CustomPrismaAdapter(p) {
     ...PrismaAdapter(p),
 
     createUser: (data) => {
-      const user = p.user.create({ 
+      return p.user.create({
         data: {
-          ...data,
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          emailVerified: data.emailVerified,
+          image: data.image,
           settings: {
             create: {}
           }
         }
       })
-      // await prisma.namespace.create({
-      //   data: {
-      //     name: user.id,
-      //     user: {
-      //       connect: {
-      //         id: user.id
-      //       }
-      //     },
-      //   },
-      // });
-      return user
     },
 
-    getUser: (id) => p.user.findUnique({ 
-      where: { id },
-      include: {
-        settings: true,
-        namespace: true
-      }
-    }),
+    linkAccount: (data) => {
+      return p.account.create({ data })
+    },
 
-    getUserByEmail: (email) => p.user.findUnique({ 
-      where: { email },
-      include: {
-        settings: true,
-        namespace: true
-      }
-    }),
+    getUser: (id) =>
+      p.user.findUnique({
+        where: { id },
+        include: {
+          namespace: true
+        }
+      }),
+
+    getUserByEmail: (email) =>
+      p.user.findUnique({
+        where: { email },
+        include: {
+          namespace: true
+        }
+      }),
 
     async getUserByAccount(provider_providerAccountId) {
       const account = await p.account.findUnique({
@@ -48,7 +45,6 @@ export default function CustomPrismaAdapter(p) {
         select: {
           user: {
             include: {
-              settings: true,
               namespace: true
             }
           }
@@ -60,13 +56,12 @@ export default function CustomPrismaAdapter(p) {
     async getSessionAndUser(sessionToken) {
       const userAndSession = await p.session.findUnique({
         where: { sessionToken },
-        include: { 
+        include: {
           user: {
             include: {
-              settings: true,
               namespace: true
             }
-          } 
+          }
         }
       })
       if (!userAndSession) return null
