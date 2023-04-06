@@ -20,17 +20,15 @@ const Header = () => {
               <FontAwesomeIcon icon={faBug} size="2x" className="pr-2" />
               <div>Bug-Zapper</div>
             </Link>
+            <Link
+              href="/globalissue"
+              className="text-gray-600 font-bold hover:text-gray-800 hover:underline"
+            >
+              Issues
+            </Link>
           </div>
           <nav className="flex items-center space-x-3">
             <ul className="flex items-center space-x-3">
-              <li>
-                <Link
-                  href="/globalissue"
-                  className="text-gray-600 hover:text-gray-800 hover:underline"
-                >
-                  Issues
-                </Link>
-              </li>
               <li>
                 <a
                   href={`/${session?.namespace}`}
