@@ -1,5 +1,4 @@
 import React from "react"
-import styles from "@/styles/IssueContainer.module.css"
 import Link from "next/link"
 import moment from "moment"
 
@@ -8,17 +7,17 @@ const Issue = ({ issue, routePath }) => {
   console.log("routePath", routePath)
   return (
     <tr>
-      <td className={styles.cell}>
+      <td className="p-2 text-left">
         <Link href={`${routePath}/issues/${issue.id}`}>{issue.name}</Link>
       </td>
-      <td className={styles.cell}>
+      <td className="p-2 text-left">
         {issue.labels.map((label) => label.name).join(", ")}
       </td>
-      <td className={styles.cell}>{issue.open ? "Open" : "Closed"}</td>
-      <td className={styles.cell}>
+      <td className="p-2 text-left">{issue.open ? "Open" : "Closed"}</td>
+      <td className="p-2 text-left">
         {moment(issue.createdAt).format("MMM Do YY")}
       </td>
-      <td className={styles.cell}>
+      <td className="p-2 text-left">
         {moment(issue.updatedAt).format("MMM Do YY")}
       </td>
     </tr>
