@@ -57,9 +57,9 @@ export const authOptions = (req, res) => {
         return true
       },
 
-      async session({ session, token, user }) {
+      async session({ session, user }) {
         console.log("Session callback")
-        session.user.id = user.id // TODO: See if this is already set
+        session.user.id = user.id
         session.namespace = user.namespace?.name
         return session
       }
@@ -108,7 +108,7 @@ async function setupUserOnboarding(userObj, req, res) {
         }
       })
 
-      const newAccount = await tx.account.upsert({
+      await tx.account.upsert({
         where: {
           provider_providerAccountId: {
             providerAccountId: account.providerAccountId,
@@ -128,7 +128,6 @@ async function setupUserOnboarding(userObj, req, res) {
         }
       })
 
-      // console.log("Upsert result: ", newAccount)
       return upsertUser
     })
     .then((result) => {
