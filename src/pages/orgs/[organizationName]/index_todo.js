@@ -1,7 +1,6 @@
 import Head from "next/head";
 import layoutStyles from "@/styles/OrgLayout.module.css";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import OrganizationContainer from "@/components/OrganizationContainer";
 import OrgProjectSection from "@/components/OrgProjectSection";
 import Tabs from "@/components/OrgPageTabs";
@@ -48,7 +47,6 @@ export default function Org({ organization }) {
             />
           )}
         </div>
-        <Footer />
       </main>
     </>
   );

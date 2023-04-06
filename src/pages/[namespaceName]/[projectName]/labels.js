@@ -1,6 +1,5 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import layoutStyles from "@/styles/usersLayout.module.css";
 import Header from "@/components/Header";
 import LabelList from "@/components/LabelList";
 import LabelSearchBar from "@/components/LabelSearchBar";

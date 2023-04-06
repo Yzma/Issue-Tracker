@@ -1,5 +1,4 @@
 import React from "react"
-import styles from "@/styles/LabelList.module.css"
 
 const LabelList = ({ labels }) => {
   return (
@@ -17,8 +16,8 @@ const LabelList = ({ labels }) => {
       <tbody className="bg-white divide-y divide-gray-200">
         {labels.map((label, index) => (
           <tr key={index}>
-            <td className={styles.cell}>{label.name}</td>
-            <td className={styles.cell}>{label.description}</td>
+            <td className="p-2 text-left">{label.name}</td>
+            <td className="p-2 text-left">{label.description}</td>
           </tr>
         ))}
       </tbody>

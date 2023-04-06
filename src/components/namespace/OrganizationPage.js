@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import layoutStyles from "@/styles/usersLayout.module.css";
 import Head from "next/head";
 
 import OrgProjectSection from "@/components/OrgProjectSection";
@@ -36,7 +35,7 @@ const OrganizationPage = ({ props }) => {
         selected={"projects"}
       />
 
-      <div className={`${layoutStyles.projectSection} mt-9`}>
+      <div className={`mt-9`}>
         {" "}
         {/* Add the mt-4 class here */}
         {/* <Tabs activeTab={activeTab} onTabClick={handleTabClick} /> */}
