@@ -1,24 +1,24 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
-import Head from "next/head";
+import React, { useState } from "react"
+import { useRouter } from "next/router"
+import Head from "next/head"
 
-import OrgProjectSection from "@/components/OrgProjectSection";
-import Tabs from "@/components/OrgPageTabs";
-import UserSection from "@/components/OrgUserSection";
-import OrganizationBelowNavbar from "../navbar/OrganizationBelowNavbar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBug } from "@fortawesome/free-solid-svg-icons";
+import OrgProjectSection from "@/components/OrgProjectSection"
+import Tabs from "@/components/OrgPageTabs"
+import UserSection from "@/components/OrgUserSection"
+import OrganizationBelowNavbar from "../navbar/OrganizationBelowNavbar"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faBug } from "@fortawesome/free-solid-svg-icons"
 
 const OrganizationPage = ({ props }) => {
-  const router = useRouter();
-  const { namespaceName } = router.query;
-  console.log("Org props ", props);
+  const router = useRouter()
+  const { namespaceName } = router.query
+  console.log("Org props ", props)
 
-  const [activeTab, setActiveTab] = useState("projects");
+  const [activeTab, setActiveTab] = useState("projects")
 
   const handleTabClick = (tab) => {
-    setActiveTab(tab);
-  };
+    setActiveTab(tab)
+  }
 
   const projects = props.data.namespace.projects
   console.log("ORG PROJECT", projects)
@@ -39,8 +39,7 @@ const OrganizationPage = ({ props }) => {
         {" "}
         {/* Add the mt-4 class here */}
         {/* <Tabs activeTab={activeTab} onTabClick={handleTabClick} /> */}
-       <OrgProjectSection projects={projects} />
-        
+        <OrgProjectSection projects={projects} />
       </div>
       <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
         <div className="text-center">
@@ -49,7 +48,7 @@ const OrganizationPage = ({ props }) => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default OrganizationPage;
+export default OrganizationPage

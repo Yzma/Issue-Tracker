@@ -1,18 +1,17 @@
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faGithub,
   faLinkedin,
-  faTwitter,
-} from "@fortawesome/free-brands-svg-icons";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+  faTwitter
+} from "@fortawesome/free-brands-svg-icons"
+import { faUser } from "@fortawesome/free-solid-svg-icons"
 
-import { faEnvelope, faCog } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
+import { faEnvelope, faCog } from "@fortawesome/free-solid-svg-icons"
+import Link from "next/link"
 
 // username={props.data.username} bio={""}
 const ProfileContainer = ({ data }) => {
-  
   return (
     <section className="bg-white shadow-md rounded-lg p-6 relative">
       <Link href="/usersettings">
@@ -62,7 +61,6 @@ const ProfileContainer = ({ data }) => {
               <FontAwesomeIcon icon={faEnvelope} />
             </Link>
           )}
-        
         </div>
       </div>
       <hr className="border-gray-300 my-4 mx-auto w-4/5" />
@@ -71,9 +69,9 @@ const ProfileContainer = ({ data }) => {
       </p>
     </section>
   )
-};
+}
 
-export default ProfileContainer;
+export default ProfileContainer
 
 // import React from "react";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

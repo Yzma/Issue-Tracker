@@ -38,7 +38,7 @@ const IssueComment = ({
                     <button
                       className={
                         selected
-                        ? "tab tab-active bg-gray-400 rounded-lg"
+                          ? "tab tab-active bg-gray-400 rounded-lg"
                           : "tab"
                       }
                     >
@@ -59,7 +59,6 @@ const IssueComment = ({
                       Preview
                     </button>
                   )}
-                  
                 </Tab>
                 {/* <Tab class="tab">Write</Tab>
                 <Tab class="tab tab-active">Preview</Tab> */}

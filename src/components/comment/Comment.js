@@ -4,7 +4,6 @@ import { Tab } from "@headlessui/react"
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 import MarkdownViewer from "@/components/markdown/MarkdownViewer"
 
-
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import moment from "moment"
 
@@ -29,8 +28,7 @@ const Comment = ({
           <>
             <header className="flex flex-row justify-between px-3 py-2 h-12 rounded-t bg-gray-300 border border-slate-100">
               <div className="font-semibold text-slate-800">
-                Yzma commented{" "}
-                {moment(createdAt).format("MMM Do YY")}
+                Yzma commented {moment(createdAt).format("MMM Do YY")}
                 {/* <TimeAgo
                   date={createdAt}
                   live={false}
@@ -140,7 +138,8 @@ const Comment = ({
   )
 }
 
-            {/* <div className="flex  rounded bg-gray-200 px-3 py-2 content-end border-b border-gray-700">
+{
+  /* <div className="flex  rounded bg-gray-200 px-3 py-2 content-end border-b border-gray-700">
                 <div className="font-semibold text-slate-800 content-end">
                   Yzma posted{" "}
                   <TimeAgo
@@ -179,7 +178,8 @@ const Comment = ({
                   </DropdownMenu.Root>
                 </div>
               </div>
-              <div className="p-4 bg-slate-200">asd</div> */}
+              <div className="p-4 bg-slate-200">asd</div> */
+}
 
 {
   /* <div>

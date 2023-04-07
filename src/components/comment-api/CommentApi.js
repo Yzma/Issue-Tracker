@@ -3,8 +3,8 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useState,
-} from "react";
+  useState
+} from "react"
 
 import Link from "next/link"
 
@@ -12,7 +12,6 @@ import { Tab } from "@headlessui/react"
 
 import MarkdownEditor from "@/components/markdown/MarkdownEditor"
 import MarkdownViewer from "@/components/markdown/MarkdownViewer"
-
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
@@ -50,9 +49,7 @@ function Body({ children }) {
   return (
     <>
       <div className="flex flex-col">
-        <div className="p-3 bg-gray-50 border-slate-100">
-          {children}
-        </div>
+        <div className="p-3 bg-gray-50 border-slate-100">{children}</div>
       </div>
     </>
   )

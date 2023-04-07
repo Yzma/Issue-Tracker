@@ -24,7 +24,6 @@ function BelowNavbar({ namespaceName, projectName }) {
 
       <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full max-w-9xl mx-auto border-b-2 border-gray-400">
         <div className="flex flex-row gap-x-4">
-
           <Link href={`/${namespaceName}/${projectName}`}>
             <div className="flex flex-row px-2 py-2 rounded hover:bg-gray-300">
               <div className="">
@@ -42,7 +41,6 @@ function BelowNavbar({ namespaceName, projectName }) {
               <div className="pl-2">Settings</div>
             </div>
           </Link>
-
         </div>
       </div>
     </>
