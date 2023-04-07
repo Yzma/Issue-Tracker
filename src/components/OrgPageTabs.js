@@ -1,35 +1,41 @@
-import React from 'react';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFolder } from "@fortawesome/free-solid-svg-icons";
-import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
+import React from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faFolder } from "@fortawesome/free-solid-svg-icons"
+import { faUsers } from "@fortawesome/free-solid-svg-icons"
+import { faGear } from "@fortawesome/free-solid-svg-icons"
 
 const Tabs = ({ activeTab, onTabClick }) => {
   return (
     <div className="flex justify-center my-8 space-x-4">
       <button
-        className={`py-2 px-4 rounded bg-green-600 hover:bg-green-500 text-white ${activeTab === 'projects' ? 'bg-green-500' : ''}`}
-        onClick={() => onTabClick('projects')}
+        className={`py-2 px-4 rounded bg-green-600 hover:bg-green-500 text-white ${
+          activeTab === "projects" ? "bg-green-500" : ""
+        }`}
+        onClick={() => onTabClick("projects")}
       >
-       <FontAwesomeIcon icon={faFolder} />  Projects
+        <FontAwesomeIcon icon={faFolder} /> Projects
       </button>
       <button
-        className={`py-2 px-4 rounded bg-green-600 hover:bg-green-500 text-white ${activeTab === 'users' ? 'bg-green-500' : ''}`}
-        onClick={() => onTabClick('users')}
+        className={`py-2 px-4 rounded bg-green-600 hover:bg-green-500 text-white ${
+          activeTab === "users" ? "bg-green-500" : ""
+        }`}
+        onClick={() => onTabClick("users")}
       >
-      <FontAwesomeIcon icon={faUsers} />  Users
+        <FontAwesomeIcon icon={faUsers} /> Users
       </button>
       <button
-        className={`py-2 px-4 rounded bg-green-600 hover:bg-green-500 text-white ${activeTab === 'settings' ? 'bg-green-500' : ''}`}
-        onClick={() => onTabClick('settings')}
+        className={`py-2 px-4 rounded bg-green-600 hover:bg-green-500 text-white ${
+          activeTab === "settings" ? "bg-green-500" : ""
+        }`}
+        onClick={() => onTabClick("settings")}
       >
-      <FontAwesomeIcon icon={faGear} />  Settings
+        <FontAwesomeIcon icon={faGear} /> Settings
       </button>
     </div>
-  );
-};
+  )
+}
 
-export default Tabs;
+export default Tabs
 
 // import React from "react";
 // // import styles from '../styles/OrgPageTabs.module.css';

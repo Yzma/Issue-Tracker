@@ -1,10 +1,10 @@
-import React from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
+import React from "react"
+import { useRouter } from "next/router"
+import Link from "next/link"
 
 const UserSection = ({ users }) => {
-  const router = useRouter();
-  const { namespaceName } = router.query;
+  const router = useRouter()
+  const { namespaceName } = router.query
 
   return (
     <section className="bg-white shadow-md rounded-md p-6 w-3/4 mx-auto">
@@ -32,8 +32,7 @@ const UserSection = ({ users }) => {
         </tbody>
       </table>
     </section>
-    
-  );
-};
+  )
+}
 
-export default UserSection;
+export default UserSection

@@ -11,14 +11,14 @@
 
 // export default IssueButtons;
 
-import React from 'react';
-import SearchBar from './IssueSearchBar';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTag } from '@fortawesome/free-solid-svg-icons';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import React from "react"
+import SearchBar from "./IssueSearchBar"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faTag } from "@fortawesome/free-solid-svg-icons"
+import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import { useRouter } from "next/router"
 
-const IssueButtons = ({onSearch, path}) => {
+const IssueButtons = ({ onSearch, path }) => {
   const router = useRouter()
   return (
     <div className="flex justify-between w-full items-center my-4">
@@ -26,13 +26,16 @@ const IssueButtons = ({onSearch, path}) => {
         <SearchBar onSearch={onSearch} />
       </div>
       <div>
-        <button className="btn bg-green-600 hover:bg-green-500 text-white" onClick={() => router.push(`${path}/new`)}>
+        <button
+          className="btn bg-green-600 hover:bg-green-500 text-white"
+          onClick={() => router.push(`${path}/new`)}
+        >
           <FontAwesomeIcon icon={faPlus} />
-          <span > Create Issue</span>
+          <span> Create Issue</span>
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default IssueButtons;
+export default IssueButtons

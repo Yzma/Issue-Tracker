@@ -1,10 +1,11 @@
-import React from 'react';
-import Issue from './IssueContainer';
-
+import React from "react"
+import Issue from "./IssueContainer"
 
 const IssueList = ({ issues, routePath }) => {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3/4"> {/* Add container div with styling */}
+    <div className="container mx-auto px-4 py-8 max-w-3/4">
+      {" "}
+      {/* Add container div with styling */}
       <div className="bg-white shadow-md rounded-md">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -34,7 +35,7 @@ const IssueList = ({ issues, routePath }) => {
         </table>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default IssueList;
+export default IssueList

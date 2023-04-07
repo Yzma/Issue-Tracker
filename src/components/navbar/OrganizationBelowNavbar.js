@@ -25,27 +25,35 @@ const OrganizationBelowNavbar = ({ namespaceName, selected }) => {
           <div className="pl-2">Projects</div>
         </BelowNavbar.MenuListItem>
 
-        <BelowNavbar.MenuListItem id={"members"} href={`/orgs/${namespaceName}/members`}>
+        <BelowNavbar.MenuListItem
+          id={"members"}
+          href={`/orgs/${namespaceName}/members`}
+        >
           <div>
             <FontAwesomeIcon icon={faUserGroup} />
           </div>
           <div className="pl-2">Members</div>
         </BelowNavbar.MenuListItem>
 
-        <BelowNavbar.MenuListItem id={"invite"} href={`/orgs/${namespaceName}/invite`}>
+        <BelowNavbar.MenuListItem
+          id={"invite"}
+          href={`/orgs/${namespaceName}/invite`}
+        >
           <div>
             <FontAwesomeIcon icon={faEnvelope} />
           </div>
           <div className="pl-2">Invite</div>
         </BelowNavbar.MenuListItem>
 
-        <BelowNavbar.MenuListItem id={"invites"} href={`/orgs/${namespaceName}/members/invites`}>
+        <BelowNavbar.MenuListItem
+          id={"invites"}
+          href={`/orgs/${namespaceName}/members/invites`}
+        >
           <div>
             <FontAwesomeIcon icon={faPaperPlane} />
           </div>
           <div className="pl-2">Outgoing Invites</div>
         </BelowNavbar.MenuListItem>
-
       </BelowNavbar.MenuList>
     </BelowNavbar>
   )

@@ -1,14 +1,14 @@
-import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import moment from "moment";
+import React from "react"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import moment from "moment"
 
 const OrganizationSection = ({ organizations }) => {
-  const router = useRouter();
+  const router = useRouter()
 
   const handleCreateOrganization = () => {
-    router.push("/orgs/create");
-  };
+    router.push("/orgs/create")
+  }
 
   return (
     <section className="bg-white shadow-md rounded-md p-6">
@@ -55,9 +55,9 @@ const OrganizationSection = ({ organizations }) => {
       )}
     </section>
   )
-};
+}
 
-export default OrganizationSection;
+export default OrganizationSection
 
 // import React from "react";
 // import Link from "next/link";

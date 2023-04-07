@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react"
 
 const IssueSearchBar = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("")
 
   const handleChange = (event) => {
-    setSearchTerm(event.target.value);
-    onSearch(event.target.value);
-  };
+    setSearchTerm(event.target.value)
+    onSearch(event.target.value)
+  }
 
   return (
     <input
@@ -16,10 +16,7 @@ const IssueSearchBar = ({ onSearch }) => {
       value={searchTerm}
       onChange={handleChange}
     />
-  );
-};
+  )
+}
 
-export default IssueSearchBar;
-
-
-
+export default IssueSearchBar

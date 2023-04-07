@@ -1,21 +1,21 @@
-import React, { useState } from "react";
-import ProfileContainer from "../ProfileContainer";
-import ProjectSection from "../OrgProjectSection";
-import OrganizationSection from "../OrganizationSection";
-import Head from "next/head";
+import React, { useState } from "react"
+import ProfileContainer from "../ProfileContainer"
+import ProjectSection from "../OrgProjectSection"
+import OrganizationSection from "../OrganizationSection"
+import Head from "next/head"
 
 const UserPage = ({ props }) => {
-  const [activeTab, setActiveTab] = useState("projects");
+  const [activeTab, setActiveTab] = useState("projects")
 
   const projects = props.data.members
-    .filter(e => e.organization === null)
-    .map(e => e.project)
+    .filter((e) => e.organization === null)
+    .map((e) => e.project)
 
   console.log("PROJECT ", projects)
 
   const organizations = props.data.members
-    .filter(e => e.project === null)
-    .map(e => e.organization)
+    .filter((e) => e.project === null)
+    .map((e) => e.organization)
   return (
     <>
       <Head>
@@ -25,8 +25,14 @@ const UserPage = ({ props }) => {
 
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-center items-start">
-          <div className="w-1/4 mt-20"> {/* Add margin-top here */}
-            <ProfileContainer data={props.data} username={props.data.username} bio={""} />
+          <div className="w-1/4 mt-20">
+            {" "}
+            {/* Add margin-top here */}
+            <ProfileContainer
+              data={props.data}
+              username={props.data.username}
+              bio={""}
+            />
           </div>
           <div className="w-3/4 pl-8">
             <div className="flex flex-col h-full">
@@ -56,9 +62,7 @@ const UserPage = ({ props }) => {
                 {activeTab === "projects" ? (
                   <ProjectSection projects={projects} />
                 ) : (
-                  <OrganizationSection
-                    organizations={organizations}
-                  />
+                  <OrganizationSection organizations={organizations} />
                 )}
               </div>
             </div>
@@ -66,10 +70,10 @@ const UserPage = ({ props }) => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default UserPage;
+export default UserPage
 
 // import React, { useState } from "react";
 // import ProfileContainer from "../ProfileContainer";
