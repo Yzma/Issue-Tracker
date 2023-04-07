@@ -75,7 +75,7 @@ const Comment = ({
             <div className="flex flex-col">
               <div className="mb-8 border-slate-100">
                 <Tab.Group>
-                  <Tab.List class="bg-indigo-300  pl-3 pt-4">
+                  <Tab.List className="bg-indigo-300  pl-3 pt-4">
                     <Tab
                       className={({ selected }) =>
                         classNames(
