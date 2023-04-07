@@ -1,17 +1,14 @@
 import BelowNavbar from "./BelowNavbar"
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useRouter } from "next/router"
 import {
   faBug,
   faTag,
   faEnvelope,
   faUserGroup,
-  faPlus
 } from "@fortawesome/free-solid-svg-icons"
 
 const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
-  const router = useRouter()
   return (
     <BelowNavbar>
       <BelowNavbar.BreadcrumbLinks>
@@ -64,13 +61,7 @@ const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
           </div>
           <div className="pl-2">Invites</div>
         </BelowNavbar.MenuListItem>
-
-        {/* <BelowNavbar.MenuListItem id={"createIssue"} href={`/${namespaceName}/${projectName}/new`}>
-        <div>
-          <FontAwesomeIcon icon={faPlus} />
-        </div>
-        <div className="pl-2">Create Issue</div>
-      </BelowNavbar.MenuListItem> */}
+        
       </BelowNavbar.MenuList>
     </BelowNavbar>
   )
