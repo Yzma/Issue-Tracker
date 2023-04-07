@@ -53,12 +53,6 @@ export default function Issues({ issuesData }) {
             </div>
           </div>
         </div>
-        <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
-        <div className="text-center">
-          <FontAwesomeIcon icon={faBug} />
-          <p className="mt-2">Bug-Zapper</p>
-        </div>
-      </div>
       </main>
     </>
   );

@@ -26,12 +26,6 @@ export default function UserProfile(props) {
             ) : (
               <OrganizationPage props={props} />
             )}
-            <div className="fixed inset-x-0 bottom-0 flex justify-center items-center pb-4">
-              <div className="text-center">
-                <FontAwesomeIcon icon={faBug} />
-                <p className="mt-2">Bug-Zapper</p>
-              </div>
-            </div>
           </div>
         </div>
       </main>
