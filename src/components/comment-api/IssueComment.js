@@ -31,7 +31,7 @@ const IssueComment = ({
         <Tab.Group defaultIndex={0}>
           <CommentApi>
             <CommentApi.Header>
-              <Tab.List class="tabs">
+              <Tab.List className="tabs">
                 <Tab as={Fragment}>
                   {({ selected }) => (
                     /* Use the `selected` state to conditionally style the selected tab. */

@@ -12,9 +12,9 @@ const IssueCreationComment = ({}) => {
     <>
       <CommentApi className="">
         <CommentApi.Header>
-          <div class="tabs">
-            <a class="tab tab-lifted">Write</a>
-            <a class="tab tab-lifted tab-active">Preview</a>
+          <div className="tabs">
+            <a className="tab tab-lifted">Write</a>
+            <a className="tab tab-lifted tab-active">Preview</a>
           </div>
         </CommentApi.Header>
 
