@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-import { NEW_USER_COOKIE } from '@/lib/constants'
+import { NEW_USER_COOKIE, NEXT_AUTH_SESSION_COOKIE } from '@/lib/constants'
 
 export async function middleware(request: NextRequest) {
   
@@ -9,6 +9,10 @@ export async function middleware(request: NextRequest) {
 
   if(pathname === "/finish") {
     if(!request.cookies.has(NEW_USER_COOKIE)) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+  } else if(pathname === "/signin") {
+    if(request.cookies.has(NEXT_AUTH_SESSION_COOKIE)) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }
