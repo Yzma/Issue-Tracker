@@ -65,10 +65,10 @@ const Header = () => {
                 <li className="flex gap-x-1 text-gray-500 hover:text-gray-600">
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <div className="flex items-center justify-center gap-x-2 text-gray-500 hover:text-gray-600">
-                        <Avatar.Root className="bg-blackA3 inline-flex h-[45px] w-[45px] select-none items-center justify-center overflow-hidden rounded-full align-middle">
+                      <div className="flex items-center justify-center text-gray-500 hover:text-gray-600">
+                        <Avatar.Root className="inline-flex h-[45px] w-[45px] select-none items-center justify-center overflow-hidden rounded-full align-middle">
                           <Avatar.Image
-                            className="h-12 w-12 rounded-[inherit] object-cover"
+                            className="h-8 w-8 rounded-[inherit] object-cover"
                             src={session.user.image}
                             alt={session.user.name}
                           />
