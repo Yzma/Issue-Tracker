@@ -43,7 +43,7 @@ BelowNavbar.BreadcrumbLink = BreadcrumbLink
 
 const NavbarContext = createContext({ selected: "" })
 
-function MenuList({ children, selected = false }) {
+function MenuList({ children, selected = "" }) {
   return (
     <>
       <NavbarContext.Provider value={{ selected: selected }}>
