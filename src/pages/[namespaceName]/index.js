@@ -75,10 +75,10 @@ export async function getServerSideProps(context) {
       select: {
         username: true,
         bio: true,
-        linkedIn: true,
-        twitter: true,
-        github: true,
-        publicEmail: true,
+        socialLink1: true,
+        socialLink2: true,
+        socialLink3: true,
+        socialLink4: true,
         members: {
           select: {
             organization: true,
