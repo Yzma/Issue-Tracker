@@ -1,6 +1,5 @@
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["extendedWhereUnique"]
 }
 
@@ -30,10 +29,11 @@ model User {
   username String? @unique
 
   bio String?
-  linkedIn String?
-  twitter String?
-  github String?
-  publicEmail String?
+
+  socialLink1 String?
+  socialLink2 String?
+  socialLink3 String?
+  socialLink4 String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,7 +45,7 @@ model User {
   comments      Comment[]
   organizations Organization[]
 
-  members                  Member[]
+  members Member[]
 
   memberInvitations        MemberInvitation[] @relation("invited")
   pendingMemberInvitations MemberInvitation[] @relation("invites")
@@ -64,8 +64,8 @@ model Organization {
 
   namespace Namespace?
 
-  members                  Member[]
-  MemberInvitation         MemberInvitation[]
+  members          Member[]
+  MemberInvitation MemberInvitation[]
 }
 
 // Note: 20230319212545_namespace_has_atleast_one_org_or_user:
