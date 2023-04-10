@@ -8,7 +8,6 @@ import prisma from "@/lib/prisma/prisma"
 import { useRouter } from "next/router"
 import { getSession } from "next-auth/react"
 import Link from "next/link"
-import BelowNavbar from "@/components/other/BelowNavbar"
 
 export default function Issues({ issuesData }) {
   console.log(issuesData)

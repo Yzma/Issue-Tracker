@@ -8,7 +8,6 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons"
 
 import * as Dialog from "@radix-ui/react-dialog"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
-import BelowNavbar from "@/components/other/BelowNavbar"
 
 import { useSession } from "next-auth/react"
 

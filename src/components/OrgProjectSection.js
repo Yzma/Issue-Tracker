@@ -1,15 +1,15 @@
-import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import moment from "moment";
+import React from "react"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import moment from "moment"
 
 const ProjectSection = ({ projects }) => {
-  const router = useRouter();
-  const { namespaceName } = router.query;
+  const router = useRouter()
+  const { namespaceName } = router.query
 
   const handleCreateProject = () => {
-    router.push("/projects/create");
-  };
+    router.push("/projects/create")
+  }
 
   return (
     <div className="w-3/4 mx-auto">
@@ -57,8 +57,7 @@ const ProjectSection = ({ projects }) => {
         </table>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default ProjectSection;
-
+export default ProjectSection
