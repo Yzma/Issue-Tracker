@@ -27,7 +27,7 @@ export default function ProfileContainer({ data }) {
             </Link>
           </div>
         </div>
-        <UserSocialLinks links={["www.github.com/Yzma", "github.com/Yzma", "github.com", "https://www.linkedin.com/in/andrew-caruso-7129b419a/", "null", "andrew.caruso03@gmail.com"]} />
+        <UserSocialLinks links={[]} />
       </div>
       <hr className="border-gray-300 my-4 mx-auto w-full" />
       <UsersOrganizationsSection organizations={[]}/>
