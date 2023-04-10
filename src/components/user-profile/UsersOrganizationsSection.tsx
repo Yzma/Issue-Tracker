@@ -1,7 +1,7 @@
 import Link from "next/link"
 import * as Avatar from "@radix-ui/react-avatar"
 
-import Organizations from "./types"
+import { Organizations } from "./types"
 
 export default function UsersOrganizationsSection({ organizations }: { organizations: Organizations[] }) {
   return (
