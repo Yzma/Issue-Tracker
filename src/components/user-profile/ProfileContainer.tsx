@@ -3,7 +3,9 @@ import Link from "next/link"
 import UsersOrganizationsSection from "@/components/user-profile/UsersOrganizationsSection"
 import UserSocialLinks from "@/components/user-profile/UserSocialLinks"
 
-export default function ProfileContainer({ data }) {
+import { ProfileInformation } from "./types"
+
+export default function ProfileContainer({ data }: { data: ProfileInformation }) {
   return (
     <div className="relative">
       <div className="flex flex-col">
@@ -13,14 +15,13 @@ export default function ProfileContainer({ data }) {
 
         <div className="flex flex-col gap-y-0 items-start justify-start left-0 text-left">
           <div>
-            <p className="text-xl font-bold">Full Name</p>
-            <p className="text-xl font-light">Username</p>
+            <p className="text-xl font-bold">{data.name}</p>
+            <p className="text-xl font-light">{data.username}</p>
           </div>
 
           <div className="flex flex-col gap-y-2">
             <p className="text-gray-500 py-2">
-              {data.bio ||
-                "This is a random bio, nothing of value here. Move on."}
+              {data.bio || "This is a random bio, nothing of value here. Move on."}
             </p>
             <Link className="btn" href="/usersettings">
               Edit Profile

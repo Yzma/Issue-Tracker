@@ -13,10 +13,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons"
 import { faEnvelope, faCode, IconDefinition } from "@fortawesome/free-solid-svg-icons"
 
-type SocialLink = {
-  regex: RegExp,
-  icon: IconDefinition
-}
+import { SocialLink } from "./types"
 
 const socialLinksTable: SocialLink[] = [
   {
