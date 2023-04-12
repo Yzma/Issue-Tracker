@@ -5,6 +5,8 @@ import UserSocialLinks from "@/components/user-profile/UserSocialLinks"
 
 import { Formik, Form, Field, FieldArray } from "formik"
 
+import axios from "axios"
+
 import { Session } from "next-auth"
 import { useSession } from "next-auth/react"
 
@@ -17,7 +19,7 @@ interface ProfileContextInterface {
   session: Session
 }
 
-let ProfileContext = createContext<ProfileContextInterface>({
+const ProfileContext = createContext<ProfileContextInterface>({
   profile: null,
   setProfile: () => { },
   setEditing: () => { },
@@ -25,13 +27,16 @@ let ProfileContext = createContext<ProfileContextInterface>({
 });
 
 export default function ProfileContainer({ data }: { data: ProfileInformation }) {
-  const [editing, setEditing] = useState(false)
-  const [profile, setProfile] = useState(data)
+  const [editing, setEditing] = useState<Boolean>(false)
+  const [profile, setProfile] = useState<ProfileInformation>({
+    ...data,
+    socialLinks: [...new Array(4)].map((_, index) => data.socialLinks[index] || "")
+  })
   const { data: session } = useSession()
 
   return (
     <ProfileContext.Provider value={{ profile, setProfile, setEditing, session }}>
-      <>
+      <div className="flex flex-col gap-y-3">
         <div className="flex items-center justify-center">
           <div className="w-72 h-72 mb-4 bg-gray-200 text-gray-600 rounded-full" />
         </div>
@@ -40,10 +45,10 @@ export default function ProfileContainer({ data }: { data: ProfileInformation })
           :
           <ProfileContainerViewer />
         }
-        <UserSocialLinks links={[]} />
+        <UserSocialLinks links={profile.socialLinks} />
         <hr className="border-gray-300 my-4 mx-auto w-full" />
         <UsersOrganizationsSection organizations={[]} />
-      </>
+      </div>
     </ProfileContext.Provider>
   )
 }
@@ -53,7 +58,7 @@ function ProfileContainerViewer() {
   return (
     <div className="relative">
       <div className="flex flex-col">
-        <div className="flex flex-col gap-y-0 items-start justify-start left-0 text-left">
+        <div className="flex flex-col gap-y-0 text-left">
           <div>
             <p className="text-xl font-bold">{profile.username}</p>
           </div>
@@ -62,7 +67,7 @@ function ProfileContainerViewer() {
             <p className="text-gray-500 py-2">
               {profile.bio || "This is a random bio, nothing of value here. Move on."}
             </p>
-            <button className="btn" onClick={() => setEditing(true)}>
+            <button className="btn w-full" onClick={() => setEditing(true)}>
               Edit Profile
             </button>
           </div>
@@ -73,12 +78,8 @@ function ProfileContainerViewer() {
 }
 
 function ProfileContainerEditor() {
-  const { profile, setEditing } = useContext(ProfileContext);
+  const { profile, setProfile, setEditing } = useContext(ProfileContext);
 
-  console.log(profile.socialLinks)
-  const links = [...new Array(4)].map((_, index) => profile.socialLinks[index] || "")
-
-  console.log("T: ", links)
   return (
     <div className="relative">
       <div className="flex flex-col">
@@ -86,16 +87,38 @@ function ProfileContainerEditor() {
         <Formik
           initialValues={{
             name: profile.name,
-            bio: profile.bio,
-            socialLinks: links
+            bio: profile.bio || "",
+            socialLinks: profile.socialLinks
           }}
           validateOnChange={false}
           validateOnBlur={false}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
-
+            console.log("Submit values:", values)
+            axios
+              .put("/api/user", {
+                name: values.name,
+                bio: values.bio,
+                socialLinks: values.socialLinks
+              })
+              .then((response) => {
+                console.log("RESPONSE:", response)
+                setProfile((prevState) => ({
+                  ...prevState,
+                  bio: values.bio,
+                }))
+                // router.push(`/${values.name}`)
+                setEditing(false)
+              })
+              .catch((error) => {
+                console.log("ERROR:", error.response.data)
+                console.log("ERROR:", error)
+              })
+              .finally(() => {
+                setSubmitting(false)
+              })
           }}
         >
-          {({ errors, isSubmitting, values, setFieldError }) => (
+          {({ errors, isSubmitting, values, setFieldError, handleChange }) => (
             <Form >
               <div className="flex flex-col gap-y-0 text-left">
                 <div className="flex flex-col gap-y-3 pb-3">
@@ -128,7 +151,7 @@ function ProfileContainerEditor() {
                         meta
                       }) => (
                         <div>
-                          <textarea className="form-textarea w-full" type="textarea" placeholder={"Add a bio"} {...field} value={""}/>
+                          <textarea className="form-textarea w-full" placeholder={"Add a bio"}  {...field} />
                           {meta.touched && meta.error && (
                             <div className="error">{meta.error}</div>
                           )}
@@ -152,7 +175,7 @@ function ProfileContainerEditor() {
                                   <Field
                                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                     type="text"
-                                    name={`socialLink.${index}`}
+                                    name={`socialLinks.${index}`}
                                     placeholder={"Link to social profile"}
                                   />
                                 </div>
@@ -162,13 +185,12 @@ function ProfileContainerEditor() {
                         )}
                       />
                     </div>
-                   
                   </div>
                 </div>
               </div>
               <div className="flex flex-row gap-x-1">
-                <button className="btn-xs h-8 w-14 bg-emerald-500 hover:bg-emerald-600 text-white">Save</button>
-                <button className="btn-xs h-8 w-14 bg-gray-500 hover:bg-gray-600 text-white" onClick={() => setEditing(false)}>Cancel</button>
+                <button className="btn-xs h-8 w-14 bg-emerald-500 hover:bg-emerald-600 text-white" type="submit">Save</button>
+                <button className="btn-xs h-8 w-14 bg-gray-500 hover:bg-gray-600 text-white" type="button" onClick={() => setEditing(false)}>Cancel</button>
               </div>
             </Form>
           )}
