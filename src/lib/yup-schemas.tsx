@@ -44,7 +44,7 @@ export const LabelCreationSchema = Yup.object({
   description: Yup.string()
     .min(1, 'Too Short!')
     .max(150, 'Too Long!')
-    .optional('Optional'),
+    .optional(),
   color: Yup.string()
     .length(6)
     .required('Required'),
@@ -59,7 +59,7 @@ export const IssueCreationSchema = Yup.object({
     .min(1, 'Too Short!')
     .max(2048, 'Too Long!')
     .required('Required'),
-  labels: Yup.array().of(Yup.string()).optional('Optional')
+  labels: Yup.array().of(Yup.string()).optional()
 });
 
 export const CommentCreationSchema = Yup.object({
