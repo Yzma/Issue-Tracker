@@ -1,11 +1,12 @@
+import { PrismaClient, Prisma, User, Account, Session } from '@prisma/client';
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 
-export default function CustomPrismaAdapter(p) {
+export default function CustomPrismaAdapter(prismaClient: PrismaClient) {
   return {
-    ...PrismaAdapter(p),
+    ...PrismaAdapter(prismaClient),
 
-    createUser: (data) => {
-      return p.user.create({
+    createUser: (data: Prisma.UserCreateInput) => {
+      return prismaClient.user.create({
         data: {
           id: data.id,
           name: data.name,
@@ -19,28 +20,31 @@ export default function CustomPrismaAdapter(p) {
       })
     },
 
-    linkAccount: (data) => {
-      return p.account.create({ data })
+    linkAccount: (data: Prisma.AccountCreateInput) => {
+      return prismaClient.account.create({ data })
     },
 
-    getUser: (id) =>
-      p.user.findUnique({
+    getUser: (id: User["id"]) =>
+      prismaClient.user.findUnique({
         where: { id },
         include: {
           namespace: true
         }
       }),
 
-    getUserByEmail: (email) =>
-      p.user.findUnique({
+    getUserByEmail: (email: User["email"]) =>
+      prismaClient.user.findUnique({
         where: { email },
         include: {
           namespace: true
         }
       }),
 
-    async getUserByAccount(provider_providerAccountId) {
-      const account = await p.account.findUnique({
+    async getUserByAccount(provider_providerAccountId: {
+      providerAccountId: Account["providerAccountId"];
+      provider: Account["provider"];
+    }) {
+      const account = await prismaClient.account.findUnique({
         where: { provider_providerAccountId },
         select: {
           user: {
@@ -53,8 +57,8 @@ export default function CustomPrismaAdapter(p) {
       return account?.user ?? null
     },
 
-    async getSessionAndUser(sessionToken) {
-      const userAndSession = await p.session.findUnique({
+    async getSessionAndUser(sessionToken: Session["sessionToken"]) {
+      const userAndSession = await prismaClient.session.findUnique({
         where: { sessionToken },
         include: {
           user: {

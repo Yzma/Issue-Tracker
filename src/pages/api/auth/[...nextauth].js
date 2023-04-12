@@ -137,7 +137,9 @@ async function setupUserOnboarding(userObj, req, res) {
         console.log("User already has username, they linked another account and logged in")
         return true
       }
-      const token = generateToken({ data: result.id }, { expiresIn: "1h" })
-      setCookie(NEW_USER_COOKIE, token, { req, res })
+
+      // const token = generateToken({ data: result.id }, { expiresIn: "1h" })
+      // setCookie(NEW_USER_COOKIE, token, { req, res })
+      return generateToken({ data: result.id }, { expiresIn: "1h" }).then(token => setCookie(NEW_USER_COOKIE, token, { req, res }))
     })
 }
