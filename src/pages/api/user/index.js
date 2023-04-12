@@ -102,11 +102,19 @@ export default async function handler(req, res) {
       })
 
   } else if (req.method === "PUT") {
-    const { bio, linkedIn, twitter, github, publicEmail } = req.body
+    const { name, bio, socialLinks } = req.body
 
     const session = await getServerSession(req, res, authOptions(req, res))
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
+    }
+
+    // TODO: This is hacky, we'll come back to this - just need to ensure links are saving for now
+    const links = {
+      "socialLink1": socialLinks[0] || "",
+      "socialLink2": socialLinks[1] || "",
+      "socialLink3": socialLinks[2] || "",
+      "socialLink4": socialLinks[3] || ""
     }
 
     return await prisma.user
@@ -116,10 +124,7 @@ export default async function handler(req, res) {
         },
         data: {
           bio,
-          linkedIn,
-          twitter,
-          github,
-          publicEmail
+          ...links
         }
       })
 

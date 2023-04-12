@@ -62,13 +62,13 @@ export default function UserSocialLinks({ links }: { links: string[] }) {
   }
 
   return (
-    <div className="flex space-x-2 mb-2">
-      {links.map((link, index) => {
+    <div className="flex flex-col space-y-2 mb-2">
+      {links.filter((e) => (e || e.length > 0)).map((link, index) => {
         const icon = lookupLinkIconDefinition(link)
         return (
           <Link key={index} href={link} passHref legacyBehavior>
             <a className="text-gray-500 hover:text-gray-700">
-              <FontAwesomeIcon icon={icon} />
+              <FontAwesomeIcon className="pr-2" icon={icon} />{link}
             </a>
           </Link>
         )
