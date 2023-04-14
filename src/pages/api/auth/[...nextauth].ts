@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { AuthOptions, NextAuthOptions, Profile } from "next-auth"
 
 import GitHubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
@@ -10,10 +10,12 @@ import { generateToken } from "@/lib/jwt"
 import { NEW_USER_COOKIE } from "@/lib/constants"
 import { setCookie } from "cookies-next"
 
-export const authOptions = (req, res) => {
+import { NextApiRequest, NextApiResponse } from "next"
+
+function authOptions(req: NextApiRequest, res: NextApiResponse): AuthOptions {
   return {
+    // @ts-ignore
     adapter: CustomPrismaAdapter(prisma),
-    // TODO: Other providers to add: Gitlab, LinkedIn
     providers: [
       GitHubProvider({
         clientId: process.env.GITHUB_CLIENT_ID,
@@ -34,17 +36,16 @@ export const authOptions = (req, res) => {
     pages: {
       signIn: "/signin"
     },
-
     callbacks: {
-      async signIn(obj) {
-        console.log("signIn obj: ", obj)
+      async signIn(params) {
+        console.log("signIn obj: ", params)
 
         // If the user doesn't have a namespace yet, then their still in the process of creating their account
-        if (!obj.user.namespace) {
-          return await setupUserOnboarding(obj, req, res)
+        if (!params.user.namespace) {
+          return await setupUserOnboarding(params, req, res)
             .then((result) => {
               console.log("setupUserOnboarding result: ", result)
-              if(result) {
+              if (result) {
                 return true
               }
               return "/finish"
@@ -57,22 +58,24 @@ export const authOptions = (req, res) => {
         return true
       },
 
-      async session({ session, user }) {
-        console.log("Session callback")
+      session({ session, user }) {
         session.user.id = user.id
-        session.namespace = user.namespace?.name
+        session.user.namespace = {
+          id: user.namespace.id,
+          name: user.namespace.name
+        }
         return session
-      }
-    }
+      },
+    },
   }
 }
 
-export default async function auth(req, res) {
+export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   return await NextAuth(req, res, authOptions(req, res))
 }
 
 // TODO: Comment, rename function, and figure out how code should be written for readability
-async function setupUserOnboarding(userObj, req, res) {
+async function setupUserOnboarding(userObj, req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
   const { user, account, profile } = userObj
 
   return prisma
@@ -138,8 +141,7 @@ async function setupUserOnboarding(userObj, req, res) {
         return true
       }
 
-      // const token = generateToken({ data: result.id }, { expiresIn: "1h" })
-      // setCookie(NEW_USER_COOKIE, token, { req, res })
       return generateToken({ data: result.id }, { expiresIn: "1h" }).then(token => setCookie(NEW_USER_COOKIE, token, { req, res }))
+        .then(_ => false)
     })
 }
