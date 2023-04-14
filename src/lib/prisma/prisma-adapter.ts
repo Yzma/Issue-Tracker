@@ -1,44 +1,25 @@
-import { PrismaClient, Prisma, User, Account, Session } from '@prisma/client';
+import { PrismaClient, Prisma, User, Account, Session, VerificationToken } from '@prisma/client';
+import { Adapter, AdapterAccount } from 'next-auth/adapters';
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 
+/** @return { import("next-auth/adapters").Adapter } */
 export default function CustomPrismaAdapter(prismaClient: PrismaClient) {
   return {
     ...PrismaAdapter(prismaClient),
 
-    createUser: (data: Prisma.UserCreateInput) => {
-      return prismaClient.user.create({
-        data: {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          emailVerified: data.emailVerified,
-          image: data.image,
-          settings: {
-            create: {}
-          }
-        }
-      })
-    },
+    getUser: (id: User["id"]) => prismaClient.user.findUnique({
+      where: { id },
+      include: {
+        namespace: true
+      }
+    }),
 
-    linkAccount: (data: Prisma.AccountCreateInput) => {
-      return prismaClient.account.create({ data })
-    },
-
-    getUser: (id: User["id"]) =>
-      prismaClient.user.findUnique({
-        where: { id },
-        include: {
-          namespace: true
-        }
-      }),
-
-    getUserByEmail: (email: User["email"]) =>
-      prismaClient.user.findUnique({
-        where: { email },
-        include: {
-          namespace: true
-        }
-      }),
+    getUserByEmail: (email: User["email"]) => prismaClient.user.findUnique({
+      where: { email },
+      include: {
+        namespace: true
+      }
+    }),
 
     async getUserByAccount(provider_providerAccountId: {
       providerAccountId: Account["providerAccountId"];
@@ -57,7 +38,7 @@ export default function CustomPrismaAdapter(prismaClient: PrismaClient) {
       return account?.user ?? null
     },
 
-    async getSessionAndUser(sessionToken: Session["sessionToken"]) {
+    async getSessionAndUser(sessionToken: string) {
       const userAndSession = await prismaClient.session.findUnique({
         where: { sessionToken },
         include: {
@@ -71,6 +52,6 @@ export default function CustomPrismaAdapter(prismaClient: PrismaClient) {
       if (!userAndSession) return null
       const { user, ...session } = userAndSession
       return { user, session }
-    }
+    },
   }
 }
