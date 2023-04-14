@@ -12,7 +12,7 @@ import { setCookie } from "cookies-next"
 
 import { NextApiRequest, NextApiResponse } from "next"
 
-function authOptions(req: NextApiRequest, res: NextApiResponse): AuthOptions {
+export function authOptions(req: NextApiRequest, res: NextApiResponse): AuthOptions {
   return {
     // @ts-ignore
     adapter: CustomPrismaAdapter(prisma),
