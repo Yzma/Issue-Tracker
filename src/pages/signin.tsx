@@ -10,9 +10,11 @@ import {
   faLinkedin
 } from "@fortawesome/free-brands-svg-icons"
 
-import { getProviders, signIn, getSession, getCsrfToken } from "next-auth/react"
+import { getProviders, signIn, getSession, getCsrfToken, LiteralUnion, ClientSafeProvider } from "next-auth/react"
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+import { BuiltInProviderType } from "next-auth/providers"
 
-function SignIn({ providers }) {
+export default function SignIn({ providers }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const providerIcons = {
     GitHub: faGithub,
     Google: faGoogle,
@@ -30,7 +32,7 @@ function SignIn({ providers }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="bg-slate-100 min-h-screen">
-        <Header className="header" />
+        <Header />
         <div className="relative md:flex">
           <div className="md:w-1/2">
             <div className="min-h-screen h-full flex flex-col">
@@ -75,7 +77,7 @@ function SignIn({ providers }) {
     </>
   )
 }
-export async function getServerSideProps(context) {
+export const getServerSideProps: GetServerSideProps<{ providers: Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>, csrfToken: string }> = async (context) => {
   const session = await getSession(context)
   if (session) {
     return {
@@ -96,5 +98,3 @@ export async function getServerSideProps(context) {
     }
   }
 }
-
-export default SignIn
