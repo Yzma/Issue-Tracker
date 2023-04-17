@@ -63,7 +63,7 @@ export default function Home() {
                   }}
                 >
                   {({ errors, isSubmitting, values, setFieldError }) => (
-                    <Form onChange={() => setFieldError("name", false)}>
+                    <Form onChange={() => setFieldError("name", undefined)}>
                       {errors.name && (
                         <div className="py-3">
                           <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
