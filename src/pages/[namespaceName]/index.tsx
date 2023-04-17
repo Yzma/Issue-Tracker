@@ -87,17 +87,34 @@ export const getServerSideProps: GetServerSideProps<{ data: NamespaceProps }> = 
         socialLink2: true,
         socialLink3: true,
         socialLink4: true,
+        members: {
+          where: {
+            project: null 
+          },
+          select: {
+            organization: {
+              select: {
+                name: true,
+              }
+            }
+          }
+        }
       }
     })
 
     const data: UserProfileProps = {
       type: "User",
       user: {
-        ...userResponse
+        ...userResponse,
       },
       namespace: {
         ...namespace
-      }
+      },
+      organizations: userResponse.members.map(member => {
+        return {
+          name: member.organization.name
+        }
+      })
     }
 
     return {
