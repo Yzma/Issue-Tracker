@@ -38,6 +38,9 @@ export type SharedProperties = {
 export type UserProfileProps = SharedProperties & {
   type: "User"
   user: User,
+  organizations: {
+    name: string
+  }[]
 }
 
 export type OrganizationProps = SharedProperties & {
