@@ -1,27 +1,35 @@
-import { useRouter } from "next/router"
 import Head from "next/head"
+import { useRouter } from "next/router"
 
 import Header from "@/components/Header"
 
 import { Formik, Form, Field } from "formik"
 import { ProjectCreationSchema } from "@/lib/yup-schemas"
-
 import axios from "axios"
 
 import { useSession } from "next-auth/react"
 
 import prisma from "@/lib/prisma/prisma"
-import { getServerSession } from "@/lib/sessions"
+import { getServerSideSession } from "@/lib/sessions"
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
 
-export default function ProjectCreate(props) {
+type MemberOrganization = {
+  id: string;
+  name: string;
+}
+
+type ProjectCreationProps = {
+  organizations: MemberOrganization[]
+}
+
+export default function ProjectCreate({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
-  console.log("Props: ", props)
+  const { owner } = router.query
+  console.log("Owner: ", owner)
+
+  console.log("Props: ", data)
   const { data: session } = useSession()
-  const map = props.organizations.map((e, index) => (
-    <option key={index} value={e.organization.name}>
-      {e.organization.name}
-    </option>
-  ))
+  console.log("Session: ", session)
 
   // TODO: Look into this, there should be a better way
   if (!session) return
@@ -57,24 +65,21 @@ export default function ProjectCreate(props) {
                             initialValues={{
                               name: "",
                               description: "",
-                              private: false,
-                              owner: session?.namespace
+                              private: "public",
+                              owner: session?.user.namespace.name
                             }}
-                            validationSchema={ProjectCreationSchema}
+                            // validationSchema={ProjectCreationSchema}
                             validateOnChange={false}
                             validateOnBlur={false}
                             onSubmit={(
                               values,
                               { setSubmitting, setFieldError }
                             ) => {
-                              values.private =
-                                values.private == "true" ? true : false
-
                               axios
                                 .post("/api/projects", {
                                   name: values.name,
                                   description: values.description,
-                                  private: values.private,
+                                  private: values.private === "private" ? true : false,
                                   owner: values.owner
                                 })
                                 .then((response) => {
@@ -97,7 +102,7 @@ export default function ProjectCreate(props) {
                             }) => (
                               <Form
                                 onChange={() => {
-                                  setFieldError("name", false)
+                                  setFieldError("name", undefined)
                                 }}
                               >
                                 {errors.name && (
@@ -125,12 +130,16 @@ export default function ProjectCreate(props) {
                                       name="owner"
                                     >
                                       <option
-                                        key={session?.namespace}
-                                        value={session?.namespace}
+                                        key={session.user.namespace.name}
+                                        value={session.user.namespace.name}
                                       >
-                                        {session?.namespace}
+                                        {session.user.namespace.name}
                                       </option>
-                                      {map}
+                                      {data.organizations.map((e, index) => (
+                                        <option key={index} value={e.id}>
+                                          {e.name}
+                                        </option>
+                                      ))}
                                     </Field>
                                   </div>
 
@@ -182,13 +191,13 @@ export default function ProjectCreate(props) {
                                     Visibility
                                   </h2>
 
-                                  <div class="flex flew-row gap-x-4 items-center pb-3">
+                                  <div className="flex flew-row gap-x-4 items-center pb-3">
                                     <Field
                                       className="form-radio"
                                       type="radio"
                                       name="private"
-                                      value="false"
-                                      checked={true}
+                                      value="public"
+                                      checked
                                     />
 
                                     <div>
@@ -199,12 +208,12 @@ export default function ProjectCreate(props) {
                                       </p>
                                     </div>
                                   </div>
-                                  <div class="flex flew-row gap-x-4 items-center">
+                                  <div className="flex flew-row gap-x-4 items-center">
                                     <Field
                                       className="form-radio"
                                       type="radio"
                                       name="private"
-                                      value="true"
+                                      value="private"
                                     />
 
                                     <div>
@@ -247,8 +256,8 @@ export default function ProjectCreate(props) {
   )
 }
 
-export async function getServerSideProps(context) {
-  const session = await getServerSession(context.req, context.res)
+export const getServerSideProps: GetServerSideProps<{ data: ProjectCreationProps }> = async (context) => {
+  const session = await getServerSideSession(context)
   if (!session) {
     return {
       redirect: {
@@ -261,13 +270,14 @@ export async function getServerSideProps(context) {
   const organizations = await prisma.member.findMany({
     where: {
       userId: session.user.id,
-      organization: {
-        is: {} // TODO: Double check this is actually checking the the field is null or not by looking at what prisma is producing
-      }
+      AND: [
+        {
+          project: null
+        }
+      ]
     },
 
     select: {
-      id: true,
       organization: {
         select: {
           id: true,
@@ -277,11 +287,11 @@ export async function getServerSideProps(context) {
     }
   })
 
-  console.log(organizations)
-
   return {
     props: {
-      organizations: organizations
+      data: {
+        organizations: organizations.map((e) => e.organization)
+      }
     }
   }
 }
