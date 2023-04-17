@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions, NextAuthOptions, Profile } from "next-auth"
+import NextAuth, { Account, AuthOptions, NextAuthOptions, Profile, User } from "next-auth"
 
 import GitHubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
@@ -10,9 +10,29 @@ import { generateToken } from "@/lib/jwt"
 import { NEW_USER_COOKIE } from "@/lib/constants"
 import { setCookie } from "cookies-next"
 
-import { NextApiRequest, NextApiResponse } from "next"
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse, PreviewData } from "next"
+import { ParsedUrlQuery } from "querystring"
 
-export function authOptions(req: NextApiRequest, res: NextApiResponse): AuthOptions {
+import { AdapterUser } from "next-auth/adapters"
+
+export type ApiRouteRequest = {
+  req: NextApiRequest
+  res: NextApiResponse
+}
+
+export type GetServerSidePropsRequest = {
+  context: GetServerSidePropsContext<ParsedUrlQuery, PreviewData>
+}
+
+export type Context = ApiRouteRequest | GetServerSidePropsRequest
+
+type OnboardingParams = {
+  user: User | AdapterUser
+  account: Account
+  profile: Profile
+}
+
+export function authOptions(context: Context): AuthOptions {
   return {
     // @ts-ignore
     adapter: CustomPrismaAdapter(prisma),
@@ -38,11 +58,12 @@ export function authOptions(req: NextApiRequest, res: NextApiResponse): AuthOpti
     },
     callbacks: {
       async signIn(params) {
-        console.log("signIn obj: ", params)
+        const { user, account, profile } = params
+        console.log("signIn obj: ", { user, account, profile})
 
         // If the user doesn't have a namespace yet, then their still in the process of creating their account
         if (!params.user.namespace) {
-          return await setupUserOnboarding(params, req, res)
+          return await setupUserOnboarding({ user, account, profile }, context)
             .then((result) => {
               console.log("setupUserOnboarding result: ", result)
               if (result) {
@@ -71,11 +92,11 @@ export function authOptions(req: NextApiRequest, res: NextApiResponse): AuthOpti
 }
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-  return await NextAuth(req, res, authOptions(req, res))
+  return await NextAuth(req, res, authOptions({ req, res }))
 }
 
 // TODO: Comment, rename function, and figure out how code should be written for readability
-async function setupUserOnboarding(userObj, req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
+async function setupUserOnboarding(userObj: OnboardingParams, context: Context): Promise<boolean> {
   const { user, account, profile } = userObj
 
   return prisma
@@ -106,7 +127,7 @@ async function setupUserOnboarding(userObj, req: NextApiRequest, res: NextApiRes
         create: {
           name: user.name,
           email: user.email,
-          emailVerified: user.emailVerified,
+          // emailVerified: user.emailVerified,
           image: user.image
         }
       })
@@ -141,7 +162,18 @@ async function setupUserOnboarding(userObj, req: NextApiRequest, res: NextApiRes
         return true
       }
 
-      return generateToken({ data: result.id }, { expiresIn: "1h" }).then(token => setCookie(NEW_USER_COOKIE, token, { req, res }))
-        .then(_ => false)
+      return generateToken({ data: result.id }, { expiresIn: "1h" })
+        .then(token => {
+          if(isApiRouteRequest(context)) {
+            setCookie(NEW_USER_COOKIE, token, { req: context.req, res: context.res})
+          } else {
+            setCookie(NEW_USER_COOKIE, token, { req: context.context.req, res: context.context.res })
+          }
+          return false
+        })
     })
+}
+
+function isApiRouteRequest(object: any): object is ApiRouteRequest {
+  return 'req' in object;
 }
