@@ -1,0 +1,147 @@
+import Head from "next/head"
+
+import Header from "@/components/Header"
+import UserPage from "@/components/namespace/UserPage"
+import OrganizationPage from "@/components/namespace/OrganizationPage"
+
+import prisma from "@/lib/prisma/prisma"
+
+import { UserProfileProps, OrganizationProps }  from "@/types/types"
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { getServerSideSession } from "@/lib/sessions"
+
+type NamespaceProps = | UserProfileProps | OrganizationProps
+
+export default function NamespaceIndexRoute({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  return (
+    <div>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <main>
+        <div className="flex h-screen overflow-hidden">
+          <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+            <Header />
+            {(data.type === "User") ? (
+               <UserPage data={data as UserProfileProps} />
+             ) : (
+               <OrganizationPage data={data as OrganizationProps} />
+             )}
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+export const getServerSideProps: GetServerSideProps<{ data: NamespaceProps }> = async (context) => {
+  const namespaceName = context.query.namespaceName as string
+
+  const session = await getServerSideSession(context)
+  const isUserViewingOwnProfile = session?.user?.name === namespaceName
+
+  const namespace = await prisma.namespace.findUnique({
+    where: {
+      name: namespaceName
+    },
+
+    select: {
+      id: true,
+      name: true,
+      userId: true,
+      organizationId: true,
+      projects: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          private: isUserViewingOwnProfile,
+          createdAt: true,
+          updatedAt: true,
+        }
+      }
+    }
+  })
+
+  if (!namespace) {
+    return {
+      redirect: {
+        destination: "/404",
+        permanent: false
+      }
+    }
+  }
+
+  if(namespace.userId) {
+    const userResponse = await prisma.user.findUnique({
+      where: {
+        id: namespace.userId
+      },
+  
+      select: {
+        id: true,
+        username: true,
+        bio: true,
+        socialLink1: true,
+        socialLink2: true,
+        socialLink3: true,
+        socialLink4: true,
+      }
+    })
+
+    const data: UserProfileProps = {
+      type: "User",
+      user: {
+        ...userResponse
+      },
+      namespace: {
+        ...namespace
+      }
+    }
+
+    return {
+      props: {
+        data
+      }
+    }
+  } else {
+    const orgResponse = await prisma.user.findUnique({
+      where: {
+        id: namespace.organizationId
+      },
+  
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+        members: {
+          select: {
+            id: true,
+            role: true,
+            createdAt: true,
+            organizationId: true,
+            userId: true,
+          }
+        }
+      }
+    })
+
+    const data: OrganizationProps = {
+      type: "Organization",
+      organization: {
+        ...orgResponse
+      },
+      namespace: {
+        ...namespace
+      }
+    }
+
+    return {
+      props: {
+        data
+      }
+    }
+  }
+}
