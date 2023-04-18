@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return resolve(decoded)
       })
     })
-      .then((token: string | jwt.JwtPayload) => {
+      .then((token: jwt.JwtPayload) => {
         const userId = token.data
         console.log("Decoded token userId", userId)
 
