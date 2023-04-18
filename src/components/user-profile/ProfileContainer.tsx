@@ -47,7 +47,7 @@ export default function ProfileContainer({ data }: { data: ProfileInformation })
         }
         <UserSocialLinks links={profile.socialLinks} />
         <hr className="border-gray-300 my-4 mx-auto w-full" />
-        <UsersOrganizationsSection organizations={[]} />
+        <UsersOrganizationsSection organizations={data.organizations} />
       </div>
     </ProfileContext.Provider>
   )
