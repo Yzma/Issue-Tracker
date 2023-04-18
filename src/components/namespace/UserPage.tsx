@@ -15,7 +15,11 @@ const UserPage = ({ data }: { data: UserProfileProps }) => {
     profilePictureURL: "",
     bio: data.user.bio,
     socialLinks: [data.user.socialLink1, data.user.socialLink2, data.user.socialLink3, data.user.socialLink4],
-    organizations: []
+    organizations: data.organizations.map(org => {
+      return {
+        name: org.name
+      }
+    })
   }
 
   return (
@@ -35,7 +39,18 @@ const UserPage = ({ data }: { data: UserProfileProps }) => {
           <div className="w-3/4 pl-8">
             <div className="flex flex-col h-full">
               <div className="w-full max-w-5xl mt-4 flex-1">
-                <ProjectList projects={[]} />
+
+                <ProjectList projects={data.namespace.projects.map(e => {
+                  return {
+                    id: e.id,
+                    namespace: data.user.username,
+                    name: e.name,
+                    description: e.description,
+                    private: e.private,
+                    createdAt: e.createdAt,
+                    updatedAt: e.updatedAt
+                  }
+                })} />
                 {/* <ProjectSection projects={projects} /> */}
               </div>
             </div>

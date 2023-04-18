@@ -3,7 +3,7 @@ import ProjectItem from "@/components/projects/ProjectItem"
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCaretDown, faCheck } from "@fortawesome/free-solid-svg-icons"
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons"
 
 import type { ProjectItem as ProjectItemType } from "./types"
 
