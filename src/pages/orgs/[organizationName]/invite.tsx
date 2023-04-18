@@ -2,19 +2,23 @@ import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
-import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
-import { Formik, Form, Field } from "formik"
-
 import Header from "@/components/Header"
-
-import axios from "axios"
 import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
 
-export default function OrganizationInvitation(props) {
+import { Formik, Form, Field } from "formik"
+import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
+
+import axios from "axios"
+
+type ResponseError = {
+  error?: string | null
+  success?: string | null
+}
+
+export default function OrganizationInvitation() {
   const router = useRouter()
   const { organizationName } = router.query
-  const [response, setResponse] = useState({})
-  console.log(props)
+  const [response, setResponse] = useState<ResponseError>({})
 
   return (
     <>
@@ -56,6 +60,7 @@ export default function OrganizationInvitation(props) {
                                   `/api/organization/${organizationName}/invites`,
                                   {
                                     name: values.name,
+                                    // @ts-ignore
                                     role: values.role
                                   }
                                 )
@@ -86,7 +91,7 @@ export default function OrganizationInvitation(props) {
                               setFieldError
                             }) => (
                               <Form
-                                onChange={() => setFieldError("name", false)}
+                                onChange={() => setFieldError("name", undefined)}
                               >
                                 {response && response.error && (
                                   <div className="py-3">

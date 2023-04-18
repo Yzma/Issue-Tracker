@@ -3,29 +3,46 @@ import Head from "next/head"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
+import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
+import Header from "@/components/Header"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 
+import moment from "moment"
 import * as Dialog from "@radix-ui/react-dialog"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
+import prisma from "@/lib/prisma/prisma"
 import { useSession } from "next-auth/react"
 
 import axios from "axios"
-import prisma from "@/lib/prisma/prisma"
-import Header from "@/components/Header"
-import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
-import moment from "moment"
 
-export default function OrganizationMembers(props) {
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+import { OrganizationRole } from "@prisma/client"
+
+type OrganizationMembersProps = {
+  id: string
+  role: OrganizationRole
+  createdAt: Date
+  user: {
+    id: string,
+    username: string
+  }
+}[]
+
+export default function OrganizationMembers({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { organizationName } = router.query
 
   const { data: session } = useSession()
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState<{ id?: string, name?: string}>({})
 
-  const removeMember = (memberId) => {
+  console.log(session)
+  console.log("Data: ", data)
+
+  const removeMember = (memberId: string) => {
     console.log("removing ", memberId)
     axios
       .delete(`/api/organization/${organizationName}/members`, {
@@ -53,7 +70,7 @@ export default function OrganizationMembers(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Root open={open.id !== null}>
         <Dialog.Portal>
           <Dialog.Overlay className="DialogOverlay" />
           <Dialog.Content className="DialogContent">
@@ -109,7 +126,7 @@ export default function OrganizationMembers(props) {
               <div className="bg-white shadow-lg rounded-sm border border-slate-200 relative">
                 <header className="px-5 py-4">
                   <h2 className="font-semibold text-slate-800">
-                    {organizationName} Members ({props.members.length}){" "}
+                    {organizationName} Members ({data.length}){" "}
                   </h2>
                 </header>
 
@@ -136,7 +153,7 @@ export default function OrganizationMembers(props) {
                         </tr>
                       </thead>
                       <tbody className="text-sm divide-y divide-slate-200">
-                        {props.members.map((member, index) => (
+                        {data.map((member, index) => (
                           <tr key={index}>
                             <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                               <div className="text-left">{index + 1}</div>
@@ -146,18 +163,15 @@ export default function OrganizationMembers(props) {
                               <div className="text-center">
                                 <Link
                                   className="text-sky-400 hover:text-sky-700"
-                                  href={`/${member.user.username}`}
+                                  href={`/${member}`}
                                 >
                                   {member.user.username}
                                 </Link>
-                                {session &&
-                                session.namespace === member.user.username ? (
+                                {(session && session.user.username === member.user.username) &&
                                   <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-500 bg-green-100 rounded-full">
                                     You
                                   </span>
-                                ) : (
-                                  <></>
-                                )}
+                                }
                               </div>
                             </td>
 
@@ -220,14 +234,18 @@ export default function OrganizationMembers(props) {
   )
 }
 
-export async function getServerSideProps(context) {
+export const getServerSideProps: GetServerSideProps<{ data: OrganizationMembersProps }> = async (context) => {
   const { organizationName } = context.query
+
+  // @ts-ignore
   const members = await prisma.member.findMany({
     where: {
       organization: {
+        // @ts-ignore
         name: organizationName
       }
     },
+
     select: {
       id: true,
       role: true,
@@ -238,20 +256,12 @@ export async function getServerSideProps(context) {
           username: true
         }
       }
-    }
-  })
-  console.log(members)
-
-  const mapped = members.map((e) => {
-    return {
-      ...e,
-      createdAt: e.createdAt.toISOString()
-    }
-  })
+    },
+  }) as OrganizationMembersProps
 
   return {
     props: {
-      members: mapped
+      data: members
     }
   }
 }
