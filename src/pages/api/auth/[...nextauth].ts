@@ -59,7 +59,7 @@ export function authOptions(context: Context): AuthOptions {
     callbacks: {
       async signIn(params) {
         const { user, account, profile } = params
-        console.log("signIn obj: ", { user, account, profile})
+        console.log("signIn obj: ", { user, account, profile })
 
         // If the user doesn't have a namespace yet, then their still in the process of creating their account
         if (!params.user.namespace) {
@@ -81,6 +81,7 @@ export function authOptions(context: Context): AuthOptions {
 
       session({ session, user }) {
         session.user.id = user.id
+        session.user.username = user.username
         session.user.namespace = {
           id: user.namespace.id,
           name: user.namespace.name
@@ -164,8 +165,8 @@ async function setupUserOnboarding(userObj: OnboardingParams, context: Context):
 
       return generateToken({ data: result.id }, { expiresIn: "1h" })
         .then(token => {
-          if(isApiRouteRequest(context)) {
-            setCookie(NEW_USER_COOKIE, token, { req: context.req, res: context.res})
+          if (isApiRouteRequest(context)) {
+            setCookie(NEW_USER_COOKIE, token, { req: context.req, res: context.res })
           } else {
             setCookie(NEW_USER_COOKIE, token, { req: context.context.req, res: context.context.res })
           }
