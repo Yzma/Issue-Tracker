@@ -6,12 +6,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { inviteId } = req.body
 
-  if (req.method === "POST") {
-    const session = await getServerSession(req, res)
-    if (!session) {
-      return res.status(400).json({ error: "Invalid session" })
-    }
+  const session = await getServerSession(req, res)
+  if (!session) {
+    return res.status(400).json({ error: "Invalid session" })
+  }
 
+  if (req.method === "POST") {
     return await acceptInvite(inviteId, session.user.id)
       .then((result) => {
         console.log("API RESULT: ", result)
@@ -26,13 +26,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
 
   } else if (req.method === "DELETE") {
-
-
-    const session = await getServerSession(req, res)
-    if (!session) {
-      return res.status(400).json({ error: "Invalid session" })
-    }
-
     return await declineInvite(inviteId, session.user.id)
       .then((result) => {
         console.log("API RESULT: ", result)
