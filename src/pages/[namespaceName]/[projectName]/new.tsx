@@ -15,17 +15,25 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faGear, faCircle } from "@fortawesome/free-solid-svg-icons"
 
-import { useSession } from "next-auth/react"
 import axios from "axios"
+import { useSession } from "next-auth/react"
 import prisma from "@/lib/prisma/prisma"
 
-export default function IssuesCreate(props) {
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+
+type LabelProps = {
+  id: string
+  name: string
+  color: string
+}
+
+export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
   const [labels, setLabels] = useState([])
   const { data: session } = useSession()
-  // TODO: Schema doesn't validate label ids - figure out a way to check them
+
   const onLabelClick = (label) => {
     if (labels.find((e) => e.id === label.id)) {
       const filter = labels.filter((item) => item.id !== label.id)
@@ -34,8 +42,6 @@ export default function IssuesCreate(props) {
       setLabels([...labels, label])
     }
   }
-
-  console.log(props.labels)
 
   return (
     <>
@@ -98,8 +104,8 @@ export default function IssuesCreate(props) {
               }) => (
                 <Form
                   onChange={() => {
-                    setFieldError("name", false)
-                    setFieldError("description", false)
+                    setFieldError("name", undefined)
+                    setFieldError("description", undefined)
                   }}
                 >
 
@@ -157,10 +163,10 @@ export default function IssuesCreate(props) {
                                 </label>
                                 <IssueComment
                                   text={""}
-                                  onChange={(text) =>
+                                  onChange={(text: string) =>
                                     setFieldValue("description", text)
                                   }
-                                  onSubmit={() => submitForm()}
+                                  onSubmit={() => { }}
                                   editing={true}
                                   showButtons={false}
                                 />
@@ -168,7 +174,7 @@ export default function IssuesCreate(props) {
                             </div>
 
                             <hr />
-                            
+
                             <div className="flex flex-col py-5 border-t border-slate-200">
                               <div className="flex self-start">
                                 <button
@@ -195,9 +201,9 @@ export default function IssuesCreate(props) {
                         </div>
                         <Link
                           className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
-                          href={session ? `/${session.namespace}/` : ""}
+                          href={session ? `/${session.user.username}/` : ""}
                         >
-                          {session && session.namespace}
+                          {session && session.user.username}
                         </Link>
                       </div>
                       {/* End Asignees Action */}
@@ -208,7 +214,7 @@ export default function IssuesCreate(props) {
                       <div className="">
                         <div className="flex justify-between align-self-center">
                           <span className="font-bold">Labels</span>
-                          {props.labels.length !== 0 && (
+                          {data.length !== 0 && (
                             <DropdownMenu.Root>
                               <DropdownMenu.Trigger asChild>
                                 <FontAwesomeIcon
@@ -222,7 +228,7 @@ export default function IssuesCreate(props) {
                                   className="DropdownMenuContent"
                                   sideOffset={5}
                                 >
-                                  {props.labels.map((label, index) => (
+                                  {data.map((label, index) => (
                                     <DropdownMenu.Item
                                       key={index}
                                       className="DropdownMenuItem"
@@ -273,231 +279,29 @@ export default function IssuesCreate(props) {
   )
 }
 
-{
-  /* <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-            <div className="mb-8">
-              <div className="flex flex-col md:flex-row md:-mr-px">
-                <div className="grow">
-                  <div className="p-6 space-y-6">
-                    <section>
-                      <h2 className="text-3xl leading-snug text-slate-800 font-bold mb-1">
-                        Create a new issue
-                      </h2>
-                      <div className="font-light">
-                        Try to be descriptive as possible!
-                      </div>
-
-                      <div className="">
-                        <Formik
-                          initialValues={{
-                            name: "",
-                            description: "",
-                            labels: []
-                          }}
-                          validationSchema={IssueCreationSchema}
-                          onSubmit={(
-                            values,
-                            { setSubmitting, setFieldError }
-                          ) => {
-                            const labelIds = labels.map((e) => e.id)
-                            axios
-                              .post(
-                                `/api/${namespaceName}/${projectName}/issues`,
-                                {
-                                  name: values.name,
-                                  description: values.description,
-                                  labels: labelIds
-                                }
-                              )
-                              .then((response) => {
-                                console.log("RESPONSE:", response)
-                                // TODO: Ensure proper data is returned on route, this could probably break easily...
-                                console.log("id: ", response.data.result.id)
-                                router.push(
-                                  `/${namespaceName}/${projectName}/issues/${response.data.result.id}`
-                                )
-                              })
-                              .catch((error) => {
-                                console.log("ERROR:", error.response.data)
-                                console.log("ERROR:", error)
-                              })
-                              .finally(() => {
-                                setSubmitting(false)
-                              })
-                          }}
-                        >
-                          {({
-                            values,
-                            errors,
-                            isSubmitting,
-                            setFieldValue
-                          }) => (
-                            <Form>
-                              {(errors.name ||
-                                errors.description ||
-                                errors.private) && (
-                                <div
-                                  className="alert alert-danger"
-                                  role="alert"
-                                >
-                                  <ul>
-                                    {errors.name && (
-                                      <li>Name: {errors.name}</li>
-                                    )}
-                                    {errors.description && (
-                                      <li>Description: {errors.description}</li>
-                                    )}
-                                    {errors.private && (
-                                      <li>private: {errors.private}</li>
-                                    )}
-                                  </ul>
-                                </div>
-                              )}
-
-                              <section className="flex flex-row mb-4">
-                                <div className="sm:w-1/3 grow">
-                                  <label
-                                    className="block text-sm font-medium mb-1"
-                                    htmlFor="name"
-                                  >
-                                    Title{" "}
-                                    <span className="text-rose-500">*</span>
-                                  </label>
-                                  <Field
-                                    className="form-input w-full"
-                                    type="text"
-                                    name="name"
-                                  />
-                                </div>
-                              </section>
-
-                              <hr />
-
-                              <div className="flex flex-row">
-                                <section className="mt-4 grow">
-                                  <label
-                                    className="block text-sm font-medium mb-1"
-                                    htmlFor="name"
-                                  >
-                                    Description{" "}
-                                    <span className="text-rose-500">*</span>
-                                  </label>
-                                  <MarkdownEditor
-                                    onChange={(text) =>
-                                      setFieldValue("description", text)
-                                    }
-                                  ></MarkdownEditor>
-                                </section>
-
-                                <section className="mt-4 grow">
-                                  <div>
-                                    <DropdownMenu.Root>
-                                      <div className="flex flex-row justify-between">
-                                        <span className="text-secondary h5">
-                                          Labels{" "}
-                                        </span>
-                                        <DropdownMenu.Trigger asChild>
-                                          <svg
-                                            className="w-8 h-8 fill-current "
-                                            viewBox="0 0 32 32"
-                                          >
-                                            <circle cx="16" cy="16" r="2" />
-                                            <circle cx="10" cy="16" r="2" />
-                                            <circle cx="22" cy="16" r="2" />
-                                          </svg>
-                                        </DropdownMenu.Trigger>
-                                      </div>
-
-                                      <DropdownMenu.Portal>
-                                        <DropdownMenu.Content
-                                          className="DropdownMenuContent"
-                                          sideOffset={5}
-                                        >
-                                          {props.labels.map((label, index) => (
-                                            <DropdownMenu.Item
-                                              key={index}
-                                              className="DropdownMenuItem"
-                                              onClick={() =>
-                                                onLabelClick(label)
-                                              }
-                                            >
-                                              {label.name}
-                                              <div className="RightSlot"></div>
-                                            </DropdownMenu.Item>
-                                          ))}
-                                        </DropdownMenu.Content>
-                                      </DropdownMenu.Portal>
-                                    </DropdownMenu.Root>
-                                  </div>
-                                  {labels.map((label, index) => (
-                                    <span
-                                      key={index}
-                                      className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white rounded-full"
-                                      style={{
-                                        background: `#${label.color}`
-                                      }}
-                                    >
-                                      {label.name}
-                                    </span>
-                                  ))}
-                                </section>
-                              </div>
-
-                              <hr />
-
-                              {errors.name && (
-                                <div>Name errors:{errors.name}</div>
-                              )}
-                              {errors.description && (
-                                <div>
-                                  Description errors: {errors.description}
-                                </div>
-                              )}
-                              {errors.private && (
-                                <div>Private error: {errors.private}</div>
-                              )}
-
-                              <div className="flex flex-col py-5 border-t border-slate-200">
-                                <div className="flex self-start">
-                                  <button
-                                    className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                  >
-                                    Submit Issue
-                                  </button>
-                                </div>
-                              </div>
-
-                   
-                            </Form>
-                          )}
-                        </Formik>
-                      </div>
-                    </section>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */
-}
-
-export async function getServerSideProps(context) {
+export const getServerSideProps: GetServerSideProps<{ data: LabelProps[] }> = async (context) => {
   const { namespaceName, projectName } = context.query
   const labels = await prisma.label.findMany({
     where: {
       project: {
+        // @ts-ignore
         name: projectName,
         namespace: {
+          // @ts-ignore
           name: namespaceName
         }
       }
+    },
+    select: {
+      id: true,
+      name: true,
+      color: true
     }
-  })
+  }) as LabelProps[]
 
   return {
     props: {
-      labels: labels
+      data: labels
     }
   }
 }

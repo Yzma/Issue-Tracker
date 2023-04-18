@@ -1,27 +1,35 @@
+import { useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+
 import Header from "@/components/Header";
 import LabelList from "@/components/LabelList";
 import LabelSearchBar from "@/components/LabelSearchBar";
-import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBug } from "@fortawesome/free-solid-svg-icons";
-
-import prisma from "@/lib/prisma/prisma";
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar";
 
-export default function LabelPage(props) {
+import prisma from "@/lib/prisma/prisma";
+
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+
+// TODO: Create one type and emit it from /new page
+type LabelProps = {
+  id: string
+  name: string
+  description: string
+  color: string
+}
+
+export default function LabelPage({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { namespaceName, projectName } = router.query;
-  console.log(props);
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearch = (searchTerm) => {
+  const handleSearch = (searchTerm: string) => {
     setSearchTerm(searchTerm);
   };
 
-  const filteredLabels = props.labelData.filter((label) =>
+  const filteredLabels = data.filter((label) =>
     label.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -57,25 +65,27 @@ export default function LabelPage(props) {
         </div>
       </div>
     </>
-  );
+  )
 }
 
-export async function getServerSideProps(context) {
+export const getServerSideProps: GetServerSideProps<{ data: LabelProps[] }> = async (context) => {
   const { namespaceName, projectName } = context.query;
   const labelData = await prisma.label.findMany({
     where: {
       project: {
+        // @ts-ignore
         name: projectName,
         namespace: {
+          // @ts-ignore
           name: namespaceName,
-        },
-      },
-    },
-  });
-
-  console.log(labelData);
+        }
+      }
+    }
+  })
 
   return {
-    props: { labelData },
-  };
+    props: {
+      data: labelData
+    }
+  }
 }

@@ -2,21 +2,19 @@ import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
+import Header from "@/components/Header"
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 import { Formik, Form, Field } from "formik"
 
-import Header from "@/components/Header"
-
 import axios from "axios"
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBug } from "@fortawesome/free-solid-svg-icons";
 
-export default function ProjectInvites(props) {
+export default function ProjectInvites() {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
-  const [response, setResponse] = useState({})
+  const [response, setResponse] = useState<{error?: string, success?: string}>({})
   return (
     <>
       <Head>
@@ -61,7 +59,7 @@ export default function ProjectInvites(props) {
                                   `/api/${namespaceName}/${projectName}/invites`,
                                   {
                                     name: values.name,
-                                    role: values.role
+                                    // role: values.role // TODO: Assign role when inviting
                                   }
                                 )
                                 .then((response) => {
@@ -99,7 +97,7 @@ export default function ProjectInvites(props) {
                               setFieldError
                             }) => (
                               <Form
-                                onChange={() => setFieldError("name", false)}
+                                onChange={() => setFieldError("name", undefined)}
                               >
                                 {response && response.error && (
                                   <div className="py-3">

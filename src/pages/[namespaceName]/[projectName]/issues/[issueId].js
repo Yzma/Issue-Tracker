@@ -3,15 +3,16 @@ import Head from "next/head"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
+import Header from "@/components/Header"
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+import IssueComment from "@/components/comment-api/IssueComment"
 
+import moment from "moment"
 import { Formik, Form, Field } from "formik"
 import { IssueCreationSchema } from "@/lib/yup-schemas"
 
 import * as Dialog from "@radix-ui/react-dialog"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
-
-import Header from "@/components/Header"
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -27,8 +28,6 @@ import axios from "axios"
 
 import { useSession } from "next-auth/react"
 import prisma from "@/lib/prisma/prisma"
-import IssueComment from "@/components/comment-api/IssueComment"
-import moment from "moment"
 
 const FormButton = (props) => {
   return (
