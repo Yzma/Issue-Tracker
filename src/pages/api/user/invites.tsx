@@ -1,14 +1,13 @@
 import prisma from "@/lib/prisma/prisma"
+import { getServerSession } from "@/lib/sessions"
+import { NextApiRequest, NextApiResponse } from "next"
 
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
-
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const { inviteId } = req.body
 
   if (req.method === "POST") {
-    const session = await getServerSession(req, res, authOptions(req, res))
+    const session = await getServerSession(req, res)
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }
@@ -29,7 +28,7 @@ export default async function handler(req, res) {
   } else if (req.method === "DELETE") {
 
 
-    const session = await getServerSession(req, res, authOptions(req, res))
+    const session = await getServerSession(req, res)
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }
@@ -66,7 +65,7 @@ async function declineInvite(inviteId, sessionId) {
       throw new Error(`The correct user isn't accepting the invite`)
     }
 
-    if (deletedOrganizationInvitation < 0) {
+    if (!deletedOrganizationInvitation) {
       throw new Error(`No invitations were deleted`)
     }
 
@@ -88,7 +87,7 @@ async function acceptInvite(inviteId, sessionId) {
       throw new Error(`The correct user isn't accepting the invite`)
     }
 
-    if (deletedInvitation < 0) {
+    if (!deletedInvitation) {
       throw new Error(`No invitations were deleted`)
     }
 
