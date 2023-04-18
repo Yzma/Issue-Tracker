@@ -107,7 +107,9 @@ function ProfileContainerEditor() {
                 console.log("RESPONSE:", response)
                 setProfile((prevState) => ({
                   ...prevState,
+                  name: values.name,
                   bio: values.bio,
+                  socialLinks: values.socialLinks
                 }))
                 // router.push(`/${values.name}`)
                 setEditing(false)
