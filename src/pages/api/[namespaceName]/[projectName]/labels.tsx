@@ -1,20 +1,50 @@
 import prisma from "@/lib/prisma/prisma"
-
 import { getServerSession } from "@/lib/sessions"
 
-import { IssueCreationSchema } from "@/lib/yup-schemas"
+import { LabelCreationSchema } from "@/lib/yup-schemas"
 
-export default async function handler(req, res) {
-  if (req.method === "POST") {
-    const { namespaceName, projectName } = req.query
-    const { name, description, labels } = req.body
+import { NextApiRequest, NextApiResponse } from "next"
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+  const { namespaceName, projectName } = req.query
+
+  if (req.method === "GET") {
+
+    return await prisma.label
+      .findMany({
+        where: {
+          project: {
+            // @ts-ignore
+            name: projectName, 
+            namespace: {
+              // @ts-ignore
+              name: namespaceName
+            }
+          }
+        }
+      })
+      .then((result) => {
+        console.log("API RESULT: ", result)
+        return res.status(200).json({ result: result })
+      })
+      .catch((err) => {
+        // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
+        console.log("error: ", err)
+        return res
+          .status(400)
+          .json({ error: "Error creating entry in database" })
+      })
+
+  } else if (req.method === "POST") {
+    const { name, description, color } = req.body
 
     let schemaResult
     try {
-      schemaResult = await IssueCreationSchema.validate({
+      schemaResult = await LabelCreationSchema.validate({
         name,
         description,
-        labels
+        color
       })
     } catch (e) {
       console.log("Invalid arguments for issue creation: ", e)
@@ -32,16 +62,17 @@ export default async function handler(req, res) {
 
     const foundNamespace = await prisma.namespace.findUnique({
       where: {
+        // @ts-ignore
         name: namespaceName
       }
     })
+    console.log("foundNamespace: ", foundNamespace)
 
     if (!foundNamespace) {
       return res.status(400).json({ error: "Not a valid namespace" })
     }
 
     if (foundNamespace.userId) {
-      // TODO: Look to improve readability here
       if (foundNamespace.userId != session.user.id) {
         return res
           .status(400)
@@ -74,92 +105,22 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Debug: This should never happen" })
     }
 
-    console.log("foundNamespace: ", foundNamespace)
-
-    const foundProject = await prisma.project.findMany({
-      where: {
-        name: projectName
-      }
-    })
-
-    if (!foundProject) {
-      return res.status(400).json({ error: "Not a valid project" })
-    }
-
-    console.log("foundProject: ", foundProject)
-
-    const mapped = labels.map((e) => {
-      return {
-        id: e
-      }
-    })
-
-    return await prisma.issue
-      .create({
-        data: {
-          name,
-          description,
-          userId: session.user.id,
-          projectId: foundProject[0].id,
-          labels: {
-            connect: mapped
-          }
-        }
-      })
-      .then((result) => {
-        console.log("API RESULT: ", result)
-        return res.status(200).json({ result: result })
-      })
-      .catch((err) => {
-        // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
-        console.log("error: ", err)
-        return res
-          .status(400)
-          .json({ error: "Error creating entry in database" })
-      })
-  } else if (req.method === "DELETE") {
-    const { issueId } = req.body
-
-    // TODO:
-    // Validate, check if it's the owner
-
-    return await prisma.issue
-      .delete({
-        where: {
-          id: issueId
-        }
-      })
-      .then((result) => {
-        console.log("API RESULT: ", result)
-        return res.status(200).json({ result: result })
-      })
-      .catch((err) => {
-        // TODO: Check individual error codes from prisma. Check if the name already exists, if the user already has a namespace, etc
-        console.log("error: ", err)
-        return res
-          .status(400)
-          .json({ error: "Error creating entry in database" })
-      })
-  } else if (req.method === "PUT") {
-    const { name, description, open, labels, pinned, issueId } = req.body
-
-    // TODO:
-    // Validate, check if it's the owner
-
-    console.log(req.body)
-
-    return await prisma.issue
+    return await prisma.project
       .update({
         where: {
-          id: issueId
+          namespaceId_name: {
+            // @ts-ignore
+            name: projectName,
+            namespaceId: foundNamespace.id
+          }
         },
         data: {
-          name,
-          description,
-          open,
-          pinned,
           labels: {
-            set: labels
+            create: {
+              name,
+              description,
+              color
+            }
           }
         }
       })

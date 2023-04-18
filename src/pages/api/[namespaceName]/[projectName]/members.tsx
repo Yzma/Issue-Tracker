@@ -1,16 +1,16 @@
 import prisma from "@/lib/prisma/prisma"
+import { getServerSession } from "@/lib/sessions"
 
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
+import { NextApiRequest, NextApiResponse } from "next"
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (req.method === "DELETE") {
     const { memberId } = req.body
 
     console.log("memberId", memberId)
 
-    const session = await getServerSession(req, res, authOptions(req, res))
+    const session = await getServerSession(req, res)
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }
