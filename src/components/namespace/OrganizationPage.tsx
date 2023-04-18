@@ -8,25 +8,18 @@ import UserSection from "@/components/OrgUserSection"
 import OrganizationBelowNavbar from "../navbar/OrganizationBelowNavbar"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBug } from "@fortawesome/free-solid-svg-icons"
+import { OrganizationProps } from "@/types/types"
 
-const OrganizationPage = ({ props }) => {
+const OrganizationPage = ({ data }: { data: OrganizationProps }) => {
   const router = useRouter()
   const { namespaceName } = router.query
-  console.log("Org props ", props)
+  console.log("Org props ", data)
 
-  const [activeTab, setActiveTab] = useState("projects")
-
-  const handleTabClick = (tab) => {
-    setActiveTab(tab)
-  }
-
-  const projects = props.data.namespace.projects
-  console.log("ORG PROJECT", projects)
-  console.log("ORG", props)
+  const projects = []
   return (
     <>
       <Head>
-        <title>{props.data.name}</title>
+        <title>{""}</title>
         <meta name="description" content="TODO: Description?" />
       </Head>
 
@@ -36,9 +29,6 @@ const OrganizationPage = ({ props }) => {
       />
 
       <div className={`mt-9`}>
-        {" "}
-        {/* Add the mt-4 class here */}
-        {/* <Tabs activeTab={activeTab} onTabClick={handleTabClick} /> */}
         <OrgProjectSection projects={projects} />
       </div>
     </>

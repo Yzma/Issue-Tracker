@@ -1,10 +1,11 @@
 import prisma from "@/lib/prisma/prisma"
-
 import { getServerSession } from "@/lib/sessions"
 
 import { CommentCreationSchema } from "@/lib/yup-schemas"
 
-export default async function handler(req, res) {
+import { NextApiRequest, NextApiResponse } from "next"
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
  
   const { namespaceName, projectName } = req.query
 
@@ -33,6 +34,7 @@ export default async function handler(req, res) {
 
     const foundNamespace = await prisma.namespace.findUnique({
       where: {
+        // @ts-ignore
         name: namespaceName
       }
     })
@@ -45,6 +47,7 @@ export default async function handler(req, res) {
 
     const foundProject = await prisma.project.findMany({
       where: {
+        // @ts-ignore
         name: projectName
       }
     })

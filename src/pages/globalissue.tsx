@@ -1,13 +1,12 @@
+import { useState } from "react"
 import Head from "next/head"
+import { useRouter } from "next/router"
+
 import Header from "@/components/Header"
 import IssueList from "@/components/IssueList"
-import IssueButtons from "@/components/IssueButtons"
-import SearchBar from "@/components/IssueSearchBar"
-import { useState } from "react"
+
 import prisma from "@/lib/prisma/prisma"
-import { useRouter } from "next/router"
 import { getSession } from "next-auth/react"
-import Link from "next/link"
 
 export default function Issues({ issuesData }) {
   console.log(issuesData)
@@ -17,18 +16,8 @@ export default function Issues({ issuesData }) {
 
   const [filteredIssues, setFilteredIssues] = useState(issuesData)
 
-  const handleSearch = (searchTerm) => {
-    const filtered = issuesData.filter((issue) =>
-      issue.labels.some((label) =>
-        label.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    )
-    setFilteredIssues(filtered)
-  }
-
   return (
     <>
-      <Head></Head>
       <main>
         <div className="flex h-screen overflow-hidden">
           <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">

@@ -3,15 +3,16 @@ import prisma from "@/lib/prisma/prisma"
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 import { NEW_USER_COOKIE, NEXT_AUTH_SESSION_COOKIE } from "@/lib/constants"
 
+import { v4 as uuidv4 } from 'uuid';
 import jwt from "jsonwebtoken"
 import { deleteCookie, setCookie } from "cookies-next"
 
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
+import { getServerSession } from "@/lib/sessions";
 import adapter from "@/lib/prisma/prisma-adapter"
-import { v4 as uuidv4 } from 'uuid';
 
-export default async function handler(req, res) {
+import { NextApiRequest, NextApiResponse } from "next"
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     const cookie = req.cookies[NEW_USER_COOKIE]
 
@@ -37,7 +38,7 @@ export default async function handler(req, res) {
         return resolve(decoded)
       })
     })
-      .then((token) => {
+      .then((token: jwt.JwtPayload) => {
         const userId = token.data
         console.log("Decoded token userId", userId)
 
@@ -63,13 +64,12 @@ export default async function handler(req, res) {
             }
           })
 
-          // console.log("Update result: ", updateResult)
-
           // TODO: Test this. This will probably never be ran as the update statement above will throw an error if something went wrong
           if(!updateResult) {
             throw new Error("Error creating username.")
           }
 
+          // @ts-ignore
           return await adapter(tx).createSession({
             sessionToken: uuidv4(),
             userId: updateResult.id,
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
   } else if (req.method === "PUT") {
     const { name, bio, socialLinks } = req.body
 
-    const session = await getServerSession(req, res, authOptions(req, res))
+    const session = await getServerSession(req, res)
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }
@@ -123,6 +123,7 @@ export default async function handler(req, res) {
           id: session.user.id
         },
         data: {
+          name,
           bio,
           ...links
         }
@@ -143,6 +144,6 @@ export default async function handler(req, res) {
   }
 }
 
-function fromDate(time, date = Date.now()) {
+function fromDate(time: number, date = Date.now()) {
   return new Date(date + time * 1000)
 }

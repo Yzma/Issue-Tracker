@@ -54,7 +54,7 @@ export default function ProfileContainer({ data }: { data: ProfileInformation })
 }
 
 function ProfileContainerViewer() {
-  const { profile, setEditing } = useContext(ProfileContext);
+  const { profile, setEditing, session } = useContext(ProfileContext);
   return (
     <div className="relative">
       <div className="flex flex-col">
@@ -67,9 +67,12 @@ function ProfileContainerViewer() {
             <p className="text-gray-500 py-2">
               {profile.bio || "This is a random bio, nothing of value here. Move on."}
             </p>
-            <button className="btn w-full" onClick={() => setEditing(true)}>
-              Edit Profile
-            </button>
+
+            {session?.user.namespace.name === profile.name &&
+              <button className="btn w-full" onClick={() => setEditing(true)}>
+                Edit Profile
+              </button>
+            }
           </div>
         </div>
       </div>

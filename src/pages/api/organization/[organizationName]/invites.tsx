@@ -1,11 +1,11 @@
 import prisma from "@/lib/prisma/prisma"
-
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
+import { getServerSession } from "@/lib/sessions"
 
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 
-export default async function handler(req, res) {
+import { NextApiRequest, NextApiResponse } from "next"
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { organizationName } = req.query
 
   if (req.method === "POST") {
@@ -18,11 +18,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Invalid name" })
     }
 
-    const session = await getServerSession(req, res, authOptions(req, res))
+    const session = await getServerSession(req, res)
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }
 
+    
     // TODO: Authorize user creating invite
     return await prisma.memberInvitation
       .create({
@@ -40,6 +41,7 @@ export default async function handler(req, res) {
           },
           organization: {
             connect: {
+              // @ts-ignore
               name: organizationName
             }
           }
@@ -61,7 +63,7 @@ export default async function handler(req, res) {
   if (req.method === "DELETE") {
     const { inviteId } = req.body
     console.log("inviteId", inviteId)
-    const session = await getServerSession(req, res, authOptions(req, res))
+    const session = await getServerSession(req, res)
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }

@@ -1,25 +1,27 @@
-import Head from "next/head"
+import { useState } from "react"
+import { useRouter } from "next/router"
+
 import Header from "@/components/Header"
 import IssueList from "@/components/IssueList"
 import IssueButtons from "@/components/IssueButtons"
-import { useState } from "react"
-import prisma from "@/lib/prisma/prisma"
-import { useRouter } from "next/router"
-import { getServerSession } from "@/lib/sessions"
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBug } from "@fortawesome/free-solid-svg-icons";
 
-export default function Issues({ issuesData }) {
-  console.log(issuesData)
+import { getServerSideSession } from "@/lib/sessions"
+import prisma from "@/lib/prisma/prisma"
+
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+import { Issue, Label, Namespace, Project } from "@prisma/client"
+
+export default function Issues({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  console.log(data)
 
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
-  const [filteredIssues, setFilteredIssues] = useState(issuesData)
+  const [filteredIssues, setFilteredIssues] = useState(data)
 
-  const handleSearch = (searchTerm) => {
-    const filtered = issuesData.filter((issue) =>
+  const handleSearch = (searchTerm: string) => {
+    const filtered = data.filter((issue) =>
       issue.labels.some((label) =>
         label.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
@@ -28,45 +30,49 @@ export default function Issues({ issuesData }) {
   }
 
   return (
-    <>
-      <Head></Head>
-      <main>
-        <div className="flex h-screen overflow-hidden">
-          <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            <Header />
-            <ProjectBelowNavbar
-              namespaceName={namespaceName}
-              projectName={projectName}
-              selected={"issues"}
+    <main>
+      <div className="flex h-screen overflow-hidden">
+        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          <Header />
+          <ProjectBelowNavbar
+            namespaceName={namespaceName}
+            projectName={projectName}
+            selected={"issues"}
+          />
+          <div className="container mx-auto px-4 py-8 max-w-3/4">
+            <IssueButtons
+              onSearch={handleSearch}
+              path={`/${namespaceName}/${projectName}`}
             />
-            <div className="container mx-auto px-4 py-8 max-w-3/4">
-              <IssueButtons
-                onSearch={handleSearch}
-                path={`/${namespaceName}/${projectName}`}
+            <div className="bg-white shadow-md rounded-md">
+              <IssueList
+                issues={filteredIssues}
+                routePath={`/${namespaceName}/${projectName}`}
               />
-              <div className="bg-white shadow-md rounded-md">
-                <IssueList
-                  issues={filteredIssues}
-                  routePath={`/${namespaceName}/${projectName}`}
-                />
-              </div>
             </div>
           </div>
         </div>
-      </main>
-    </>
+      </div>
+    </main>
+
   );
 }
 
-export async function getServerSideProps(context) {
+type IssueProps = {
+
+}
+
+export const getServerSideProps: GetServerSideProps<{ data: (Issue & { labels: Label[] })[] }> = async (context) => {
   const { namespaceName, projectName } = context.query
 
-  const session = await getServerSession(context.req, context.res)
+  const session = await getServerSideSession(context)
 
   const project = await prisma.project.findFirst({
     where: {
+      // @ts-ignore
       name: projectName,
       namespace: {
+        // @ts-ignore
         name: namespaceName
       }
     },
@@ -74,9 +80,9 @@ export async function getServerSideProps(context) {
     include: {
       namespace: true
     }
-  })
+  }) as Project & { namespace: Namespace }
 
-  if(!project) {
+  if (!project) {
     return {
       redirect: {
         destination: "/404",
@@ -106,10 +112,7 @@ export async function getServerSideProps(context) {
       }
     })
 
-    console.log("isMember ", isMember)
-
-
-    if(!isMember) {
+    if (!isMember) {
       // If the project belongs to an organization, then check if they are apart of that organization
       if (project.namespace.organizationId) {
         const isOrganizationMember = await prisma.member.findFirst({
@@ -135,7 +138,7 @@ export async function getServerSideProps(context) {
       }
     }
 
-    if(!isMember) {
+    if (!isMember) {
       return {
         redirect: {
           destination: "/404",
@@ -158,11 +161,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      issuesData: issuesData.map((issue) => ({
-        ...issue,
-        createdAt: issue.createdAt.toISOString(),
-        updatedAt: issue.updatedAt.toISOString()
-      }))
+      data: issuesData
     }
   }
 }

@@ -1,11 +1,10 @@
 import prisma from "@/lib/prisma/prisma"
-
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
+import { getServerSession } from "@/lib/sessions"
 
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
+import { NextApiRequest, NextApiResponse } from "next"
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { namespaceName, projectName } = req.query
 
   if (req.method === "POST") {
@@ -18,13 +17,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Invalid name" })
     }
 
-    const session = await getServerSession(req, res, authOptions(req, res))
+    const session = await getServerSession(req, res)
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }
 
     const foundNamespace = await prisma.namespace.findUnique({
       where: {
+        // @ts-ignore
         name: namespaceName
       }
     })
@@ -37,6 +37,7 @@ export default async function handler(req, res) {
 
     const foundProject = await prisma.project.findFirst({
       where: {
+        // @ts-ignore
         name: projectName,
         namespaceId: foundNamespace.id
       }
@@ -88,7 +89,7 @@ export default async function handler(req, res) {
 
     console.log("invite id", inviteId)
 
-    const session = await getServerSession(req, res, authOptions(req, res))
+    const session = await getServerSession(req, res)
     if (!session) {
       return res.status(400).json({ error: "Invalid session" })
     }

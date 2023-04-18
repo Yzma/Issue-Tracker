@@ -2,20 +2,19 @@ import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
+import Header from "@/components/Header"
+import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+
 import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
 import { Formik, Form, Field } from "formik"
 
-import Header from "@/components/Header"
-
 import axios from "axios"
-import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
 
-export default function OrganizationInvitation(props) {
+export default function ProjectInvites() {
   const router = useRouter()
-  const { organizationName } = router.query
-  const [response, setResponse] = useState({})
-  console.log(props)
+  const { namespaceName, projectName } = router.query
 
+  const [response, setResponse] = useState<{error?: string, success?: string}>({})
   return (
     <>
       <Head>
@@ -24,12 +23,14 @@ export default function OrganizationInvitation(props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
       <div className="flex h-screen overflow-hidden">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <Header />
-          <OrganizationBelowNavbar
-            namespaceName={organizationName}
-            selected={"invite"}
+          <ProjectBelowNavbar
+            namespaceName={namespaceName}
+            projectName={projectName}
+            selected={"invites"}
           />
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
@@ -39,13 +40,15 @@ export default function OrganizationInvitation(props) {
                     <div className="p-6 space-y-6">
                       <section>
                         <h2 className="text-3xl leading-snug text-slate-800 font-bold mb-1">
-                          Invite a user to join {organizationName}
+                          Invite a user to join {projectName}
                         </h2>
                         <div className="">
                           <Formik
                             initialValues={{
                               name: ""
                             }}
+                            validateOnChange={false}
+                            validateOnBlur={false}
                             validationSchema={NamespaceNameCreationSchema}
                             onSubmit={(
                               values,
@@ -53,10 +56,10 @@ export default function OrganizationInvitation(props) {
                             ) => {
                               axios
                                 .post(
-                                  `/api/organization/${organizationName}/invites`,
+                                  `/api/${namespaceName}/${projectName}/invites`,
                                   {
                                     name: values.name,
-                                    role: values.role
+                                    // role: values.role // TODO: Assign role when inviting
                                   }
                                 )
                                 .then((response) => {
@@ -69,10 +72,17 @@ export default function OrganizationInvitation(props) {
                                 })
                                 .catch((error) => {
                                   console.log("ERROR:", error.response.data)
-                                  console.log("ERROR:", error)
-                                  setResponse({
-                                    error: "That user does not exist!"
-                                  })
+                                  console.log("ERROR:", error.response.data.error)
+                                  if(error.response.data.error === 'P2002') {
+                                    setResponse({
+                                      error: "That user was already invited!"
+                                    })
+                                  } else {
+                                    setResponse({
+                                      error: "That user does not exist"
+                                    })
+                                  }
+     
                                 })
                                 .finally(() => {
                                   setSubmitting(false)
@@ -83,10 +93,11 @@ export default function OrganizationInvitation(props) {
                               values,
                               errors,
                               isSubmitting,
+                              touched,
                               setFieldError
                             }) => (
                               <Form
-                                onChange={() => setFieldError("name", false)}
+                                onChange={() => setFieldError("name", undefined)}
                               >
                                 {response && response.error && (
                                   <div className="py-3">
@@ -139,6 +150,10 @@ export default function OrganizationInvitation(props) {
                                     </Field>
                                   </div>
                                 </section>
+
+                                {/* {errors.name && (
+                                  <div>Name errors:{errors.name}</div>
+                                )} */}
 
                                 <hr />
 

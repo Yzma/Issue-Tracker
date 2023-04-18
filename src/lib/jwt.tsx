@@ -13,9 +13,9 @@ export function generateToken(payload: object | string | Buffer, options: SignOp
   })
 }
 
-export function decodeToken(token: string): Promise<string | jwt.JwtPayload> {
+export function decodeToken(token: string): Promise<jwt.JwtPayload> {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, process.env.NEXTAUTH_SECRET, (err: Error, decoded: any) => {
+    jwt.verify(token, process.env.NEXTAUTH_SECRET, { complete: true }, (err: Error, decoded: jwt.JwtPayload) => {
       if (err) {
         return reject(err)
       }
