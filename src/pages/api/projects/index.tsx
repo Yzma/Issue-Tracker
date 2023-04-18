@@ -1,10 +1,11 @@
-import prisma from "@/lib/prisma/prisma"
-
-import { getServerSession } from "@/lib/sessions"
-
 import { ProjectCreationSchema } from "@/lib/yup-schemas"
 
-export default async function handler(req, res) {
+import prisma from "@/lib/prisma/prisma"
+import { getServerSession } from "@/lib/sessions"
+
+import { NextApiRequest, NextApiResponse } from "next"
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     const { name, description, private: isPrivate, owner } = req.body
 
@@ -42,10 +43,7 @@ export default async function handler(req, res) {
 
     if (namespaceOwner.userId) {
       // TODO: Look to improve readability here
-      if (
-        namespaceOwner.name != session.namespace &&
-        namespaceOwner.userId != session.user.id
-      ) {
+      if (namespaceOwner.userId != session.user.id) {
         return res
           .status(400)
           .json({ error: "User is not who they say they are" })
