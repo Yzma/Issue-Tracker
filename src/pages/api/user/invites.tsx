@@ -87,6 +87,7 @@ async function acceptInvite(inviteId, sessionId) {
       throw new Error(`The correct user isn't accepting the invite`)
     }
 
+    // deletedInvitation < 0
     if (!deletedInvitation) {
       throw new Error(`No invitations were deleted`)
     }
