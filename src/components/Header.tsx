@@ -105,6 +105,12 @@ const Header = () => {
                           </DropdownMenu.Item>
                         </Link>
 
+                        <Link href={`/invites`}>
+                          <DropdownMenu.Item className="group text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1">
+                            Your Invites
+                          </DropdownMenu.Item>
+                        </Link>
+
                         <DropdownMenu.Separator className="h-[1px] bg-violet6 m-[5px]" />
 
                         <Link href="/settings">
