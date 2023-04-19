@@ -71,7 +71,7 @@ export default function SettingsPage() {
                             <input id="name" className="form-input w-full" type="text" />
                           </div>
                           <div className="sm:w-1/3">
-                            <button className="btn">Rename</button>
+                            <button className="btn-xs h-8 shrink bg-gray-500 hover:bg-gray-600 text-white">Rename</button>
                           </div>
                         </div>
                       </section>
@@ -88,7 +88,7 @@ export default function SettingsPage() {
                               </div>
                               {/* Right */}
                               <div className="flex items-center ml-4">
-                                <button className="btn">Change Visibility</button>
+                                <button className="btn-sm h-8 shrink bg-gray-500 hover:bg-gray-600 text-white">Change Visibility</button>
                               </div>
                             </li>
                             <li className="flex justify-between items-center py-3 border-b border-slate-200 px-2">
@@ -99,7 +99,7 @@ export default function SettingsPage() {
                               </div>
                               {/* Right */}
                               <div className="flex items-center ml-4">
-                                <button className="btn" disabled>Transfer (Coming Soon)</button>
+                                <button className="btn-sm h-8 shrink bg-gray-500 hover:bg-gray-600 text-white" disabled>Transfer (Coming Soon)</button>
                               </div>
                             </li>
                             <li className="flex justify-between items-center py-3 border-b border-slate-200 px-2">
@@ -110,7 +110,7 @@ export default function SettingsPage() {
                               </div>
                               {/* Right */}
                               <div className="flex items-center ml-4">
-                                <button className="btn">Delete this Project</button>
+                                <button className="btn-sm h-8 shrink bg-gray-500 hover:bg-gray-600 text-white">Delete this Project</button>
                               </div>
                             </li>
                           </ul>
