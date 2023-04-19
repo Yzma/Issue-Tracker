@@ -6,6 +6,7 @@ import {
   faTag,
   faEnvelope,
   faUserGroup,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons"
 
 const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
@@ -58,6 +59,16 @@ const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
         >
           <div>
             <FontAwesomeIcon icon={faEnvelope} />
+          </div>
+          <div className="pl-2">Invites</div>
+        </BelowNavbar.MenuListItem>
+
+        <BelowNavbar.MenuListItem
+          id={"settings"}
+          href={`/${namespaceName}/${projectName}/settings`}
+        >
+          <div>
+            <FontAwesomeIcon icon={faGear} />
           </div>
           <div className="pl-2">Invites</div>
         </BelowNavbar.MenuListItem>
