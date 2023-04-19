@@ -8,10 +8,20 @@ import Header from "@/components/Header"
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
 
 import { useSession } from "next-auth/react"
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+import prisma from "@/lib/prisma/prisma"
+import { useState } from "react"
 
-export default function SettingsPage() {
+type Project = {
+  id: string
+  name: string
+  private: boolean
+}
+
+export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
+  const [project, setProject] = useState<Project>(data)
 
   const { data: session } = useSession()
 
@@ -35,9 +45,7 @@ export default function SettingsPage() {
           <main>
             <Formik
               initialValues={{
-                name: "",
-                description: "",
-                labels: []
+                name: data.name
               }}
               validationSchema={IssueCreationSchema}
               validateOnChange={false}
@@ -68,7 +76,7 @@ export default function SettingsPage() {
                         <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-5">
                           <div className="sm:w-1/3">
                             <label className="block text-sm font-medium mb-1" htmlFor="name">Project Name</label>
-                            <input id="name" className="form-input w-full" type="text" />
+                            <input id="name" className="form-input w-full" type="text" value={data.name}/>
                           </div>
                           <div className="sm:w-1/3">
                             <button className="btn-xs h-8 shrink bg-gray-500 hover:bg-gray-600 text-white">Rename</button>
@@ -84,7 +92,7 @@ export default function SettingsPage() {
                               {/* Left */}
                               <div>
                                 <div className="text-slate-800 font-semibold">Change project visibility</div>
-                                <div className="text-sm">This project is currently public</div>
+                                <div className="text-sm">This project is currently {data.private ? <>private</> : <>public</>}</div>
                               </div>
                               {/* Right */}
                               <div className="flex items-center ml-4">
@@ -126,4 +134,41 @@ export default function SettingsPage() {
       </div>
     </>
   )
+}
+
+
+export const getServerSideProps: GetServerSideProps<{ data: Project }> = async (context) => {
+  const { namespaceName, projectName } = context.query
+
+  const project = await prisma.project.findFirst({
+    where: {
+      // @ts-ignore
+      name: projectName,
+      namespace: {
+        // @ts-ignore
+        name: namespaceName
+      }
+    },
+
+    select: {
+      id: true,
+      name: true,
+      private: true,
+    }
+  })
+
+  if(!project) {
+    return {
+      redirect: {
+        destination: "/404",
+        permanent: false
+      }
+    }
+  }
+
+  return {
+    props: {
+      data: project
+    }
+  }
 }
