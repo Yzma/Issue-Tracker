@@ -1,3 +1,4 @@
+import { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 
@@ -8,9 +9,10 @@ import Header from "@/components/Header"
 import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
 
 import { useSession } from "next-auth/react"
-import { GetServerSideProps, InferGetServerSidePropsType } from "next"
 import prisma from "@/lib/prisma/prisma"
-import { useState } from "react"
+
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+import axios from "axios"
 
 type Project = {
   id: string
@@ -39,19 +41,37 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
           <Header />
           <ProjectBelowNavbar
             namespaceName={namespaceName}
-            projectName={projectName}
+            projectName={project.name}
             selected={"settings"}
           />
           <main>
             <Formik
               initialValues={{
-                name: data.name
+                name: project.name
               }}
-              validationSchema={IssueCreationSchema}
+              // validationSchema={IssueCreationSchema}
               validateOnChange={false}
               validateOnBlur={false}
               onSubmit={(values, { setSubmitting, setFieldError }) => {
-               
+                axios
+                  .put(`/api/${namespaceName}/${projectName}/`, {
+                    name: values.name
+                  })
+                  .then((response) => {
+                    console.log("RESPONSE:", response)
+                    console.log("id: ", response.data.result.id)
+                    setProject((prevState) => ({
+                      ...prevState,
+                      name: values.name
+                    }))
+                  })
+                  .catch((error) => {
+                    console.log("ERROR:", error.response.data)
+                    console.log("ERROR:", error)
+                  })
+                  .finally(() => {
+                    setSubmitting(false)
+                  })
               }}
             >
               {({
@@ -76,7 +96,19 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
                         <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-5">
                           <div className="sm:w-1/3">
                             <label className="block text-sm font-medium mb-1" htmlFor="name">Project Name</label>
-                            <input id="name" className="form-input w-full" type="text" value={data.name}/>
+                            <Field name="name">
+                              {({
+                                field,
+                                meta
+                              }) => (
+                                <div>
+                                  <input className="form-input w-full" type="text" placeholder={data.name} {...field} />
+                                  {meta.touched && meta.error && (
+                                    <div className="error">{meta.error}</div>
+                                  )}
+                                </div>
+                              )}
+                            </Field>
                           </div>
                           <div className="sm:w-1/3">
                             <button className="btn-xs h-8 shrink bg-gray-500 hover:bg-gray-600 text-white">Rename</button>
@@ -92,7 +124,7 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
                               {/* Left */}
                               <div>
                                 <div className="text-slate-800 font-semibold">Change project visibility</div>
-                                <div className="text-sm">This project is currently {data.private ? <>private</> : <>public</>}</div>
+                                <div className="text-sm">This project is currently {project.private ? <>private</> : <>public</>}</div>
                               </div>
                               {/* Right */}
                               <div className="flex items-center ml-4">
