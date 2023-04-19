@@ -70,7 +70,7 @@ const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
           <div>
             <FontAwesomeIcon icon={faGear} />
           </div>
-          <div className="pl-2">Invites</div>
+          <div className="pl-2">Settings</div>
         </BelowNavbar.MenuListItem>
         
       </BelowNavbar.MenuList>
