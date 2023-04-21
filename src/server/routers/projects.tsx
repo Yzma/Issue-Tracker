@@ -1,6 +1,6 @@
 
 import { TRPCError } from "@trpc/server"
-import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
+import { createTRPCRouter, optionalAuthedProcedure, privateProcedure, publicProcedure } from "../trpc"
 import { z } from "zod"
 import { OrganizationRole } from "@prisma/client"
 
@@ -90,5 +90,80 @@ export const projectsRouter = createTRPCRouter({
             }
           }
         })
+    }),
+
+  getProject: optionalAuthedProcedure
+    .input(z.object({
+      name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
+      namespaceName: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX) // TODO: Move this into separate schema
+    }))
+    .query(async ({ ctx, input }) => {
+
+      const foundProject = await ctx.prisma.project.findFirst({
+        where: {
+          name: input.name,
+          AND: [{
+            namespace: {
+              name: input.namespaceName
+            }
+          }]
+        },
+        include: {
+          namespace: true
+        }
+      })
+
+      if (!foundProject) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `The provided Project was not found.`,
+        })
+      }
+
+      if (foundProject.private) {
+        // If the user isn't logged in, there is no way to check if they have permission
+        if (ctx.session === undefined) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `The provided Project was not found.`,
+          })
+        }
+
+        // Check if the owner user of the project is viewing the project
+        if (ctx.session.user?.namespace.id === foundProject.namespaceId) {
+          return foundProject
+        }
+
+        // Conditions:
+        // 1. The user is a part of the project (manually invited)
+        // 2. The user is a part of the same organization that owns the project
+
+        const searchCondition = foundProject.namespace.organizationId ? 
+        {
+          organizationId: foundProject.namespace.organizationId
+        } 
+        :
+        {
+          projectId: foundProject.id
+        }
+
+        const foundMember = await ctx.prisma.member.findFirst({
+          where: {
+            // @ts-ignore
+            userId: ctx.session.user.id,
+            ...searchCondition
+          }
+        })
+
+        if(!foundMember) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `The provided Project was not found.`,
+          })
+        }
+      }
+
+      // The project is public or user has permission
+      return foundProject
     })
 })
