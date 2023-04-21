@@ -135,21 +135,23 @@ export const projectsRouter = createTRPCRouter({
         }
 
         // Conditions:
-        // 1. The user is a part of the project (manually invited)
-        // 2. The user is a part of the same organization that owns the project
+        // 1. The user is a part of the same organization that owns the project
+        // 2. The user is a part of the project (manually invited)
 
         const searchCondition = foundProject.namespace.organizationId ? 
+        // Condition 1 - The user is a part of the same organization that owns the project
         {
           organizationId: foundProject.namespace.organizationId
         } 
         :
+        // Condition 2 - A part of the Project by invite
         {
           projectId: foundProject.id
         }
 
         const foundMember = await ctx.prisma.member.findFirst({
           where: {
-            // @ts-ignore
+            // @ts-ignore - Were checking if user is null already (TODO)
             userId: ctx.session.user.id,
             ...searchCondition
           }
