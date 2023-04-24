@@ -8,17 +8,23 @@ const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
 
 const commonProjectSchema = z.object({
   owner: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-  name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
+  project: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
+});
+
+const projectSettingsSchema = z.object({
+  name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX), // TODO: Could we use the 'name' value from commonProjectSchema?
+  description: z.string().max(75),
+  private: z.boolean()
 });
 
 const getViewableProject = publicProcedure.input(commonProjectSchema).use(async ({ ctx, input, next }) => {
 
   const foundProject = await ctx.prisma.project.findFirst({
     where: {
-      name: input.name,
+      name: input.project,
       AND: [{
         namespace: {
-          name: input.name
+          name: input.project
         }
       }]
     },
@@ -95,7 +101,7 @@ export const projectsRouter = createTRPCRouter({
       description: z.string().max(75).optional(),
       private: z.boolean().optional().default(false),
       namespaceName: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX) // TODO: Move this into separate schema
-    })).mutation(async ({ctx, input }) => {
+    })).mutation(async ({ ctx, input }) => {
 
       const foundNamespace = await ctx.prisma.namespace.findUnique({
         where: {
@@ -173,89 +179,26 @@ export const projectsRouter = createTRPCRouter({
         })
     }),
 
-  sendInvitation: privateProcedure.input(z.object({
-    projectName: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-    namespaceName: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX), // TODO: Move this into separate schema
-    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-  })).mutation(async ({ ctx, input }) => {
-    
-  }),
-
-  // TODO: Split logic into separate functions
-  getProject: optionalAuthedProcedure
-    .input(z.object({
-      name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-      namespaceName: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX) // TODO: Move this into separate schema
-    }))
-    .query(async ({ ctx, input }) => {
-
-      const foundProject = await ctx.prisma.project.findFirst({
+  updateProject: getViewableProject.input(commonProjectSchema.and(projectSettingsSchema.optional())).mutation(async ({ ctx, input }) => {
+    await ctx.prisma.project
+      .update({
         where: {
-          name: input.name,
-          AND: [{
-            namespace: {
-              name: input.namespaceName
-            }
-          }]
+          id: ctx.project.id
         },
-        include: {
-          namespace: true
+        data: {
+          name: input.name,
+          description: input.description,
+          private: input.private,
         }
       })
+  }),
 
-      if (!foundProject) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `The provided Project was not found.`,
-        })
-      }
+  sendInvitation: privateProcedure.input(commonProjectSchema.extend({
+    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
+  })).mutation(async ({ ctx, input }) => {
 
-      if (foundProject.private) {
-        // If the user isn't logged in, there is no way to check if they have permission
-        if (ctx.session === undefined) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: `The provided Project was not found.`,
-          })
-        }
+  }),
 
-        // Check if the owner user of the project is viewing the project
-        if (ctx.session.user?.namespace.id === foundProject.namespaceId) {
-          return foundProject
-        }
-
-        // Conditions:
-        // 1. The user is a part of the same organization that owns the project
-        // 2. The user is a part of the project (manually invited)
-
-        const searchCondition = foundProject.namespace.organizationId ? 
-        // Condition 1 - The user is a part of the same organization that owns the project
-        {
-          organizationId: foundProject.namespace.organizationId
-        } 
-        :
-        // Condition 2 - A part of the Project by invite
-        {
-          projectId: foundProject.id
-        }
-
-        const foundMember = await ctx.prisma.member.findFirst({
-          where: {
-            // @ts-ignore - Were checking if user is null already (TODO)
-            userId: ctx.session.user.id,
-            ...searchCondition
-          }
-        })
-
-        if(!foundMember) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: `The provided Project was not found.`,
-          })
-        }
-      }
-
-      // The project is public or user has permission
-      return foundProject
-    })
+  // getViewableProject returns the project if the user has permission to view it
+  getProject: getViewableProject.query(async ({ ctx }) => ctx.project)
 })
