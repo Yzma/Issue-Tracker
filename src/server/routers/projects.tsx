@@ -326,26 +326,6 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  // return await prisma.project
-  // .update({
-  //   where: {
-  //     namespaceId_name: {
-  //       // @ts-ignore
-  //       name: projectName,
-  //       namespaceId: foundNamespace.id
-  //     }
-  //   },
-  //   data: {
-  //     labels: {
-  //       create: {
-  //         name,
-  //         description,
-  //         color
-  //       }
-  //     }
-  //   }
-  // })
-
   createLabel: getViewableProject.input(z.object({
     name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
     description: z.string().max(75),
@@ -389,11 +369,3 @@ export const projectsRouter = createTRPCRouter({
     })
   })
 })
-
-/*
-  ROUTES TODO:
-
-  Create Lable
-  Update label
-*/
-
