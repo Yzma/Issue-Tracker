@@ -180,7 +180,7 @@ export const projectsRouter = createTRPCRouter({
     }),
 
   updateProject: getViewableProject.input(commonProjectSchema.and(projectSettingsSchema.optional())).mutation(async ({ ctx, input }) => {
-    await ctx.prisma.project
+    return await ctx.prisma.project
       .update({
         where: {
           id: ctx.project.id
@@ -203,11 +203,14 @@ export const projectsRouter = createTRPCRouter({
   // getViewableProject returns the project if the user has permission to view it
   getProject: getViewableProject.query(async ({ ctx }) => ctx.project),
 
-  // Issues
+  /*
+    Issues
+  */
+
   getAllIssues: getViewableProject.input(z.object({
     limit: z.number().int().max(25).default(15)
   })).query(async ({ ctx, input }) => {
-    await ctx.prisma.issue
+    return await ctx.prisma.issue
       .findMany({
         where: {
           projectId: ctx.project.id,
@@ -216,11 +219,28 @@ export const projectsRouter = createTRPCRouter({
       })
   }),
 
+  createIssue: getViewableProject.input(z.object({
+    title: z.string().min(1).max(150),
+    description: z.string().min(1).max(2048)
+    // TODO: Labels
+  })).query(async ({ ctx, input }) => {
+    return await prisma.issue
+      .create({
+        data: {
+          title: input.title,
+          description: input.description,
+          userId: ctx.session?.user.id,
+          projectId: ctx.project.id,
+          // TODO: Add labels when creating issue
+          // labels: {
+          //   connect: mapped
+          // }
+        }
+      })
+  }),
+
   /*
     ROUTES TODO:
-
-    getIssues - Returns all issues
-    createIssue - Create new issue
     updateIssue
 
     getLabels
