@@ -193,12 +193,41 @@ export const projectsRouter = createTRPCRouter({
       })
   }),
 
-  sendInvitation: privateProcedure.input(commonProjectSchema.extend({
-    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-  })).mutation(async ({ ctx, input }) => {
+  // TODO: Move invitations to own router
+  // sendInvitation: privateProcedure.input(commonProjectSchema.extend({
+  //   username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
+  // })).mutation(async ({ ctx, input }) => {
 
-  }),
+  // }),
 
   // getViewableProject returns the project if the user has permission to view it
-  getProject: getViewableProject.query(async ({ ctx }) => ctx.project)
+  getProject: getViewableProject.query(async ({ ctx }) => ctx.project),
+
+  // Issues
+  getAllIssues: getViewableProject.input(z.object({
+    limit: z.number().int().max(25).default(15)
+  })).query(async ({ ctx, input }) => {
+    await ctx.prisma.issue
+      .findMany({
+        where: {
+          projectId: ctx.project.id,
+        },
+        take: input.limit
+      })
+  }),
+
+  /*
+    ROUTES TODO:
+
+    getIssues - Returns all issues
+    createIssue - Create new issue
+    updateIssue
+
+    getLabels
+    Create Lable
+    Update label
+
+    getMembers
+    removeMember
+  */
 })
