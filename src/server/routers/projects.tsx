@@ -281,6 +281,8 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
+  // TODO: The members implementation side will be finished when the changes to the prisma schema are made
+
   // inviteMember: getViewableProject.input(z.object({
   //   username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
   // })).mutation(async ({ ctx, input }) => {
@@ -309,6 +311,20 @@ export const projectsRouter = createTRPCRouter({
 
   // removeMember: getViewableProject.query(async ({ ctx }) => ctx.project),
 
+  /*
+    Labels
+  */
+
+  getLabels: getViewableProject.input(z.object({
+    limit: z.number().int().max(25).default(15)
+  })).query(async ({ ctx, input }) => {
+    return await ctx.prisma.label.findMany({
+      where: {
+        projectId: ctx.project.id
+      },
+      take: input.limit
+    })
+  }),
 
 })
 
@@ -318,8 +334,5 @@ export const projectsRouter = createTRPCRouter({
   getLabels
   Create Lable
   Update label
-
-  inviteMember
-  removeMember
 */
 
