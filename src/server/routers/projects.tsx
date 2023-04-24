@@ -262,13 +262,28 @@ export const projectsRouter = createTRPCRouter({
   }),
 
   /*
+    Members
+  */
+
+  getMembers: getViewableProject.input(z.object({
+    limit: z.number().int().max(25).default(15)
+  })).query(async ({ ctx, input }) => {
+    return await ctx.prisma.member.findMany({
+      where: {
+        projectId: ctx.project.id 
+      },
+      take: input.limit
+    })
+  }),
+
+  /*
     ROUTES TODO:
 
     getLabels
     Create Lable
     Update label
 
-    getMembers
+    addMember
     removeMember
   */
 })
