@@ -326,12 +326,73 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
+  // return await prisma.project
+  // .update({
+  //   where: {
+  //     namespaceId_name: {
+  //       // @ts-ignore
+  //       name: projectName,
+  //       namespaceId: foundNamespace.id
+  //     }
+  //   },
+  //   data: {
+  //     labels: {
+  //       create: {
+  //         name,
+  //         description,
+  //         color
+  //       }
+  //     }
+  //   }
+  // })
+
+  createLabel: getViewableProject.input(z.object({
+    name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
+    description: z.string().max(75),
+    color: z.string().length(6)
+  })).query(async ({ ctx, input }) => {
+    return await ctx.prisma.label.create({
+      data: {
+        name: input.name,
+        description: input.description,
+        color: input.color,
+        projectId: ctx.project.id
+      }
+    })
+  }),
+
+  updateLabel: getViewableProject.input(z.object({
+    labelId: z.string(), // TODO: Verify ID
+    name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
+    description: z.string().max(75),
+    color: z.string().length(6)
+  })).query(async ({ ctx, input }) => {
+    return await ctx.prisma.label.update({
+      where: {
+        id: ctx.project.id
+      },
+      data: {
+        name: input.name,
+        description: input.description,
+        color: input.color,
+      }
+    })
+  }),
+
+  removeLabel: getViewableProject.input(z.object({
+    labelId: z.string(), // TODO: Verify ID
+  })).query(async ({ ctx, input }) => {
+    return await ctx.prisma.label.delete({
+      where: {
+        id: ctx.project.id
+      }
+    })
+  })
 })
 
 /*
   ROUTES TODO:
 
-  getLabels
   Create Lable
   Update label
 */
