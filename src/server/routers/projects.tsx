@@ -276,6 +276,35 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
+  addMember: getViewableProject.input(z.object({
+    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
+  })).mutation(async ({ ctx, input }) => {
+    await ctx.prisma.memberInvitation
+      .create({
+        data: {
+          role: OrganizationRole.Admin,
+          invitedUser: {
+            connect: {
+              username: input.username
+            }
+          },
+          inviteeUser: {
+            connect: {
+              id: ctx.session?.user.id
+            }
+          },
+          project: {
+            connect: {
+              id: ctx.project.id
+            }
+          }
+        }
+      })
+    })
+  })
+
+
+
   /*
     ROUTES TODO:
 
@@ -283,7 +312,6 @@ export const projectsRouter = createTRPCRouter({
     Create Lable
     Update label
 
-    addMember
     removeMember
   */
-})
+
