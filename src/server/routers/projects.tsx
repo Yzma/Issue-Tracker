@@ -179,6 +179,7 @@ export const projectsRouter = createTRPCRouter({
         })
     }),
 
+  // TODO: getViewableProject is using publicProcedure so anyone who "has" permission to view the project can also update it
   updateProject: getViewableProject.input(commonProjectSchema.and(projectSettingsSchema.optional())).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.project
       .update({
@@ -224,10 +225,10 @@ export const projectsRouter = createTRPCRouter({
     description: z.string().min(1).max(2048)
     // TODO: Labels
   })).query(async ({ ctx, input }) => {
-    return await prisma.issue
+    return await ctx.prisma.issue
       .create({
         data: {
-          title: input.title,
+          name: input.title,
           description: input.description,
           userId: ctx.session?.user.id,
           projectId: ctx.project.id,
@@ -239,9 +240,29 @@ export const projectsRouter = createTRPCRouter({
       })
   }),
 
+  updateIssue: getViewableProject.input(z.object({
+    issueId: z.string().max(50), // TODO: Lower this
+    title: z.string().min(1).max(150),
+    description: z.string().min(1).max(2048)
+    // TODO: Labels
+  })).query(async ({ ctx, input }) => {
+    return await ctx.prisma.issue.update({
+      where: {
+        id: input.issueId
+      },
+      data: {
+        name: input.title,
+        description: input.description,
+        // TODO: Add labels when creating issue
+        // labels: {
+        //   connect: mapped
+        // }
+      }
+    })
+  }),
+
   /*
     ROUTES TODO:
-    updateIssue
 
     getLabels
     Create Lable
