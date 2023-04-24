@@ -266,52 +266,60 @@ export const projectsRouter = createTRPCRouter({
   */
 
   getMembers: getViewableProject.input(z.object({
-    limit: z.number().int().max(25).default(15)
+    limit: z.number().int().max(25).default(15),
+    affiliation: z.union([
+      z.literal('outside'),
+      z.literal('direct'),
+      z.literal('all')
+    ])
   })).query(async ({ ctx, input }) => {
     return await ctx.prisma.member.findMany({
       where: {
-        projectId: ctx.project.id 
+        projectId: ctx.project.id
       },
       take: input.limit
     })
   }),
 
-  addMember: getViewableProject.input(z.object({
-    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-  })).mutation(async ({ ctx, input }) => {
-    await ctx.prisma.memberInvitation
-      .create({
-        data: {
-          role: OrganizationRole.Admin,
-          invitedUser: {
-            connect: {
-              username: input.username
-            }
-          },
-          inviteeUser: {
-            connect: {
-              id: ctx.session?.user.id
-            }
-          },
-          project: {
-            connect: {
-              id: ctx.project.id
-            }
-          }
-        }
-      })
-    })
-  })
+  // inviteMember: getViewableProject.input(z.object({
+  //   username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
+  // })).mutation(async ({ ctx, input }) => {
+  //   await ctx.prisma.memberInvitation
+  //     .create({
+  //       data: {
+  //         role: OrganizationRole.Admin,
+  //         invitedUser: {
+  //           connect: {
+  //             username: input.username
+  //           }
+  //         },
+  //         inviteeUser: {
+  //           connect: {
+  //             id: ctx.session?.user.id
+  //           }
+  //         },
+  //         project: {
+  //           connect: {
+  //             id: ctx.project.id
+  //           }
+  //         }
+  //       }
+  //     })
+  // }),
+
+  // removeMember: getViewableProject.query(async ({ ctx }) => ctx.project),
 
 
+})
 
-  /*
-    ROUTES TODO:
+/*
+  ROUTES TODO:
 
-    getLabels
-    Create Lable
-    Update label
+  getLabels
+  Create Lable
+  Update label
 
-    removeMember
-  */
+  inviteMember
+  removeMember
+*/
 
