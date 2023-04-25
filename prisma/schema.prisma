@@ -79,6 +79,8 @@ model Namespace {
   projects Project[]
 }
 
+// Note: 20230425221550_member_has_org_or_project:
+// This ensures that 'userId' or 'projectId' must be set. A row with both fields set or non set cannot exsist in the table.
 model Member {
   id String @id @default(cuid())
 
