@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["extendedWhereUnique"]
+  previewFeatures = ["extendedWhereUnique", "jsonProtocol"]
 }
 
 datasource db {
@@ -107,10 +107,6 @@ model MemberInvitation {
   @@unique([invitedId, projectId])
 }
 
-// TODO: This is likely going to be a major change.
-// Essentially we want to merge the OrganizationMember table and transform it into a generic Member table (like below)
-// This allows us to have Members for both an Organization and a Project
-// This will be a slow merged as we need to go throughout the code and change things.
 model Member {
   id String @id @default(cuid())
 
