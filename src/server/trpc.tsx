@@ -11,7 +11,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
   // Get the session from the server using the unstable_getServerSession wrapper function
-  const session = await getServerSession(req, res );
+  const session = await getServerSession(req, res);
 
   return {
     prisma,
@@ -59,6 +59,19 @@ const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
     },
   });
 });
+
+// TODO: Merge into one function
+const optionalUserIsAuthed = t.middleware(async ({ ctx, next }) => {
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session?.user },
+    },
+  });
+});
+
+export const optionalAuthedProcedure = t.procedure.use(optionalUserIsAuthed);
+
 
 export const privateProcedure = t.procedure.use(enforceUserIsAuthed);
 

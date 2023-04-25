@@ -1,8 +1,8 @@
 import { createTRPCRouter } from './trpc';
-import { profileRouter } from "./routers/profile";
+import { projectsRouter } from "./routers/projects";
  
 export const appRouter = createTRPCRouter({
-  profile: profileRouter
+  projects: projectsRouter
 });
 
 // Export type router type signature,
