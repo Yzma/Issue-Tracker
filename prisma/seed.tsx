@@ -2,10 +2,9 @@ const { PrismaClient } = require("@prisma/client")
 const prisma = new PrismaClient()
 
 async function main() {
-  // TODO: OrganizationSettings, Comments
 
   // Clear the database
-  await prisma.$queryRaw`TRUNCATE "User", "Account", "Session", "UserSettings", "Organization", "Namespace", "Issue", "Comment", "Project", "Label", "_IssueToLabel", "Member", "MemberInvitation";`
+  await prisma.$queryRaw`TRUNCATE "User", "Account", "Session", "UserSettings", "Organization", "Namespace", "Issue", "Comment", "Project", "Label", "_IssueToLabel", "Member";`
 
   // Users
   const alice = await prisma.user.upsert({
@@ -73,7 +72,7 @@ async function main() {
         name: "AliceOrg",
         userId: alice.id,
         members: {
-          create:[
+          create: [
             { userId: alice.id, role: "Owner" },
             { userId: jim.id, role: "User" }
           ]
@@ -88,18 +87,18 @@ async function main() {
   ])
 
   //MemberInvitation
-  const [deleteInvites, newInvite] = await prisma.$transaction([
-    prisma.memberInvitation.deleteMany({
-      where: { organizationId: aliceOrg.id }
-    }),
-    prisma.memberInvitation.create({
-      data: {
-        invitedId: bob.id,
-        inviteeId: alice.id,
-        organizationId: aliceOrg.id
-      }
-    })
-  ])
+  // const [deleteInvites, newInvite] = await prisma.$transaction([
+  //   prisma.memberInvitation.deleteMany({
+  //     where: { organizationId: aliceOrg.id }
+  //   }),
+  //   prisma.memberInvitation.create({
+  //     data: {
+  //       invitedId: bob.id,
+  //       inviteeId: alice.id,
+  //       organizationId: aliceOrg.id
+  //     }
+  //   })
+  // ])
 
   // Get all namespaces
   const [aliceNamespace, bobNamespace, jimNamespace, aliceOrgNamespace] =
@@ -162,17 +161,17 @@ async function main() {
       namespaceId: aliceOrgNamespace.id,
       labels: {
         create: [
-          { name: "Bug", description: "Bug description", color: "rgb" }, // TODO: Change to proper RGB value
+          { name: "Bug", description: "Bug description", color: "392029" },
           {
             name: "Documentation",
             description: "Documentation description",
-            color: "rgb"
-          }, // TODO: Change to proper RGB value
+            color: "122b40"
+          },
           {
             name: "Duplicate",
             description: "Duplicate description",
-            color: "rgb"
-          } // TODO: Change to proper RGB value
+            color: "373c43"
+          }
         ]
       }
     }
@@ -186,17 +185,17 @@ async function main() {
       namespaceId: bobNamespace.id,
       labels: {
         create: [
-          { name: "Bug", description: "Bug description", color: "rgb" }, // TODO: Change to proper RGB value
+          { name: "Bug", description: "Bug description", color: "392029" },
           {
             name: "Documentation",
             description: "Documentation description",
-            color: "rgb"
-          }, // TODO: Change to proper RGB value
+            color: "122b40"
+          },
           {
             name: "Duplicate",
             description: "Duplicate description",
-            color: "rgb"
-          } // TODO: Change to proper RGB value
+            color: "373c43"
+          }
         ]
       }
     }
@@ -257,8 +256,6 @@ async function main() {
     }
   })
 
-  console.log("aliceOrg:")
-  console.log(aliceOrg)
   console.log()
 }
 
