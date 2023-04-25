@@ -45,16 +45,15 @@ model User {
   comments      Comment[]
   organizations Organization[]
 
-  members Member[]
-
-  memberInvitations        MemberInvitation[] @relation("invited")
-  pendingMemberInvitations MemberInvitation[] @relation("invites")
+  members        Member[] @relation("invites")
+  membersInvited Member[] @relation("invited")
 }
 
 model Organization {
   id String @id @default(cuid())
 
-  name String @unique
+  namespace Namespace?
+  name      String     @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -62,10 +61,7 @@ model Organization {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  namespace Namespace?
-
-  members          Member[]
-  MemberInvitation MemberInvitation[]
+  members Member[]
 }
 
 // Note: 20230319212545_namespace_has_atleast_one_org_or_user:
@@ -83,38 +79,20 @@ model Namespace {
   projects Project[]
 }
 
-model MemberInvitation {
-  id String @id @default(cuid())
-
-  role      OrganizationRole @default(User)
-  createdAt DateTime         @default(now())
-
-  // The user that's being invited
-  invitedId   String
-  invitedUser User   @relation("invited", fields: [invitedId], references: [id])
-
-  // The user that's inviting another user
-  inviteeId   String
-  inviteeUser User   @relation("invites", fields: [inviteeId], references: [id])
-
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-
-  projectId String?
-  project   Project? @relation(fields: [projectId], references: [id])
-
-  @@unique([invitedId, organizationId])
-  @@unique([invitedId, projectId])
-}
-
 model Member {
   id String @id @default(cuid())
 
-  role      OrganizationRole
-  createdAt DateTime         @default(now())
+  role       OrganizationRole
+  createdAt  DateTime         @default(now())
+  acceptedAt DateTime?
 
+  // The user that's being invited
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation("invites", fields: [userId], references: [id])
+
+  // The user that's inviting another user
+  inviteeId   String?
+  inviteeUser User?   @relation("invited", fields: [inviteeId], references: [id])
 
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
@@ -141,8 +119,6 @@ model Project {
   members Member[]
   issues  Issue[]
   labels  Label[]
-
-  MemberInvitation MemberInvitation[]
 
   @@unique([namespaceId, name])
 }
