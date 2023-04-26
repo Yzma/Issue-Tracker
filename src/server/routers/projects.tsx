@@ -60,18 +60,6 @@ const getViewableProject = publicProcedure.input(commonProjectSchema).use(async 
       }
     }
 
-    // @@unique(name: "userId_organizationId", [userId, organizationId])
-    // @@unique(name: "userId_projectId", [userId, projectId])
-
-    // export type MemberUserId_organizationIdCompoundUniqueInput = {
-    //   userId: string
-    //   organizationId: string
-    // }
-  
-    // export type MemberUserId_projectIdCompoundUniqueInput = {
-    //   userId: string
-    //   projectId: string
-    // }
   const foundMember = await ctx.prisma.member.findUnique({
     where: {
       ...searchCondition,
@@ -119,6 +107,7 @@ const ensureUserIsMember = getViewableProject.use(async ({ ctx, input, next }) =
 })
 
 export const projectsRouter = createTRPCRouter({
+  // TODO: This was copy-pasted somewhere - clean this up
   create: privateProcedure
     .input(z.object({
       name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
@@ -218,13 +207,6 @@ export const projectsRouter = createTRPCRouter({
       })
   }),
 
-  // TODO: Move invitations to own router
-  // sendInvitation: privateProcedure.input(commonProjectSchema.extend({
-  //   username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-  // })).mutation(async ({ ctx, input }) => {
-
-  // }),
-
   // getViewableProject returns the project if the user has permission to view it
   getProject: getViewableProject.query(async ({ ctx }) => ctx.project),
 
@@ -299,43 +281,59 @@ export const projectsRouter = createTRPCRouter({
       z.literal('all')
     ])
   })).query(async ({ ctx, input }) => {
+    
+    const affiliation = input.affiliation === "direct" ? 
+    {
+      NOT: {
+        acceptedAt: null
+      }
+    }
+    :
+    {
+      acceptedAt: null
+    }
+
     return await ctx.prisma.member.findMany({
       where: {
-        projectId: ctx.project.id
+        projectId: ctx.project.id,
+        ...affiliation
       },
       take: input.limit
     })
   }),
 
-  // TODO: The members implementation side will be finished when the changes to the prisma schema are made
+  inviteMember: ensureUserIsMember.input(z.object({
+    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
+  })).mutation(async ({ ctx, input }) => {
+    await ctx.prisma.member
+      .create({
+        data: {
+          role: OrganizationRole.User,
+          user: {
+            connect: {
+              username: input.username
+            }
+          },
+          inviteeUser: {
+            connect: {
+              id: ctx.member?.id
+            }
+          },
+          projectId: ctx.project.id 
+        }
+      })
+  }),
 
-  // inviteMember: getViewableProject.input(z.object({
-  //   username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-  // })).mutation(async ({ ctx, input }) => {
-  //   await ctx.prisma.memberInvitation
-  //     .create({
-  //       data: {
-  //         role: OrganizationRole.Admin,
-  //         invitedUser: {
-  //           connect: {
-  //             username: input.username
-  //           }
-  //         },
-  //         inviteeUser: {
-  //           connect: {
-  //             id: ctx.session?.user.id
-  //           }
-  //         },
-  //         project: {
-  //           connect: {
-  //             id: ctx.project.id
-  //           }
-  //         }
-  //       }
-  //     })
-  // }),
-
-  // removeMember: getViewableProject.query(async ({ ctx }) => ctx.project),
+  removeMember: ensureUserIsMember.input(z.object({
+    inviteId: z.string() // TODO: Check invite ID
+  })).mutation(async ({ ctx, input }) => {
+    await ctx.prisma.member
+      .delete({
+        where: {
+          id: input.inviteId
+        }
+      })
+  }),
 
   /*
     Labels
