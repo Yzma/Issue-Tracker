@@ -288,10 +288,12 @@ export const projectsRouter = createTRPCRouter({
         acceptedAt: null
       }
     }
-    :
+    : input.affiliation === "outside" ?
     {
       acceptedAt: null
     }
+    : 
+    {} // Empty - fetch all
 
     return await ctx.prisma.member.findMany({
       where: {
