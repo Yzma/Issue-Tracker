@@ -16,15 +16,6 @@ const profileUpdateSchema = z.object({
 
 export const projectsRouter = createTRPCRouter({
 
-  getProfile: privateProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.user
-      .findUnique({
-        where: {
-          id: ctx.session.user.id
-        }
-      })
-  }),
-
   updateProfile: privateProcedure.input(profileUpdateSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.user
       .update({
