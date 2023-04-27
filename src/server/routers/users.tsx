@@ -55,21 +55,41 @@ export const projectsRouter = createTRPCRouter({
     }),
 
   getInvites: privateProcedure.query(async ({ ctx }) => {
-      return await ctx.prisma.member
-        .findMany({
-          where: {
-            userId: ctx.session.user.id,
-            AND: [
-              {
-                NOT: {
-                  acceptedAt: null
+    return await ctx.prisma.member
+      .findMany({
+        where: {
+          userId: ctx.session.user.id,
+          AND: [
+            {
+              NOT: {
+                acceptedAt: null
+              }
+            }
+          ]
+        }
+      })
+  }),
+
+  getGlobalIssues: privateProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.issue
+      .findMany({
+        where: {
+          userId: ctx.session.user.id
+        },
+        include: {
+          project: {
+            select: {
+              name: true,
+              namespace: {
+                select: {
+                  name: true
                 }
               }
-            ]
+            }
           }
-        })
-    })
-
+        }
+      })
+  })
 })
 
 /*
