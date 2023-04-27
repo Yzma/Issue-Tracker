@@ -15,6 +15,8 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
   return {
     prisma,
+    req,
+    res,
     session
   }
 }
