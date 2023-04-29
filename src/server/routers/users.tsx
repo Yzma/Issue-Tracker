@@ -14,7 +14,7 @@ const profileUpdateSchema = z.object({
   socialLink4: z.string().max(75).optional()
 })
 
-export const projectsRouter = createTRPCRouter({
+export const usersRouter = createTRPCRouter({
 
   updateProfile: privateProcedure.input(profileUpdateSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.user
@@ -74,9 +74,19 @@ export const projectsRouter = createTRPCRouter({
     return await ctx.prisma.issue
       .findMany({
         where: {
-          userId: ctx.session.user.id
+          userId: ctx.session.user.id,
+          open: true
         },
-        include: {
+
+        select: {
+          name: true,
+          createdAt: true,
+          labels: true,
+          user: {
+            select : {
+              username: true
+            }
+          },
           project: {
             select: {
               name: true,
