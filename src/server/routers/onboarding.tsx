@@ -14,7 +14,7 @@ const profileCreationSchema = z.object({
 
 export const projectsRouter = createTRPCRouter({
 
-  submitUsername: publicProcedure.input(profileCreationSchema).query(async ({ ctx, input }) => {
+  submitUsername: publicProcedure.input(profileCreationSchema).mutation(async ({ ctx, input }) => {
     const cookie = ctx.req.cookies[NEW_USER_COOKIE]
 
     if (!cookie) {

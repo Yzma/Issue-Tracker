@@ -230,7 +230,7 @@ export const projectsRouter = createTRPCRouter({
     title: z.string().min(1).max(150),
     description: z.string().min(1).max(2048)
     // TODO: Labels
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.issue
       .create({
         //@ts-ignore - We know user won't be null
@@ -253,7 +253,7 @@ export const projectsRouter = createTRPCRouter({
     title: z.string().min(1).max(150),
     description: z.string().min(1).max(2048)
     // TODO: Labels
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.issue.update({
       where: {
         id: input.issueId
@@ -356,7 +356,7 @@ export const projectsRouter = createTRPCRouter({
     name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
     description: z.string().max(75),
     color: z.string().length(6)
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.create({
       data: {
         name: input.name,
@@ -372,7 +372,7 @@ export const projectsRouter = createTRPCRouter({
     name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
     description: z.string().max(75),
     color: z.string().length(6)
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.update({
       where: {
         id: ctx.project.id
@@ -387,7 +387,7 @@ export const projectsRouter = createTRPCRouter({
 
   removeLabel: ensureUserIsMember.input(z.object({
     labelId: z.string(), // TODO: Verify ID
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.delete({
       where: {
         id: ctx.project.id
