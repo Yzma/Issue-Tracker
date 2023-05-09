@@ -1,6 +1,6 @@
 
 import { TRPCError } from "@trpc/server"
-import { createTRPCRouter, optionalAuthedProcedure, privateProcedure, publicProcedure } from "../trpc"
+import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
 import { z } from "zod"
 import { OrganizationRole } from "@prisma/client"
 
@@ -9,15 +9,15 @@ const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
 const commonProjectSchema = z.object({
   owner: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
   project: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-});
+})
 
 const projectSettingsSchema = z.object({
   name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX), // TODO: Could we use the 'name' value from commonProjectSchema?
   description: z.string().max(75),
   private: z.boolean()
-});
+})
 
-const getViewableProject = publicProcedure.input(commonProjectSchema).use(async ({ ctx, input, next }) => {
+export const getViewableProject = publicProcedure.input(commonProjectSchema).use(async ({ ctx, input, next }) => {
 
   const foundProject = await ctx.prisma.project.findFirst({
     where: {
@@ -40,46 +40,43 @@ const getViewableProject = publicProcedure.input(commonProjectSchema).use(async 
     })
   }
 
-  if (foundProject.private) {
-    // If the user isn't logged in, there is no way to check if they have permission
-    if (ctx.session === null) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: `The provided Project was not found.`,
-      })
-    }
-
-    // Check if the owner user of the project is viewing the project
-    if (ctx.session.user?.namespace.id === foundProject.namespaceId) {
-      return next({
-        ctx: {
-          project: foundProject
-        }
-      });
-    }
-
-    // Conditions:
-    // 1. The user is a part of the same organization that owns the project
-    // 2. The user is a part of the project (manually invited)
-    const searchCondition = foundProject.namespace.organizationId ?
-      // Condition 1 - The user is a part of the same organization that owns the project
-      {
+  // Conditions:
+  // 1. The user is a part of the same organization that owns the project
+  // 2. The user is a part of the project (manually invited)
+  const searchCondition = foundProject.namespace.organizationId ?
+    // Condition 1 - The user is a part of the same organization that owns the project
+    {
+      userId_organizationId: {
+        userId: ctx.session?.user.id,
         organizationId: foundProject.namespace.organizationId
       }
-      :
-      // Condition 2 - A part of the Project by invite
-      {
+    }
+    :
+    // Condition 2 - A part of the Project by invite
+    {
+      userId_projectId: {
+        userId: ctx.session?.user.id,
         projectId: foundProject.id
       }
+    }
 
-    const foundMember = await ctx.prisma.member.findFirst({
-      where: {
-        userId: ctx.session.user.id,
-        ...searchCondition
-      }
-    })
+  const foundMember = await ctx.prisma.member.findUnique({
+    where: {
+      ...searchCondition,
+      AND: [
+        {
+          NOT: {
+            acceptedAt: null
+          }
+        }
+      ]
+    }
+  })
 
-    if (!foundMember) {
+  if (foundProject.private) {
+
+    // If the user isn't logged in or isn't a part of the project, deny them
+    if (ctx.session === null || !foundMember) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: `The provided Project was not found.`,
@@ -89,12 +86,28 @@ const getViewableProject = publicProcedure.input(commonProjectSchema).use(async 
 
   return next({
     ctx: {
-      project: foundProject
+      project: foundProject,
+      member: foundMember
     }
-  });
-});
+  })
+})
+
+export const ensureUserIsMember = getViewableProject.use(async ({ ctx, input, next }) => {
+  if (!ctx.member || ctx.member.role !== OrganizationRole.Owner) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: `The provided Project was not found.`,
+    })
+  }
+  return next({
+    ctx: {
+      ...ctx
+    }
+  })
+})
 
 export const projectsRouter = createTRPCRouter({
+  // TODO: This was copy-pasted somewhere - clean this up
   create: privateProcedure
     .input(z.object({
       name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
@@ -180,7 +193,7 @@ export const projectsRouter = createTRPCRouter({
     }),
 
   // TODO: getViewableProject is using publicProcedure so anyone who "has" permission to view the project can also update it
-  updateProject: getViewableProject.input(commonProjectSchema.and(projectSettingsSchema.optional())).mutation(async ({ ctx, input }) => {
+  updateProject: ensureUserIsMember.input(commonProjectSchema.and(projectSettingsSchema.optional())).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.project
       .update({
         where: {
@@ -193,13 +206,6 @@ export const projectsRouter = createTRPCRouter({
         }
       })
   }),
-
-  // TODO: Move invitations to own router
-  // sendInvitation: privateProcedure.input(commonProjectSchema.extend({
-  //   username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-  // })).mutation(async ({ ctx, input }) => {
-
-  // }),
 
   // getViewableProject returns the project if the user has permission to view it
   getProject: getViewableProject.query(async ({ ctx }) => ctx.project),
@@ -220,13 +226,14 @@ export const projectsRouter = createTRPCRouter({
       })
   }),
 
-  createIssue: getViewableProject.input(z.object({
+  createIssue: ensureUserIsMember.input(z.object({
     title: z.string().min(1).max(150),
     description: z.string().min(1).max(2048)
     // TODO: Labels
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.issue
       .create({
+        //@ts-ignore - We know user won't be null
         data: {
           name: input.title,
           description: input.description,
@@ -240,12 +247,13 @@ export const projectsRouter = createTRPCRouter({
       })
   }),
 
+  // TODO: Check author
   updateIssue: getViewableProject.input(z.object({
     issueId: z.string().max(50), // TODO: Lower this
     title: z.string().min(1).max(150),
     description: z.string().min(1).max(2048)
     // TODO: Labels
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.issue.update({
       where: {
         id: input.issueId
@@ -273,43 +281,61 @@ export const projectsRouter = createTRPCRouter({
       z.literal('all')
     ])
   })).query(async ({ ctx, input }) => {
+    
+    const affiliation = input.affiliation === "direct" ? 
+    {
+      NOT: {
+        acceptedAt: null
+      }
+    }
+    : input.affiliation === "outside" ?
+    {
+      acceptedAt: null
+    }
+    : 
+    {} // Empty - fetch all
+
     return await ctx.prisma.member.findMany({
       where: {
-        projectId: ctx.project.id
+        projectId: ctx.project.id,
+        ...affiliation
       },
       take: input.limit
     })
   }),
 
-  // TODO: The members implementation side will be finished when the changes to the prisma schema are made
+  inviteMember: ensureUserIsMember.input(z.object({
+    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
+  })).mutation(async ({ ctx, input }) => {
+    await ctx.prisma.member
+      .create({
+        data: {
+          role: OrganizationRole.User,
+          user: {
+            connect: {
+              username: input.username
+            }
+          },
+          inviteeUser: {
+            connect: {
+              id: ctx.member?.id
+            }
+          },
+          projectId: ctx.project.id 
+        }
+      })
+  }),
 
-  // inviteMember: getViewableProject.input(z.object({
-  //   username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-  // })).mutation(async ({ ctx, input }) => {
-  //   await ctx.prisma.memberInvitation
-  //     .create({
-  //       data: {
-  //         role: OrganizationRole.Admin,
-  //         invitedUser: {
-  //           connect: {
-  //             username: input.username
-  //           }
-  //         },
-  //         inviteeUser: {
-  //           connect: {
-  //             id: ctx.session?.user.id
-  //           }
-  //         },
-  //         project: {
-  //           connect: {
-  //             id: ctx.project.id
-  //           }
-  //         }
-  //       }
-  //     })
-  // }),
-
-  // removeMember: getViewableProject.query(async ({ ctx }) => ctx.project),
+  removeMember: ensureUserIsMember.input(z.object({
+    inviteId: z.string() // TODO: Check invite ID
+  })).mutation(async ({ ctx, input }) => {
+    await ctx.prisma.member
+      .delete({
+        where: {
+          id: input.inviteId
+        }
+      })
+  }),
 
   /*
     Labels
@@ -326,11 +352,11 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  createLabel: getViewableProject.input(z.object({
+  createLabel: ensureUserIsMember.input(z.object({
     name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
     description: z.string().max(75),
     color: z.string().length(6)
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.create({
       data: {
         name: input.name,
@@ -341,12 +367,12 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  updateLabel: getViewableProject.input(z.object({
+  updateLabel: ensureUserIsMember.input(z.object({
     labelId: z.string(), // TODO: Verify ID
     name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
     description: z.string().max(75),
     color: z.string().length(6)
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.update({
       where: {
         id: ctx.project.id
@@ -359,9 +385,9 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  removeLabel: getViewableProject.input(z.object({
+  removeLabel: ensureUserIsMember.input(z.object({
     labelId: z.string(), // TODO: Verify ID
-  })).query(async ({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.delete({
       where: {
         id: ctx.project.id
