@@ -17,7 +17,7 @@ const projectSettingsSchema = z.object({
   private: z.boolean()
 })
 
-const getViewableProject = publicProcedure.input(commonProjectSchema).use(async ({ ctx, input, next }) => {
+export const getViewableProject = publicProcedure.input(commonProjectSchema).use(async ({ ctx, input, next }) => {
 
   const foundProject = await ctx.prisma.project.findFirst({
     where: {
@@ -92,7 +92,7 @@ const getViewableProject = publicProcedure.input(commonProjectSchema).use(async 
   })
 })
 
-const ensureUserIsMember = getViewableProject.use(async ({ ctx, input, next }) => {
+export const ensureUserIsMember = getViewableProject.use(async ({ ctx, input, next }) => {
   if (!ctx.member || ctx.member.role !== OrganizationRole.Owner) {
     throw new TRPCError({
       code: "NOT_FOUND",
