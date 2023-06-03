@@ -1,9 +1,11 @@
 import { createTRPCRouter } from './trpc';
 import { projectsRouter } from "./routers/projects";
 import { usersRouter } from './routers/users';
+import { onboardingRouter } from './routers/onboarding';
  
 export const appRouter = createTRPCRouter({
   projects: projectsRouter,
+  onboarding: onboardingRouter,
   users: usersRouter
 });
 
