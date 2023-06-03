@@ -53,3 +53,12 @@ export type OrganizationProps = SharedProperties & {
     members: OrganizationMember[];
   }
 }
+
+export type SearchFilters = {
+  open: boolean;
+  sort: "newest" | "oldest" | "recently-updated" | "least-recently-updated";
+}
+
+export type Optional<T, K extends keyof T> = {
+  [P in keyof T]: P extends K ? T[P] | undefined : T[P];
+};

@@ -14,6 +14,21 @@ const profileUpdateSchema = z.object({
   socialLink4: z.string().max(75).optional()
 })
 
+const sort = {
+  "newest": {
+    createdAt: "desc"
+  },
+  "oldest": {
+    createdAt: "asc"
+  },
+  "recently-updated": {
+    updatedAt: "desc"
+  },
+  "least-recently-updated": {
+    updatedAt: "asc"
+  }
+} as any
+
 export const usersRouter = createTRPCRouter({
 
   updateProfile: privateProcedure.input(profileUpdateSchema).mutation(async ({ ctx, input }) => {
@@ -70,17 +85,24 @@ export const usersRouter = createTRPCRouter({
       })
   }),
 
-  getGlobalIssues: privateProcedure.query(async ({ ctx }) => {
+  // TODO: Look into making this more typesafe. Maybe use a union type?
+  getGlobalIssues: privateProcedure.input(z.object({
+    open: z.boolean(),
+    sort: z.enum(["newest", "oldest", "recently-updated", "least-recently-updated"])
+  })).query(async ({ ctx, input }) => {
+    console.log("Input: ", input)
+
     return await ctx.prisma.issue
       .findMany({
         where: {
           userId: ctx.session.user.id,
-          open: true
+          open: input.open
         },
-
         select: {
+          id: true,
           name: true,
           createdAt: true,
+          updatedAt: true,
           labels: true,
           user: {
             select : {
@@ -97,6 +119,9 @@ export const usersRouter = createTRPCRouter({
               }
             }
           }
+        },
+        orderBy: {
+          ...sort[input.sort],
         }
       })
   })

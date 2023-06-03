@@ -20,7 +20,7 @@ const Header = () => {
               <div>Bug-Zapper</div>
             </Link>
             <Link
-              href="/globalissue"
+              href="/issues"
               className="text-gray-600 font-bold hover:text-gray-800 hover:underline"
             >
               Issues
