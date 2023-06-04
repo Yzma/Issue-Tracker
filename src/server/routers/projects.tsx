@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server"
 import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
 import { z } from "zod"
 import { OrganizationRole } from "@prisma/client"
+import { ProjectCreationSchema } from "@/lib/zod-schemas"
 
 const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
 
@@ -109,16 +110,11 @@ export const ensureUserIsMember = getViewableProject.use(async ({ ctx, input, ne
 export const projectsRouter = createTRPCRouter({
   // TODO: This was copy-pasted somewhere - clean this up
   create: privateProcedure
-    .input(z.object({
-      name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-      description: z.string().max(75).optional(),
-      private: z.boolean().optional().default(false),
-      namespaceName: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX) // TODO: Move this into separate schema
-    })).mutation(async ({ ctx, input }) => {
+    .input(ProjectCreationSchema).mutation(async ({ ctx, input }) => {
 
       const foundNamespace = await ctx.prisma.namespace.findUnique({
         where: {
-          name: input.namespaceName
+          name: input.owner
         }
       })
 
@@ -165,7 +161,7 @@ export const projectsRouter = createTRPCRouter({
           data: {
             name: input.name,
             description: input.description,
-            private: input.private,
+            private: input.visibility === "private" ? true : false,
             namespaceId: foundNamespace.id,
             members: {
               create: {

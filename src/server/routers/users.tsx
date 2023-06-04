@@ -85,6 +85,29 @@ export const usersRouter = createTRPCRouter({
       })
   }),
 
+  getOrganizations: privateProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.member.findMany({
+      where: {
+        userId: ctx.session.user.id,
+        AND: [
+          {
+            project: null
+          }
+        ]
+      },
+  
+      select: {
+        organization: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    })
+  }),
+
+
   // TODO: Look into making this more typesafe. Maybe use a union type?
   getGlobalIssues: privateProcedure.input(z.object({
     open: z.boolean(),
