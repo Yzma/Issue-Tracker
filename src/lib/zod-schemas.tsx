@@ -13,6 +13,15 @@ export const SHORT_DESCRIPTION = z.string()
   .max(75)
   .optional()
 
+export const LONG_DESCRIPTION = z.string()
+  .min(1)
+  .max(2048)
+  .regex(VALID_CHARACTER_REGEX)
+
+export const LABEL_NAME = z.string()
+  .min(1)
+  .max(50)
+  .regex(VALID_CHARACTER_REGEX)
 
 export const NamespaceSchema = z.object({
   name: NAMESPACE,
@@ -28,17 +37,18 @@ export const ProjectCreationSchema = z.object({
   ])
 });
 
+export const LabelCreationSchema = z.object({
+  name: LABEL_NAME,
+  description: SHORT_DESCRIPTION,
+  color: z.string().length(6)
+});
 
-// export const ProjectCreationSchema = Yup.object().shape({
-//   name: Yup.string()
-//     .min(3, 'Too Short!')
-//     .max(25, 'Too Long!')
-//     .matches(VALID_CHARACTER_REGEX, "Invalid name!")
-//     .required('Required'),
-//   description: Yup.string()
-//     .max(75, 'Too Long!')
-//     .optional(),
-//   private: Yup.boolean().oneOf([true, false], 'Field must be checked').required(),
-//   // TODO: This is a duplicate of NamespaceNameCreationSchema - look at docs to see if that can be changed
-//   owner: NAMESPACE_STRING
-// });
+export const IssueCreationSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: LONG_DESCRIPTION,
+  labels: z.array(LABEL_NAME).optional()
+});
+
+export const CommentCreationSchema = z.object({
+  description: LONG_DESCRIPTION
+});
