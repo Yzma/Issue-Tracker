@@ -20,7 +20,6 @@ export default function ProjectCreate() {
 
   const createProjectMutation = trpc.projects.create.useMutation()
   const userOrganizations = trpc.users.getOrganizations.useQuery();
-  console.log("userOrganizations:", userOrganizations.data)
   const { data: session } = useSession()
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProjectCreationType>({
@@ -29,15 +28,11 @@ export default function ProjectCreate() {
 
   const onSubmit: SubmitHandler<ProjectCreationType> = data => {
     createProjectMutation.mutateAsync(data).then((response) => {
-      console.log("RESPONSE:", response)
-      console.log("data.name:", data.name)
-      console.log("session?.user.name:",session?.user.namespace.name)
-      router.push(`/${session?.user.namespace.name}/${data.name}`)
+      router.push(`/${session?.user.namespace.name}/${response.name}`)
     })
     .catch((error) => {
       console.log("ERROR:", error)
     })
-    console.log("onSubmit data", data)
   };
 
   const options = useMemo(() => {
