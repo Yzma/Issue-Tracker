@@ -4,15 +4,16 @@ module.exports = {
     es2021: true,
   },
   extends: [
-    'next', 
-    'prettier',
+    'airbnb',
+    'airbnb-typescript',
+    'airbnb/hooks',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
   ],
   overrides: [
     {
-      // avoid state param assignment
+      files: ['src/**/*.ts', 'src/**/*.tsx'],
       rules: { 'no-param-reassign': ['error', { props: false }] },
     },
   ],
@@ -52,8 +53,5 @@ module.exports = {
       { ignoreFunctionalComponents: true },
     ],
   },
-  ignorePatterns: [
-    'coverage/*.js',
-    'dist/**/*',
-  ]
-};
+  ignorePatterns: ['coverage/*.js', 'dist/**/*'],
+}
