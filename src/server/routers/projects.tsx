@@ -1,103 +1,14 @@
 
 import { TRPCError } from "@trpc/server"
-import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
+import { createTRPCRouter, ensureUserIsProjectMember, getViewableProject, privateProcedure } from "../trpc"
 import { z } from "zod"
 import { OrganizationRole } from "@prisma/client"
-import { NamespaceSchema, ProjectCreationSchema, ProjectNamespaceSchema, LabelCreationSchema } from "@/lib/zod-schemas"
+import { NamespaceSchema, ProjectCreationSchema, LabelCreationSchema } from "@/lib/zod-schemas"
 import { MemberAffiliation } from "@/lib/zod-types"
 
 const LabelModifySchema = LabelCreationSchema.and(z.object({
   labelId: z.string()
 }))
-
-export const getViewableProject = publicProcedure.input(ProjectNamespaceSchema).use(async ({ ctx, input, next }) => {
-
-  const foundProject = await ctx.prisma.project.findFirst({
-    where: {
-      name: input.name,
-      AND: [{
-        namespace: {
-          name: input.owner
-        }
-      }]
-    },
-    include: {
-      namespace: true
-    }
-  })
-
-  if (!foundProject) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: `The provided Project was not found.`,
-    })
-  }
-
-  // Conditions:
-  // 1. The user is a part of the same organization that owns the project
-  // 2. The user is a part of the project (manually invited)
-  const searchCondition = foundProject.namespace.organizationId ?
-    // Condition 1 - The user is a part of the same organization that owns the project
-    {
-      userId_organizationId: {
-        userId: ctx.session?.user.id,
-        organizationId: foundProject.namespace.organizationId
-      }
-    }
-    :
-    // Condition 2 - A part of the Project by invite
-    {
-      userId_projectId: {
-        userId: ctx.session?.user.id,
-        projectId: foundProject.id
-      }
-    }
-
-  const foundMember = await ctx.prisma.member.findUnique({
-    where: {
-      ...searchCondition,
-      AND: [
-        {
-          NOT: {
-            acceptedAt: null
-          }
-        }
-      ]
-    }
-  })
-
-  if (foundProject.private) {
-
-    // If the user isn't logged in or isn't a part of the project, deny them
-    if (ctx.session === null || !foundMember) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: `The provided Project was not found.`,
-      })
-    }
-  }
-
-  return next({
-    ctx: {
-      project: foundProject,
-      member: foundMember
-    }
-  })
-})
-
-export const ensureUserIsMember = getViewableProject.use(async ({ ctx, input, next }) => {
-  if (!ctx.member || ctx.member.role !== OrganizationRole.Owner) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: `The provided Project was not found.`,
-    })
-  }
-  return next({
-    ctx: {
-      ...ctx
-    }
-  })
-})
 
 export const projectsRouter = createTRPCRouter({
 
@@ -180,7 +91,7 @@ export const projectsRouter = createTRPCRouter({
         })
     }),
 
-  updateProject: ensureUserIsMember.input(ProjectCreationSchema).mutation(async ({ ctx, input }) => {
+  updateProject: ensureUserIsProjectMember.input(ProjectCreationSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.project
       .update({
         where: {
@@ -227,7 +138,7 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  inviteMember: ensureUserIsMember.input(NamespaceSchema).mutation(async ({ ctx, input }) => {
+  inviteMember: ensureUserIsProjectMember.input(NamespaceSchema).mutation(async ({ ctx, input }) => {
     await ctx.prisma.member
       .create({
         data: {
@@ -239,7 +150,7 @@ export const projectsRouter = createTRPCRouter({
           },
           inviteeUser: {
             connect: {
-              id: ctx.member?.id
+              id: ctx.member.id
             }
           },
           projectId: ctx.project.id 
@@ -247,7 +158,7 @@ export const projectsRouter = createTRPCRouter({
       })
   }),
 
-  removeMember: ensureUserIsMember.input(z.object({
+  removeMember: ensureUserIsProjectMember.input(z.object({
     inviteId: z.string() // TODO: Check invite ID
   })).mutation(async ({ ctx, input }) => {
     await ctx.prisma.member
@@ -273,7 +184,7 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  createLabel: ensureUserIsMember.input(LabelCreationSchema).mutation(async ({ ctx, input }) => {
+  createLabel: ensureUserIsProjectMember.input(LabelCreationSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.create({
       data: {
         name: input.name,
@@ -284,7 +195,7 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  updateLabel: ensureUserIsMember.input(LabelModifySchema).mutation(async ({ ctx, input }) => {
+  updateLabel: ensureUserIsProjectMember.input(LabelModifySchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.update({
       where: {
         id: ctx.project.id
@@ -297,7 +208,7 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  removeLabel: ensureUserIsMember.input(LabelModifySchema).mutation(async ({ ctx, input }) => {
+  removeLabel: ensureUserIsProjectMember.input(LabelModifySchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.delete({
       where: {
         id: ctx.project.id

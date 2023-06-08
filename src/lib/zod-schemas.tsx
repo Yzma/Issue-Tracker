@@ -38,6 +38,10 @@ export const ProjectCreationSchema = ProjectNamespaceSchema.and(z.object({
   ])
 }));
 
+export const GetIssueSchema = ProjectNamespaceSchema.and(z.object({
+  issueId: z.string()
+}))
+
 export const CreateIssueSchema = z.object({
   title: z.string().min(1).max(200),
   description: LONG_DESCRIPTION,

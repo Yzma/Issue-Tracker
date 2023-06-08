@@ -1,38 +1,14 @@
-import { TRPCError } from "@trpc/server"
-import { ensureUserIsMember, getViewableProject } from "./projects"
-import { createTRPCRouter } from "../trpc"
+import { createTRPCRouter, ensureUserIsProjectMember, getViewableIssue, getViewableProject } from "../trpc"
 import { z } from "zod"
-import { CreateIssueSchema, ProjectNamespaceSchema } from "@/lib/zod-schemas"
+import { CreateIssueSchema, GetIssueSchema } from "@/lib/zod-schemas"
+import { TRPCError } from "@trpc/server"
 
-const GetIssueSchema = ProjectNamespaceSchema.and(z.object({
-  issueId: z.string()
+const ModifyIssueSchema = GetIssueSchema.and(CreateIssueSchema).and(z.object({
+  pinned: z.boolean().optional(),
+  open: z.boolean().optional()
 }))
 
-const ModifyIssueSchema = GetIssueSchema.and(CreateIssueSchema)
-
-const getIssue = getViewableProject.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
-  const issue = await ctx.prisma.issue.findUnique({
-    where: {
-      id: input.issueId
-    }
-  })
-
-  if (!issue) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Issue not found"
-    })
-  }
-
-  return next({
-    ctx: {
-      issue,
-      ...ctx
-    }
-  })
-})
-
-const ensureUserIsAuthorizedForIssue = getIssue.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
+const ensureUserIsAuthorizedForIssue = getViewableIssue.input(GetIssueSchema).use(async ({ ctx, next }) => {
 
   if (ctx.issue.userId !== ctx.session?.user.id || ctx.member?.role !== "Owner") {
     throw new TRPCError({
@@ -50,7 +26,6 @@ const ensureUserIsAuthorizedForIssue = getIssue.input(GetIssueSchema).use(async 
 
 export const issuesRouter = createTRPCRouter({
 
-  // TODO: Move this into projects router?
   getIssue: getViewableProject.input(GetIssueSchema).mutation(async ({ ctx, input }) => {
     return await prisma.issue.findUnique({
       where: {
@@ -58,7 +33,6 @@ export const issuesRouter = createTRPCRouter({
       }
     })
   }),
-
 
   getAllIssues: getViewableProject.input(z.object({
     limit: z.number().int().max(25).default(15)
@@ -72,43 +46,22 @@ export const issuesRouter = createTRPCRouter({
       })
   }),
 
-  createIssue: ensureUserIsMember.input(CreateIssueSchema).mutation(async ({ ctx, input }) => {
+  createIssue: ensureUserIsProjectMember.input(CreateIssueSchema).mutation(async ({ ctx, input }) => {
+    const mapped = mapIssues(input.labels)
+
     return await ctx.prisma.issue
       .create({
-        //@ts-ignore - We know user won't be null
         data: {
           name: input.title,
           description: input.description,
-          userId: ctx.session?.user.id,
+          userId: ctx.session.user.id,
           projectId: ctx.project.id,
-          // TODO: Add labels when creating issue
-          // labels: {
-          //   connect: mapped
-          // }
+          labels: {
+            connect: mapped
+          }
         }
       })
   }),
-
-  // createIssue: getViewableProject.input(ProjectNamespaceSchema.and(CreateIssueSchema)).mutation(async ({ ctx, input }) => {
-  //   const mapped = input.labels?.map((label) => {
-  //     return {
-  //       name: label,
-  //     }
-  //   }) ?? []
-
-  //   return await ctx.prisma.issue
-  //     .create({
-  //       data: {
-  //         name: input.title,
-  //         description: input.description,
-  //         userId: ctx.session?.user.id,
-  //         projectId: ctx.project.id,
-  //         labels: {
-  //           connect: mapped
-  //         }
-  //       }
-  //     })
-  // }),
 
   deleteIssue: ensureUserIsAuthorizedForIssue.input(z.object({
     issueId: z.string().uuid(),
@@ -122,11 +75,7 @@ export const issuesRouter = createTRPCRouter({
   }),
 
   updateIssue: ensureUserIsAuthorizedForIssue.input(ModifyIssueSchema).mutation(async ({ ctx, input }) => {
-    const mapped = input.labels?.map((label) => {
-      return {
-        name: label,
-      }
-    }) ?? []
+    const mapped = mapIssues(input.labels)
 
     return await prisma.issue
       .update({
@@ -136,8 +85,8 @@ export const issuesRouter = createTRPCRouter({
         data: {
           name: input.title,
           description: input.description,
-          open: true,
-          // pinned, // TODO: Come back to this
+          open: input.open,
+          pinned: input.pinned,
           labels: {
             set: mapped
           }
@@ -145,3 +94,11 @@ export const issuesRouter = createTRPCRouter({
       })
   }),
 })
+
+function mapIssues(labels: string[] | undefined) {
+  return labels?.map((label) => {
+    return {
+      name: label
+    }
+  }) ?? []
+}

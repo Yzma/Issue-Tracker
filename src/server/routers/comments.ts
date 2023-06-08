@@ -1,8 +1,7 @@
-import { TRPCError } from "@trpc/server"
-import { getViewableProject } from "./projects"
-import { createTRPCRouter } from "../trpc"
+import { createTRPCRouter, getViewableIssue, getViewableProject } from "../trpc"
 import { z } from "zod"
 import { CommentCreationSchema, ProjectNamespaceSchema } from "@/lib/zod-schemas"
+import { TRPCError } from "@trpc/server"
 
 const GetIssueSchema = ProjectNamespaceSchema.and(z.object({
   issueId: z.string()
@@ -12,29 +11,7 @@ const ModifyCommentSchema = GetIssueSchema.and(z.object({
   commentId: z.string(),
 })).and(CommentCreationSchema)
 
-const getIssue = getViewableProject.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
-  const issue = await ctx.prisma.issue.findUnique({
-    where: {
-      id: input.issueId
-    }
-  })
-
-  if (!issue) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Issue not found"
-    })
-  }
-
-  return next({
-    ctx: {
-      issue,
-      ...ctx
-    }
-  })
-})
-
-const ensureUserIsAuthorizedForComment = getIssue.input(GetIssueSchema).use(async ({ ctx, next }) => {
+const ensureUserIsAuthorizedForComment = getViewableIssue.input(GetIssueSchema).use(async ({ ctx, next }) => {
 
   if (ctx.issue.userId !== ctx.session?.user.id || ctx.member?.role !== "Owner") {
     throw new TRPCError({
@@ -52,7 +29,7 @@ const ensureUserIsAuthorizedForComment = getIssue.input(GetIssueSchema).use(asyn
 
 export const commentsRouter = createTRPCRouter({
 
-  createComment: getIssue.input(ModifyCommentSchema).mutation(async ({ ctx, input }) => {
+  createComment: getViewableIssue.input(ModifyCommentSchema).mutation(async ({ ctx, input }) => {
     return await prisma.comment
       .create({
         data: {
