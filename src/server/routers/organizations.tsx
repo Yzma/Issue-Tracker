@@ -96,7 +96,7 @@ export const organizationsRouter = createTRPCRouter({
     })
   }),
 
-  inviteMember: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(OrganizationMemberSchema).mutation(async ({ ctx, input }) => {
+  inviteMember: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(OrganizationMemberSchema).mutation(async () => {
    
   }),
 
@@ -168,7 +168,7 @@ export const organizationsRouter = createTRPCRouter({
     })
   }),
 
-  deleteOrganization: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(NamespaceSchema).mutation(async ({ ctx, input }) => {
+  deleteOrganization: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(NamespaceSchema).mutation(async () => {
 
   })
 })

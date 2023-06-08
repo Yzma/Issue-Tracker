@@ -208,7 +208,7 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  removeLabel: ensureUserIsProjectMember.input(LabelModifySchema).mutation(async ({ ctx, input }) => {
+  removeLabel: ensureUserIsProjectMember.input(LabelModifySchema).mutation(async ({ ctx }) => {
     return await ctx.prisma.label.delete({
       where: {
         id: ctx.project.id
