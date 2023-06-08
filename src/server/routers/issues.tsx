@@ -2,17 +2,13 @@ import { TRPCError } from "@trpc/server"
 import { ensureUserIsMember, getViewableProject } from "./projects"
 import { createTRPCRouter } from "../trpc"
 import { z } from "zod"
-import { CommentCreationSchema, CreateIssueSchema, ProjectNamespaceSchema } from "@/lib/zod-schemas"
+import { CreateIssueSchema, ProjectNamespaceSchema } from "@/lib/zod-schemas"
 
 const GetIssueSchema = ProjectNamespaceSchema.and(z.object({
   issueId: z.string()
 }))
 
 const ModifyIssueSchema = GetIssueSchema.and(CreateIssueSchema)
-
-const ModifyCommentSchema = GetIssueSchema.and(z.object({
-  commentId: z.string(),
-})).and(CommentCreationSchema)
 
 const getIssue = getViewableProject.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
   const issue = await ctx.prisma.issue.findUnique({
@@ -37,22 +33,6 @@ const getIssue = getViewableProject.input(GetIssueSchema).use(async ({ ctx, inpu
 })
 
 const ensureUserIsAuthorizedForIssue = getIssue.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
-
-  if (ctx.issue.userId !== ctx.session?.user.id || ctx.member?.role !== "Owner") {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "User is not authorized to perform this action"
-    })
-  }
-
-  return next({
-    ctx: {
-      ...ctx
-    }
-  })
-})
-
-const ensureUserIsAuthorizedForComment = getIssue.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
 
   if (ctx.issue.userId !== ctx.session?.user.id || ctx.member?.role !== "Owner") {
     throw new TRPCError({
