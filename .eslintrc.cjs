@@ -53,5 +53,5 @@ module.exports = {
       { ignoreFunctionalComponents: true },
     ],
   },
-  ignorePatterns: ['coverage/*.js', 'dist/**/*'],
+  ignorePatterns: ['coverage/*.js', 'dist/**/*', 'node_modules/**/*'],
 }
