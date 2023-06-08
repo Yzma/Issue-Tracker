@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server"
 import { ensureUserIsMember, getViewableProject } from "./projects"
 import { createTRPCRouter } from "../trpc"
 import { z } from "zod"
-import { CreateIssueSchema, ProjectNamespaceSchema } from "@/lib/zod-schemas"
+import { CommentCreationSchema, CreateIssueSchema, ProjectNamespaceSchema } from "@/lib/zod-schemas"
 
 const GetIssueSchema = ProjectNamespaceSchema.and(z.object({
   issueId: z.string()
@@ -10,12 +10,9 @@ const GetIssueSchema = ProjectNamespaceSchema.and(z.object({
 
 const ModifyIssueSchema = GetIssueSchema.and(CreateIssueSchema)
 
-
-// const commentCreationSchema = issueCreationSchema.pick({
-//   description: true,
-// }).and(z.object({
-//   commentId: z.string().uuid(),
-// }))
+const ModifyCommentSchema = GetIssueSchema.and(z.object({
+  commentId: z.string(),
+})).and(CommentCreationSchema)
 
 const getIssue = getViewableProject.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
   const issue = await ctx.prisma.issue.findUnique({
@@ -167,76 +164,4 @@ export const issuesRouter = createTRPCRouter({
         }
       })
   }),
-
-  createComment: getIssue.input(commentCreationSchema).mutation(async ({ ctx, input }) => {
-    return await prisma.comment
-      .create({
-        data: {
-          description: input.description,
-          userId: ctx.session?.user.id,
-          issueId: ctx.issue.id
-        }
-      })
-  }),
-
-  updateComment: getViewableProject.input(commentCreationSchema).mutation(async ({ ctx, input }) => {
-    return await ctx.prisma.comment
-      .update({
-        where: {
-          id: input.commentId,
-          OR: [{
-            userId: ctx.session?.user.id,
-          },
-          {
-            issue: {
-              project: {
-                id: ctx.project.id,
-                members: {
-                  some: {
-                    userId: ctx.session?.user.id,
-                    role: "Owner"
-                  }
-                }
-              }
-            }
-          }]
-        },
-        data: {
-          description: input.description,
-        }
-      })
-  }),
-
-  deleteComment: ensureUserIsAuthorizedForComment.input(commentCreationSchema).mutation(async ({ ctx, input }) => {
-    return await ctx.prisma.comment
-    .delete({
-      where: {
-        id: input.commentId,
-        OR: [{
-          userId: ctx.session?.user.id,
-        },
-        {
-          issue: {
-            project: {
-              id: ctx.project.id,
-              members: {
-                some: {
-                  userId: ctx.session?.user.id,
-                  role: "Owner"
-                }
-              }
-            }
-          }
-        }]
-      }
-    })
-  }),
-
-  getComments: getViewableProject.input(GetIssueSchema).mutation(async ({ ctx, input }) => {
-    return await prisma.comment.findMany({
-      where: {
-        issueId: input.issueId
-      }
-    })
-  })
 })
