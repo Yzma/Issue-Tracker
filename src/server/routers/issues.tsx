@@ -1,75 +1,14 @@
-import { TRPCError } from "@trpc/server"
-import { getViewableProject, ensureUserIsMember } from "./projects"
-import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
+import { createTRPCRouter, ensureUserIsProjectMember, getViewableIssue, getViewableProject } from "../trpc"
 import { z } from "zod"
+import { CreateIssueSchema, GetIssueSchema } from "@/lib/zod-schemas"
+import { TRPCError } from "@trpc/server"
 
-// TODO: Move to constants
-const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
-
-const issueSchema = z.object({
-  owner: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-  project: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-  issueId: z.string(), // TODO: UUID
-})
-
-const issueCreationSchema = z.object({
-  title: z.string().min(1).max(150),
-  description: z.string().min(1).max(2048),
-  open: z.boolean(),
-  labels: z.array(z.string().min(1).max(100)),
-})
-
-const commentSchema = issueCreationSchema.pick({
-  description: true,
-}).and(z.object({
-
+const ModifyIssueSchema = GetIssueSchema.and(CreateIssueSchema).and(z.object({
+  pinned: z.boolean().optional(),
+  open: z.boolean().optional()
 }))
 
-const commentCreationSchema = issueCreationSchema.pick({
-  description: true,
-}).and(z.object({
-  commentId: z.string().uuid(),
-}))
-
-const getIssue = getViewableProject.input(issueSchema).use(async ({ ctx, input, next }) => {
-  const issue = await ctx.prisma.issue.findUnique({
-    where: {
-      id: input.issueId
-    }
-  })
-
-  if (!issue) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Issue not found"
-    })
-  }
-
-  return next({
-    ctx: {
-      issue,
-      ...ctx
-    }
-  })
-})
-
-const ensureUserIsAuthorizedForIssue = getIssue.input(issueSchema).use(async ({ ctx, input, next }) => {
-
-  if (ctx.issue.userId !== ctx.session?.user.id || ctx.member?.role !== "Owner") {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "User is not authorized to perform this action"
-    })
-  }
-
-  return next({
-    ctx: {
-      ...ctx
-    }
-  })
-})
-
-const ensureUserIsAuthorizedForComment = getIssue.input(issueSchema).use(async ({ ctx, input, next }) => {
+const ensureUserIsAuthorizedForIssue = getViewableIssue.input(GetIssueSchema).use(async ({ ctx, next }) => {
 
   if (ctx.issue.userId !== ctx.session?.user.id || ctx.member?.role !== "Owner") {
     throw new TRPCError({
@@ -87,8 +26,7 @@ const ensureUserIsAuthorizedForComment = getIssue.input(issueSchema).use(async (
 
 export const issuesRouter = createTRPCRouter({
 
-  // TODO: Move this into projects router?
-  getIssue: getViewableProject.input(issueSchema).mutation(async ({ ctx, input }) => {
+  getIssue: getViewableProject.input(GetIssueSchema).mutation(async ({ ctx, input }) => {
     return await prisma.issue.findUnique({
       where: {
         id: input.issueId
@@ -96,19 +34,27 @@ export const issuesRouter = createTRPCRouter({
     })
   }),
 
-  createIssue: getViewableProject.input(issueSchema.and(issueCreationSchema)).mutation(async ({ ctx, input }) => {
-    const mapped = input.labels.map((label) => {
-      return {
-        name: label,
-      }
-    })
+  getAllIssues: getViewableProject.input(z.object({
+    limit: z.number().int().max(25).default(15)
+  })).query(async ({ ctx, input }) => {
+    return await ctx.prisma.issue
+      .findMany({
+        where: {
+          projectId: ctx.project.id,
+        },
+        take: input.limit
+      })
+  }),
+
+  createIssue: ensureUserIsProjectMember.input(CreateIssueSchema).mutation(async ({ ctx, input }) => {
+    const mapped = mapIssues(input.labels)
 
     return await ctx.prisma.issue
       .create({
         data: {
           name: input.title,
           description: input.description,
-          userId: ctx.session?.user.id,
+          userId: ctx.session.user.id,
           projectId: ctx.project.id,
           labels: {
             connect: mapped
@@ -128,12 +74,9 @@ export const issuesRouter = createTRPCRouter({
       })
   }),
 
-  updateIssue: ensureUserIsAuthorizedForIssue.input(issueCreationSchema).mutation(async ({ ctx, input }) => {
-    const mapped = input.labels.map((label) => {
-      return {
-        name: label,
-      }
-    })
+  updateIssue: ensureUserIsAuthorizedForIssue.input(ModifyIssueSchema).mutation(async ({ ctx, input }) => {
+    const mapped = mapIssues(input.labels)
+
     return await prisma.issue
       .update({
         where: {
@@ -143,83 +86,19 @@ export const issuesRouter = createTRPCRouter({
           name: input.title,
           description: input.description,
           open: input.open,
-          // pinned, // TODO: Come back to this
+          pinned: input.pinned,
           labels: {
             set: mapped
           }
         }
       })
   }),
-
-  createComment: getIssue.input(commentCreationSchema).mutation(async ({ ctx, input }) => {
-    return await prisma.comment
-      .create({
-        data: {
-          description: input.description,
-          userId: ctx.session?.user.id,
-          issueId: ctx.issue.id
-        }
-      })
-  }),
-
-  updateComment: getViewableProject.input(commentCreationSchema).mutation(async ({ ctx, input }) => {
-    return await ctx.prisma.comment
-      .update({
-        where: {
-          id: input.commentId,
-          OR: [{
-            userId: ctx.session?.user.id,
-          },
-          {
-            issue: {
-              project: {
-                id: ctx.project.id,
-                members: {
-                  some: {
-                    userId: ctx.session?.user.id,
-                    role: "Owner"
-                  }
-                }
-              }
-            }
-          }]
-        },
-        data: {
-          description: input.description,
-        }
-      })
-  }),
-
-  deleteComment: ensureUserIsAuthorizedForComment.input(commentCreationSchema).mutation(async ({ ctx, input }) => {
-    return await ctx.prisma.comment
-    .delete({
-      where: {
-        id: input.commentId,
-        OR: [{
-          userId: ctx.session?.user.id,
-        },
-        {
-          issue: {
-            project: {
-              id: ctx.project.id,
-              members: {
-                some: {
-                  userId: ctx.session?.user.id,
-                  role: "Owner"
-                }
-              }
-            }
-          }
-        }]
-      }
-    })
-  }),
-
-  getComments: getViewableProject.input(issueSchema).mutation(async ({ ctx, input }) => {
-    return await prisma.comment.findMany({
-      where: {
-        issueId: input.issueId
-      }
-    })
-  })
 })
+
+function mapIssues(labels: string[] | undefined) {
+  return labels?.map((label) => {
+    return {
+      name: label
+    }
+  }) ?? []
+}

@@ -2,38 +2,13 @@ import { TRPCError } from "@trpc/server"
 import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
 import { z } from "zod"
 import { OrganizationRole } from "@prisma/client"
+import { NamespaceSchema } from "@/lib/zod-schemas"
 
-// TODO: Move to constants
-const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
+const OrganizationMemberSchema = NamespaceSchema.and(z.object({
+  username: NamespaceSchema,
+}))
 
-const organizationSchema = z.object({
-  name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-})
-
-// const getOrganizationFromName = publicProcedure.input(organizationSchema).use(async ({ ctx, input, next }) => {
-
-//   const foundOrganization = await ctx.prisma.organization
-//     .findFirst({
-//       where: {
-//         name: input.name,
-//       }
-//     })
-
-//   if (!foundOrganization) {
-//     throw new TRPCError({
-//       code: "NOT_FOUND",
-//       message: `The queried organization was not found.`,
-//     })
-//   }
-
-//   return next({
-//     ctx: {
-//       organization: foundOrganization
-//     }
-//   })
-// })
-
-const ensureUserIsMember = (role: OrganizationRole = OrganizationRole.User) => privateProcedure.input(organizationSchema).use(async ({ ctx, input, next }) => {
+const ensureUserIsOrganizationMember = (role: OrganizationRole = OrganizationRole.User) => privateProcedure.input(NamespaceSchema).use(async ({ ctx, input, next }) => {
 
   const foundMember = await ctx.prisma.member.findFirst({
     where: {
@@ -69,7 +44,7 @@ const ensureUserIsMember = (role: OrganizationRole = OrganizationRole.User) => p
 
 export const organizationsRouter = createTRPCRouter({
 
-  createOrganization: privateProcedure.input(organizationSchema).mutation(async ({ ctx, input }) => {
+  createOrganization: privateProcedure.input(NamespaceSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.organization
       .create({
         data: {
@@ -90,7 +65,7 @@ export const organizationsRouter = createTRPCRouter({
       })
   }),
 
-  updateOrganization: ensureUserIsMember(OrganizationRole.Owner).input(organizationSchema).mutation(async ({ ctx, input }) => {
+  updateOrganization: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(NamespaceSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.organization
       .update({
         where: {
@@ -107,7 +82,7 @@ export const organizationsRouter = createTRPCRouter({
       })
   }),
 
-  getMembers: publicProcedure.input(organizationSchema).query(async ({ ctx, input }) => {
+  getMembers: publicProcedure.input(NamespaceSchema).query(async ({ ctx }) => {
     return await ctx.prisma.member.findMany({
       where: {
         AND: [
@@ -121,13 +96,11 @@ export const organizationsRouter = createTRPCRouter({
     })
   }),
 
-  inviteMember: ensureUserIsMember(OrganizationRole.Owner).input(organizationSchema.and(z.object({
-    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-  }))).mutation(async ({ ctx, input }) => {
+  inviteMember: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(OrganizationMemberSchema).mutation(async () => {
    
   }),
 
-  getOutgoingInvites: privateProcedure.input(organizationSchema).query(async ({ ctx, input }) => {
+  getOutgoingInvites: ensureUserIsOrganizationMember(OrganizationRole.Owner).query(async ({ ctx }) => {
     return await ctx.prisma.member.findMany({
       where: {
         NOT: [
@@ -139,7 +112,7 @@ export const organizationsRouter = createTRPCRouter({
     })
   }),
 
-  cancelInvite: privateProcedure.input(organizationSchema.and(z.object({
+  cancelInvite: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(NamespaceSchema.and(z.object({
     id: z.string(),
   }))).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.member.delete({
@@ -156,12 +129,12 @@ export const organizationsRouter = createTRPCRouter({
     })
   }),
 
-  removeMember: privateProcedure.input(organizationSchema.and(z.object({
-    id: z.string(),
-  }))).mutation(async ({ ctx, input }) => {
+  removeMember: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(OrganizationMemberSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.member.delete({
       where: {
-        id: input.id,
+        user: {
+          name: input.username
+        },
         AND: [
           {
             NOT: {
@@ -172,14 +145,15 @@ export const organizationsRouter = createTRPCRouter({
       }
     })
   }),
-
-  updateMemberRole: privateProcedure.input(organizationSchema.and(z.object({
-    id: z.string(),
+  
+  updateMemberRole: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(OrganizationMemberSchema.and(z.object({
     role: z.nativeEnum(OrganizationRole)
   }))).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.member.update({
       where: {
-        id: input.id,
+        user: {
+          name: input.username
+        },
         AND: [
           {
             NOT: {
@@ -194,7 +168,7 @@ export const organizationsRouter = createTRPCRouter({
     })
   }),
 
-  deleteOrganization: privateProcedure.input(organizationSchema).mutation(async ({ ctx, input }) => {
+  deleteOrganization: ensureUserIsOrganizationMember(OrganizationRole.Owner).input(NamespaceSchema).mutation(async () => {
 
   })
 })

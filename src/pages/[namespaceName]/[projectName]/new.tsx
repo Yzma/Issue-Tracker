@@ -17,7 +17,7 @@ import prisma from "@/lib/prisma/prisma"
 
 import { GetServerSideProps, InferGetServerSidePropsType } from "next"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { IssueCreationSchema } from "@/lib/zod-schemas"
+import { CreateIssueSchema } from "@/lib/zod-schemas"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import Labels from "@/components/labels/Labels"
@@ -29,7 +29,7 @@ type LabelProps = {
   color: string
 }
 
-type IssueCreationType = z.infer<typeof IssueCreationSchema>;
+type IssueCreationType = z.infer<typeof CreateIssueSchema>;
 
 export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
@@ -39,7 +39,7 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
   const { data: session } = useSession()
 
   const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<IssueCreationType>({
-    resolver: zodResolver(IssueCreationSchema)
+    resolver: zodResolver(CreateIssueSchema)
   });
 
   // TODO: Move to tRPC

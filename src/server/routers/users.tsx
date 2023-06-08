@@ -1,13 +1,11 @@
-import { TRPCError } from "@trpc/server"
-import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
+import { createTRPCRouter, privateProcedure } from "../trpc"
 import { z } from "zod"
+import { SortTypeSchema } from "@/lib/zod-types"
+import { NamespaceSchema, SHORT_DESCRIPTION } from "@/lib/zod-schemas"
 
-// TODO: Move to constants
-const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
-
-const profileUpdateSchema = z.object({
-  name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX).optional(),
-  bio: z.string().max(75).optional(),
+const ProfileUpdateSchema = z.object({
+  name: NamespaceSchema.optional(),
+  bio: SHORT_DESCRIPTION,
   socialLink1: z.string().max(75).optional(),
   socialLink2: z.string().max(75).optional(),
   socialLink3: z.string().max(75).optional(),
@@ -31,7 +29,7 @@ const sort = {
 
 export const usersRouter = createTRPCRouter({
 
-  updateProfile: privateProcedure.input(profileUpdateSchema).mutation(async ({ ctx, input }) => {
+  updateProfile: privateProcedure.input(ProfileUpdateSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.user
       .update({
         where: {
@@ -107,14 +105,10 @@ export const usersRouter = createTRPCRouter({
     })
   }),
 
-
-  // TODO: Look into making this more typesafe. Maybe use a union type?
   getGlobalIssues: privateProcedure.input(z.object({
     open: z.boolean(),
-    sort: z.enum(["newest", "oldest", "recently-updated", "least-recently-updated"])
+    sort: SortTypeSchema
   })).query(async ({ ctx, input }) => {
-    console.log("Input: ", input)
-
     return await ctx.prisma.issue
       .findMany({
         where: {
@@ -149,10 +143,3 @@ export const usersRouter = createTRPCRouter({
       })
   })
 })
-
-/*
-  - Finish onboarding
-
-  - Global issues?
-  - User profile (Namespace)?
-*/

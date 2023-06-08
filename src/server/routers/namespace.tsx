@@ -1,17 +1,10 @@
 import { TRPCError } from "@trpc/server"
 import { createTRPCRouter, publicProcedure } from "../trpc"
-import { z } from "zod"
-
-// TODO: Move to constants
-const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
-
-const namespaceSchema = z.object({
-  name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-})
+import { NamespaceSchema } from "@/lib/zod-schemas"
 
 export const namespaceRouter = createTRPCRouter({
 
-  getNamespace: publicProcedure.input(namespaceSchema).query(async ({ ctx, input }) => {
+  getNamespace: publicProcedure.input(NamespaceSchema).query(async ({ ctx, input }) => {
 
     const isUserViewingOwnProfile = ctx.session?.user?.name === input.name
 
