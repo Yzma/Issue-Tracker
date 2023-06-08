@@ -85,7 +85,7 @@ const ensureUserIsAuthorizedForComment = getIssue.input(issueSchema).use(async (
   })
 })
 
-export const namespaceRouter = createTRPCRouter({
+export const issuesRouter = createTRPCRouter({
 
   // TODO: Move this into projects router?
   getIssue: getViewableProject.input(issueSchema).mutation(async ({ ctx, input }) => {

@@ -2,7 +2,7 @@ import { Label } from "@prisma/client";
 import { PropsWithChildren } from "react";
 
 type LabelTypes = {
-  labels: Pick<Label, 'name' | 'color' | 'description'>[]
+  labels: Pick<Label, 'name' | 'color'>[]
 }
 
 export default function Labels(props: PropsWithChildren<LabelTypes>) {

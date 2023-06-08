@@ -1,20 +1,13 @@
 import { TRPCError } from "@trpc/server"
 import { createTRPCRouter, publicProcedure } from "../trpc"
-import { z } from "zod"
 import { v4 as uuidv4 } from 'uuid';
 import { decodeToken } from "@/lib/jwt"
 import { NEW_USER_COOKIE } from "@/lib/constants"
+import { NamespaceSchema } from "@/lib/zod-schemas";
 
-// TODO: Move to constants
-const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
+export const onboardingRouter = createTRPCRouter({
 
-const profileCreationSchema = z.object({
-  name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-})
-
-export const projectsRouter = createTRPCRouter({
-
-  submitUsername: publicProcedure.input(profileCreationSchema).mutation(async ({ ctx, input }) => {
+  submitUsername: publicProcedure.input(NamespaceSchema).mutation(async ({ ctx, input }) => {
     const cookie = ctx.req.cookies[NEW_USER_COOKIE]
 
     if (!cookie) {
@@ -31,7 +24,7 @@ export const projectsRouter = createTRPCRouter({
          
           const updateResult = await tx.user.update({
             where: {
-              id: token.data,
+              id: token.payload.data,
               AND: [
                 {
                   username: null

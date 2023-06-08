@@ -1,10 +1,18 @@
 import { createTRPCRouter } from './trpc';
 import { projectsRouter } from "./routers/projects";
 import { usersRouter } from './routers/users';
+import { onboardingRouter } from './routers/onboarding';
+import { organizationsRouter } from './routers/organizations';
+import { issuesRouter } from './routers/issues';
+import { namespaceRouter } from './routers/namespace';
  
 export const appRouter = createTRPCRouter({
+  issues: issuesRouter,
+  namespaceRouter: namespaceRouter,
+  onboarding: onboardingRouter,
+  organizations: organizationsRouter,
   projects: projectsRouter,
-  users: usersRouter
+  users: usersRouter,
 });
 
 // Export type router type signature,

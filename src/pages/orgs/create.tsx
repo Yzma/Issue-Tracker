@@ -2,22 +2,36 @@ import Head from "next/head"
 import { useRouter } from "next/router"
 import Header from "@/components/Header"
 
-import axios from "axios"
-import { Formik, Form, Field } from "formik"
-import { OrganizationNameCreationSchema } from "@/lib/yup-schemas"
+import { trpc } from "@/lib/trpc"
+import { SubmitHandler, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { NamespaceSchema } from "@/lib/zod-schemas"
+
+type OrganizationCreationType = z.infer<typeof NamespaceSchema>;
 
 export default function OrganizationCreate() {
   const router = useRouter()
+  const createOrganizationMutation = trpc.organizations.createOrganization.useMutation()
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<OrganizationCreationType>({
+    resolver: zodResolver(NamespaceSchema)
+  });
 
+  const onSubmit: SubmitHandler<OrganizationCreationType> = data => {
+    createOrganizationMutation.mutateAsync(data).then((response) => {
+      console.log("RESPONSE:", response)
+      router.push(`/${response.name}`)
+    })
+      .catch((error) => {
+        console.log("ERROR:", error)
+      })
+  };
   return (
     <>
       <Head>
         <title>Create new Organization</title>
-        <meta name="description" content="Create a new organization" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
-     
+
       <Header />
 
       <main className="flex absolute inset-0  bg-slate-100 justify-center items-center">
@@ -32,64 +46,44 @@ export default function OrganizationCreate() {
 
             <div>
               <div className="space-y-4">
-                <Formik
-                  initialValues={{ name: "" }}
-                  validationSchema={OrganizationNameCreationSchema}
-                  onSubmit={(values, { setSubmitting, setFieldError }) => {
-                    axios
-                      .post("/api/organization", {
-                        name: values.name
-                      })
-                      .then((response) => {
-                        console.log("RESPONSE:", response)
-                        router.push(`/${response.data.name}`)
-                      })
-                      .catch((error) => {
-                        console.log("ERROR:", error)
-                        setFieldError("name", "name already in use")
-                      })
-                      .finally(() => {
-                        setSubmitting(false)
-                      })
-                  }}
-                >
-                  {({ values, errors, isSubmitting }) => (
-                    <Form className="pt-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Organization Name{" "}
-                          <span className="text-rose-500">*</span>
-                        </label>
-                        <Field
-                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                          type="text"
-                          name="name"
-                        />
-                      </div>
 
-                      <div className="text-sm pt-4">
-                        <p>This will be the name of your account on Issue Tracker.</p>
-                        <p>
-                          Your URL will be: http://localhost:3000/{values.name}
-                        </p>
-                      </div>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  {errors.name?.message && <div className="py-3">
+                    <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                      <div>You must enter a valid organization name!</div>
+                    </div>
+                  </div>
+                  }
 
-                      {errors.name && <div>{errors.name}</div>}
-             
-                      <div className="mt-6">
-                        <div className="mb-4">
-                          <button
-                            className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
-                            type="submit"
-                            disabled={isSubmitting}
-                          >
-                            Create Organization
-                          </button>
-                        </div>
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Organization Name{" "}
+                      <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      type="text"
+                      {...register("name")}
+                    />
+
+                  </div>
+
+                  <div className="text-sm pt-4">
+                    <p>This will be the name of your account on Issue Tracker.</p>
+                  </div>
+
+                  <div className="mt-6">
+                    <div className="mb-4">
+                      <button
+                        className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                        type="submit"
+                        disabled={isSubmitting}
+                      >
+                        Create Organization
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
