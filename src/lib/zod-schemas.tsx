@@ -16,7 +16,6 @@ export const SHORT_DESCRIPTION = z.string()
 export const LONG_DESCRIPTION = z.string()
   .min(1)
   .max(2048)
-  .regex(VALID_CHARACTER_REGEX)
 
 export const LABEL_NAME = z.string()
   .min(1)
@@ -27,26 +26,28 @@ export const NamespaceSchema = z.object({
   name: NAMESPACE,
 });
 
-export const ProjectCreationSchema = z.object({
+export const ProjectNamespaceSchema = NamespaceSchema.and(z.object({
   owner: NAMESPACE,
-  name: NAMESPACE,
+}));
+
+export const ProjectCreationSchema = ProjectNamespaceSchema.and(z.object({
   description: SHORT_DESCRIPTION,
   visibility: z.union([
     z.literal('public'),
     z.literal('private'),
   ])
+}));
+
+export const CreateIssueSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: LONG_DESCRIPTION,
+  labels: z.array(LABEL_NAME).optional()
 });
 
 export const LabelCreationSchema = z.object({
   name: LABEL_NAME,
   description: SHORT_DESCRIPTION,
   color: z.string().length(6)
-});
-
-export const IssueCreationSchema = z.object({
-  title: z.string().min(1).max(200),
-  description: LONG_DESCRIPTION,
-  labels: z.array(LABEL_NAME).optional()
 });
 
 export const CommentCreationSchema = z.object({

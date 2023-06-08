@@ -1,37 +1,23 @@
 import { TRPCError } from "@trpc/server"
-import { getViewableProject, ensureUserIsMember } from "./projects"
-import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
+import { ensureUserIsMember, getViewableProject } from "./projects"
+import { createTRPCRouter } from "../trpc"
 import { z } from "zod"
+import { CreateIssueSchema, ProjectNamespaceSchema } from "@/lib/zod-schemas"
 
-// TODO: Move to constants
-const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
-
-const issueSchema = z.object({
-  owner: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-  project: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-  issueId: z.string(), // TODO: UUID
-})
-
-const issueCreationSchema = z.object({
-  title: z.string().min(1).max(150),
-  description: z.string().min(1).max(2048),
-  open: z.boolean(),
-  labels: z.array(z.string().min(1).max(100)),
-})
-
-const commentSchema = issueCreationSchema.pick({
-  description: true,
-}).and(z.object({
-
+const GetIssueSchema = ProjectNamespaceSchema.and(z.object({
+  issueId: z.string()
 }))
 
-const commentCreationSchema = issueCreationSchema.pick({
-  description: true,
-}).and(z.object({
-  commentId: z.string().uuid(),
-}))
+const ModifyIssueSchema = GetIssueSchema.and(CreateIssueSchema)
 
-const getIssue = getViewableProject.input(issueSchema).use(async ({ ctx, input, next }) => {
+
+// const commentCreationSchema = issueCreationSchema.pick({
+//   description: true,
+// }).and(z.object({
+//   commentId: z.string().uuid(),
+// }))
+
+const getIssue = getViewableProject.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
   const issue = await ctx.prisma.issue.findUnique({
     where: {
       id: input.issueId
@@ -53,7 +39,7 @@ const getIssue = getViewableProject.input(issueSchema).use(async ({ ctx, input, 
   })
 })
 
-const ensureUserIsAuthorizedForIssue = getIssue.input(issueSchema).use(async ({ ctx, input, next }) => {
+const ensureUserIsAuthorizedForIssue = getIssue.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
 
   if (ctx.issue.userId !== ctx.session?.user.id || ctx.member?.role !== "Owner") {
     throw new TRPCError({
@@ -69,7 +55,7 @@ const ensureUserIsAuthorizedForIssue = getIssue.input(issueSchema).use(async ({ 
   })
 })
 
-const ensureUserIsAuthorizedForComment = getIssue.input(issueSchema).use(async ({ ctx, input, next }) => {
+const ensureUserIsAuthorizedForComment = getIssue.input(GetIssueSchema).use(async ({ ctx, input, next }) => {
 
   if (ctx.issue.userId !== ctx.session?.user.id || ctx.member?.role !== "Owner") {
     throw new TRPCError({
@@ -88,7 +74,7 @@ const ensureUserIsAuthorizedForComment = getIssue.input(issueSchema).use(async (
 export const issuesRouter = createTRPCRouter({
 
   // TODO: Move this into projects router?
-  getIssue: getViewableProject.input(issueSchema).mutation(async ({ ctx, input }) => {
+  getIssue: getViewableProject.input(GetIssueSchema).mutation(async ({ ctx, input }) => {
     return await prisma.issue.findUnique({
       where: {
         id: input.issueId
@@ -96,26 +82,56 @@ export const issuesRouter = createTRPCRouter({
     })
   }),
 
-  createIssue: getViewableProject.input(issueSchema.and(issueCreationSchema)).mutation(async ({ ctx, input }) => {
-    const mapped = input.labels.map((label) => {
-      return {
-        name: label,
-      }
-    })
 
+  getAllIssues: getViewableProject.input(z.object({
+    limit: z.number().int().max(25).default(15)
+  })).query(async ({ ctx, input }) => {
+    return await ctx.prisma.issue
+      .findMany({
+        where: {
+          projectId: ctx.project.id,
+        },
+        take: input.limit
+      })
+  }),
+
+  createIssue: ensureUserIsMember.input(CreateIssueSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.issue
       .create({
+        //@ts-ignore - We know user won't be null
         data: {
           name: input.title,
           description: input.description,
           userId: ctx.session?.user.id,
           projectId: ctx.project.id,
-          labels: {
-            connect: mapped
-          }
+          // TODO: Add labels when creating issue
+          // labels: {
+          //   connect: mapped
+          // }
         }
       })
   }),
+
+  // createIssue: getViewableProject.input(ProjectNamespaceSchema.and(CreateIssueSchema)).mutation(async ({ ctx, input }) => {
+  //   const mapped = input.labels?.map((label) => {
+  //     return {
+  //       name: label,
+  //     }
+  //   }) ?? []
+
+  //   return await ctx.prisma.issue
+  //     .create({
+  //       data: {
+  //         name: input.title,
+  //         description: input.description,
+  //         userId: ctx.session?.user.id,
+  //         projectId: ctx.project.id,
+  //         labels: {
+  //           connect: mapped
+  //         }
+  //       }
+  //     })
+  // }),
 
   deleteIssue: ensureUserIsAuthorizedForIssue.input(z.object({
     issueId: z.string().uuid(),
@@ -128,12 +144,13 @@ export const issuesRouter = createTRPCRouter({
       })
   }),
 
-  updateIssue: ensureUserIsAuthorizedForIssue.input(issueCreationSchema).mutation(async ({ ctx, input }) => {
-    const mapped = input.labels.map((label) => {
+  updateIssue: ensureUserIsAuthorizedForIssue.input(ModifyIssueSchema).mutation(async ({ ctx, input }) => {
+    const mapped = input.labels?.map((label) => {
       return {
         name: label,
       }
-    })
+    }) ?? []
+
     return await prisma.issue
       .update({
         where: {
@@ -142,7 +159,7 @@ export const issuesRouter = createTRPCRouter({
         data: {
           name: input.title,
           description: input.description,
-          open: input.open,
+          open: true,
           // pinned, // TODO: Come back to this
           labels: {
             set: mapped
@@ -215,7 +232,7 @@ export const issuesRouter = createTRPCRouter({
     })
   }),
 
-  getComments: getViewableProject.input(issueSchema).mutation(async ({ ctx, input }) => {
+  getComments: getViewableProject.input(GetIssueSchema).mutation(async ({ ctx, input }) => {
     return await prisma.comment.findMany({
       where: {
         issueId: input.issueId

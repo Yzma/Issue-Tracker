@@ -3,29 +3,21 @@ import { TRPCError } from "@trpc/server"
 import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc"
 import { z } from "zod"
 import { OrganizationRole } from "@prisma/client"
-import { ProjectCreationSchema } from "@/lib/zod-schemas"
+import { NamespaceSchema, ProjectCreationSchema, ProjectNamespaceSchema, LabelCreationSchema } from "@/lib/zod-schemas"
+import { MemberAffiliation } from "@/lib/zod-types"
 
-const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
+const LabelModifySchema = LabelCreationSchema.and(z.object({
+  labelId: z.string()
+}))
 
-const commonProjectSchema = z.object({
-  owner: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-  project: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-})
-
-const projectSettingsSchema = z.object({
-  name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX), // TODO: Could we use the 'name' value from commonProjectSchema?
-  description: z.string().max(75),
-  private: z.boolean()
-})
-
-export const getViewableProject = publicProcedure.input(commonProjectSchema).use(async ({ ctx, input, next }) => {
+export const getViewableProject = publicProcedure.input(ProjectNamespaceSchema).use(async ({ ctx, input, next }) => {
 
   const foundProject = await ctx.prisma.project.findFirst({
     where: {
-      name: input.project,
+      name: input.name,
       AND: [{
         namespace: {
-          name: input.project
+          name: input.owner
         }
       }]
     },
@@ -108,7 +100,7 @@ export const ensureUserIsMember = getViewableProject.use(async ({ ctx, input, ne
 })
 
 export const projectsRouter = createTRPCRouter({
-  // TODO: This was copy-pasted somewhere - clean this up
+
   create: privateProcedure
     .input(ProjectCreationSchema).mutation(async ({ ctx, input }) => {
 
@@ -188,8 +180,7 @@ export const projectsRouter = createTRPCRouter({
         })
     }),
 
-  // TODO: getViewableProject is using publicProcedure so anyone who "has" permission to view the project can also update it
-  updateProject: ensureUserIsMember.input(commonProjectSchema.and(projectSettingsSchema.optional())).mutation(async ({ ctx, input }) => {
+  updateProject: ensureUserIsMember.input(ProjectCreationSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.project
       .update({
         where: {
@@ -198,72 +189,12 @@ export const projectsRouter = createTRPCRouter({
         data: {
           name: input.name,
           description: input.description,
-          private: input.private,
+          private: input.visibility === "private" ? true : false,
         }
       })
   }),
 
-  // getViewableProject returns the project if the user has permission to view it
   getProject: getViewableProject.query(async ({ ctx }) => ctx.project),
-
-  /*
-    Issues
-  */
-
-  getAllIssues: getViewableProject.input(z.object({
-    limit: z.number().int().max(25).default(15)
-  })).query(async ({ ctx, input }) => {
-    return await ctx.prisma.issue
-      .findMany({
-        where: {
-          projectId: ctx.project.id,
-        },
-        take: input.limit
-      })
-  }),
-
-  createIssue: ensureUserIsMember.input(z.object({
-    title: z.string().min(1).max(150),
-    description: z.string().min(1).max(2048)
-    // TODO: Labels
-  })).mutation(async ({ ctx, input }) => {
-    return await ctx.prisma.issue
-      .create({
-        //@ts-ignore - We know user won't be null
-        data: {
-          name: input.title,
-          description: input.description,
-          userId: ctx.session?.user.id,
-          projectId: ctx.project.id,
-          // TODO: Add labels when creating issue
-          // labels: {
-          //   connect: mapped
-          // }
-        }
-      })
-  }),
-
-  // TODO: Check author
-  updateIssue: getViewableProject.input(z.object({
-    issueId: z.string().max(50), // TODO: Lower this
-    title: z.string().min(1).max(150),
-    description: z.string().min(1).max(2048)
-    // TODO: Labels
-  })).mutation(async ({ ctx, input }) => {
-    return await ctx.prisma.issue.update({
-      where: {
-        id: input.issueId
-      },
-      data: {
-        name: input.title,
-        description: input.description,
-        // TODO: Add labels when creating issue
-        // labels: {
-        //   connect: mapped
-        // }
-      }
-    })
-  }),
 
   /*
     Members
@@ -271,11 +202,7 @@ export const projectsRouter = createTRPCRouter({
 
   getMembers: getViewableProject.input(z.object({
     limit: z.number().int().max(25).default(15),
-    affiliation: z.union([
-      z.literal('outside'),
-      z.literal('direct'),
-      z.literal('all')
-    ])
+    affiliation: MemberAffiliation
   })).query(async ({ ctx, input }) => {
     
     const affiliation = input.affiliation === "direct" ? 
@@ -300,16 +227,14 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  inviteMember: ensureUserIsMember.input(z.object({
-    username: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX)
-  })).mutation(async ({ ctx, input }) => {
+  inviteMember: ensureUserIsMember.input(NamespaceSchema).mutation(async ({ ctx, input }) => {
     await ctx.prisma.member
       .create({
         data: {
           role: OrganizationRole.User,
           user: {
             connect: {
-              username: input.username
+              username: input.name
             }
           },
           inviteeUser: {
@@ -348,11 +273,7 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  createLabel: ensureUserIsMember.input(z.object({
-    name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-    description: z.string().max(75),
-    color: z.string().length(6)
-  })).mutation(async ({ ctx, input }) => {
+  createLabel: ensureUserIsMember.input(LabelCreationSchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.create({
       data: {
         name: input.name,
@@ -363,12 +284,7 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  updateLabel: ensureUserIsMember.input(z.object({
-    labelId: z.string(), // TODO: Verify ID
-    name: z.string().min(3).max(25).regex(VALID_CHARACTER_REGEX),
-    description: z.string().max(75),
-    color: z.string().length(6)
-  })).mutation(async ({ ctx, input }) => {
+  updateLabel: ensureUserIsMember.input(LabelModifySchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.update({
       where: {
         id: ctx.project.id
@@ -381,9 +297,7 @@ export const projectsRouter = createTRPCRouter({
     })
   }),
 
-  removeLabel: ensureUserIsMember.input(z.object({
-    labelId: z.string(), // TODO: Verify ID
-  })).mutation(async ({ ctx, input }) => {
+  removeLabel: ensureUserIsMember.input(LabelModifySchema).mutation(async ({ ctx, input }) => {
     return await ctx.prisma.label.delete({
       where: {
         id: ctx.project.id
