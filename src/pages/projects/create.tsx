@@ -25,6 +25,7 @@ export default function ProjectCreate() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ProjectCreationType>({
     resolver: zodResolver(ProjectCreationSchema),
@@ -33,11 +34,12 @@ export default function ProjectCreate() {
   const onSubmit: SubmitHandler<ProjectCreationType> = (data) => {
     createProjectMutation
       .mutateAsync(data)
-      .then((response) => {
+      .then((response) =>
         router.push(`/${session?.user.namespace.name}/${response.name}`)
-      })
+      )
       .catch((error) => {
-        console.log('ERROR:', error)
+        setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
+        console.log('ERROR:', error) // TODO: remove this
       })
   }
 
@@ -65,9 +67,6 @@ export default function ProjectCreate() {
     )
   }, [session, userOrganizations.data])
 
-  // TODO: Look into this, there should be a better way
-  if (!session) return
-
   return (
     <>
       <Head>
@@ -92,6 +91,7 @@ export default function ProjectCreate() {
                           A project contains all stored issues.
                         </div>
                         <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-5">
+                          {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                           <form onSubmit={handleSubmit(onSubmit)}>
                             {errors.name?.message && (
                               <div className="py-3">
@@ -108,13 +108,14 @@ export default function ProjectCreate() {
                                   htmlFor="owner"
                                 >
                                   Owner <span className="text-rose-500">*</span>
+                                  <select
+                                    className="form-input w-full"
+                                    // eslint-disable-next-line react/jsx-props-no-spreading
+                                    {...register('owner')}
+                                  >
+                                    {options}
+                                  </select>
                                 </label>
-                                <select
-                                  className="form-input w-full"
-                                  {...register('owner')}
-                                >
-                                  {options}
-                                </select>
                               </div>
 
                               <div className="auto-cols-auto pt-6 font-semibold text-2xl px-3">
@@ -132,6 +133,7 @@ export default function ProjectCreate() {
                                 <input
                                   className="form-input w-full"
                                   type="text"
+                                  // eslint-disable-next-line react/jsx-props-no-spreading
                                   {...register('name')}
                                 />
                               </div>
@@ -148,12 +150,14 @@ export default function ProjectCreate() {
                                   <label
                                     className="sr-only"
                                     htmlFor="description"
-                                  />
-                                  <input
-                                    className="form-input w-full"
-                                    type="text"
-                                    {...register('description')}
-                                  />
+                                  >
+                                    <input
+                                      className="form-input w-full"
+                                      type="text"
+                                      // eslint-disable-next-line react/jsx-props-no-spreading
+                                      {...register('description')}
+                                    />
+                                  </label>
                                 </div>
                               </div>
                             </section>
@@ -167,6 +171,7 @@ export default function ProjectCreate() {
 
                               <div className="flex flew-row gap-x-4 items-center pb-3">
                                 <input
+                                  // eslint-disable-next-line react/jsx-props-no-spreading
                                   {...register('visibility')}
                                   className="form-radio"
                                   type="radio"
@@ -182,6 +187,7 @@ export default function ProjectCreate() {
                               </div>
                               <div className="flex flew-row gap-x-4 items-center">
                                 <input
+                                  // eslint-disable-next-line react/jsx-props-no-spreading
                                   {...register('visibility')}
                                   className="form-radio"
                                   type="radio"

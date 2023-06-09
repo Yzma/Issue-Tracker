@@ -15,20 +15,19 @@ export default function FinishUserCreation() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignUpSchemaType>({
     resolver: zodResolver(NamespaceSchema),
   })
 
-  const onSubmit: SubmitHandler<SignUpSchemaType> = (data) => {
-    submitUserRouter
+  const onSubmit: SubmitHandler<SignUpSchemaType> = async (data) => {
+    await submitUserRouter
       .mutateAsync(data)
-      .then((response) => {
-        console.log('RESPONSE:', response)
-        router.push(`/${data.name}`)
-      })
+      .then(() => router.push(`/${data.name}`)) // TODO: Make response return the name
       .catch((error) => {
-        console.log('ERROR:', error)
+        setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
+        console.log('ERROR:', error) // TODO: remove this
       })
   }
 
@@ -51,6 +50,7 @@ export default function FinishUserCreation() {
 
             <div>
               <div className="space-y-4">
+                {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                 <form onSubmit={handleSubmit(onSubmit)}>
                   {errors.name?.message && (
                     <div className="py-3">
@@ -60,15 +60,19 @@ export default function FinishUserCreation() {
                     </div>
                   )}
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label
+                      className="block text-sm font-medium mb-1"
+                      htmlFor="name"
+                    >
                       Username
                       <span className="text-rose-500">*</span>
+                      <input
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        type="text"
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...register('name')}
+                      />
                     </label>
-                    <input
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      type="text"
-                      {...register('name')}
-                    />
                   </div>
 
                   <div className="mt-6">

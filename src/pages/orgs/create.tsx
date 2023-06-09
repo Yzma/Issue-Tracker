@@ -25,11 +25,9 @@ export default function OrganizationCreate() {
   const onSubmit: SubmitHandler<OrganizationCreationType> = (data) => {
     createOrganizationMutation
       .mutateAsync(data)
-      .then((response) => {
-        console.log('RESPONSE:', response)
-        router.push(`/${response.name}`)
-      })
+      .then((response) => router.push(`/${response.name}`))
       .catch((error) => {
+        // setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
         console.log('ERROR:', error)
       })
   }
@@ -53,6 +51,7 @@ export default function OrganizationCreate() {
 
             <div>
               <div className="space-y-4">
+                {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                 <form onSubmit={handleSubmit(onSubmit)}>
                   {errors.name?.message && (
                     <div className="py-3">
@@ -63,14 +62,18 @@ export default function OrganizationCreate() {
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label
+                      className="block text-sm font-medium mb-1"
+                      htmlFor="name"
+                    >
                       Organization Name <span className="text-rose-500">*</span>
+                      <input
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        type="text"
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...register('name')}
+                      />
                     </label>
-                    <input
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      type="text"
-                      {...register('name')}
-                    />
                   </div>
 
                   <div className="text-sm pt-4">
