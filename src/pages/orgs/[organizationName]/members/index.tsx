@@ -1,63 +1,64 @@
-import { useState } from "react"
-import Head from "next/head"
-import Link from "next/link"
-import { useRouter } from "next/router"
+import { useState } from 'react'
+import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
-import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
-import Header from "@/components/Header"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faXmark } from "@fortawesome/free-solid-svg-icons"
+import moment from 'moment'
+import * as Dialog from '@radix-ui/react-dialog'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
-import moment from "moment"
-import * as Dialog from "@radix-ui/react-dialog"
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import { useSession } from 'next-auth/react'
 
-import prisma from "@/lib/prisma/prisma"
-import { useSession } from "next-auth/react"
+import axios from 'axios'
 
-import axios from "axios"
-
-import { GetServerSideProps, InferGetServerSidePropsType } from "next"
-import { OrganizationRole } from "@prisma/client"
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { OrganizationRole } from '@prisma/client'
+import prisma from '@/lib/prisma/prisma'
+import Header from '@/components/Header'
+import OrganizationBelowNavbar from '@/components/navbar/OrganizationBelowNavbar'
 
 type OrganizationMembersProps = {
   id: string
   role: OrganizationRole
   createdAt: Date
   user: {
-    id: string,
+    id: string
     username: string
   }
 }[]
 
-export default function OrganizationMembers({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function OrganizationMembers({
+  data,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { organizationName } = router.query
 
   const { data: session } = useSession()
 
-  const [open, setOpen] = useState<{ id?: string, name?: string}>({})
+  const [open, setOpen] = useState<{ id?: string; name?: string }>({})
 
   console.log(session)
-  console.log("Data: ", data)
+  console.log('Data: ', data)
 
   const removeMember = (memberId: string) => {
-    console.log("removing ", memberId)
+    console.log('removing ', memberId)
     axios
       .delete(`/api/organization/${organizationName}/members`, {
         data: {
-          memberId: memberId
-        }
+          memberId,
+        },
       })
       .then((response) => {
-        console.log("RESPONSE:", response)
+        console.log('RESPONSE:', response)
         // TODO: Redirect to new project page
         // router.push("/")
       })
       .catch((error) => {
-        console.log("ERROR:", error.response.data)
-        console.log("ERROR:", error)
+        console.log('ERROR:', error.response.data)
+        console.log('ERROR:', error)
       })
   }
 
@@ -81,18 +82,22 @@ export default function OrganizationMembers({ data }: InferGetServerSidePropsTyp
             <div
               className="gap-2"
               style={{
-                display: "flex",
+                display: 'flex',
                 marginTop: 25,
-                justifyContent: "flex-end"
+                justifyContent: 'flex-end',
               }}
             >
               <Dialog.Close asChild>
-                <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                <button
+                  type="button"
+                  className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                >
                   Cancel
                 </button>
               </Dialog.Close>
               <Dialog.Close asChild>
                 <button
+                  type="button"
                   className="btn bg-red-500 hover:bg-red-600 text-white"
                   onClick={() => removeMember(open.id)}
                 >
@@ -101,7 +106,7 @@ export default function OrganizationMembers({ data }: InferGetServerSidePropsTyp
               </Dialog.Close>
             </div>
             <Dialog.Close asChild>
-              <button className="IconButton" aria-label="Close">
+              <button type="button" className="IconButton" aria-label="Close">
                 <FontAwesomeIcon icon={faXmark} />
               </button>
             </Dialog.Close>
@@ -112,7 +117,10 @@ export default function OrganizationMembers({ data }: InferGetServerSidePropsTyp
       <div className="flex h-screen overflow-hidden bg-slate-100">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <Header />
-          <OrganizationBelowNavbar namespaceName={organizationName} selected={"members"} />
+          <OrganizationBelowNavbar
+            namespaceName={organizationName}
+            selected="members"
+          />
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
               <div className="sm:flex sm:justify-between sm:items-center mb-8">
@@ -126,7 +134,7 @@ export default function OrganizationMembers({ data }: InferGetServerSidePropsTyp
               <div className="bg-white shadow-lg rounded-sm border border-slate-200 relative">
                 <header className="px-5 py-4">
                   <h2 className="font-semibold text-slate-800">
-                    {organizationName} Members ({data.length}){" "}
+                    {organizationName} Members ({data.length}){' '}
                   </h2>
                 </header>
 
@@ -167,17 +175,19 @@ export default function OrganizationMembers({ data }: InferGetServerSidePropsTyp
                                 >
                                   {member.user.username}
                                 </Link>
-                                {(session && session.user.username === member.user.username) &&
-                                  <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-500 bg-green-100 rounded-full">
-                                    You
-                                  </span>
-                                }
+                                {session &&
+                                  session.user.username ===
+                                    member.user.username && (
+                                    <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-500 bg-green-100 rounded-full">
+                                      You
+                                    </span>
+                                  )}
                               </div>
                             </td>
 
                             <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                               <div className="text-center">
-                                {moment(member.createdAt).format("MMM Do YY")}
+                                {moment(member.createdAt).format('MMM Do YY')}
                               </div>
                             </td>
 
@@ -208,12 +218,12 @@ export default function OrganizationMembers({ data }: InferGetServerSidePropsTyp
                                       onClick={() =>
                                         setOpen({
                                           id: member.id,
-                                          name: member.user.username
+                                          name: member.user.username,
                                         })
                                       }
                                     >
                                       Remove User
-                                      <div className="RightSlot"></div>
+                                      <div className="RightSlot" />
                                     </DropdownMenu.Item>
                                   </DropdownMenu.Content>
                                 </DropdownMenu.Portal>
@@ -234,16 +244,18 @@ export default function OrganizationMembers({ data }: InferGetServerSidePropsTyp
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{ data: OrganizationMembersProps }> = async (context) => {
+export const getServerSideProps: GetServerSideProps<{
+  data: OrganizationMembersProps
+}> = async (context) => {
   const { organizationName } = context.query
 
   // @ts-ignore
-  const members = await prisma.member.findMany({
+  const members = (await prisma.member.findMany({
     where: {
       organization: {
         // @ts-ignore
-        name: organizationName
-      }
+        name: organizationName,
+      },
     },
 
     select: {
@@ -253,15 +265,15 @@ export const getServerSideProps: GetServerSideProps<{ data: OrganizationMembersP
       user: {
         select: {
           id: true,
-          username: true
-        }
-      }
+          username: true,
+        },
+      },
     },
-  }) as OrganizationMembersProps
+  })) as OrganizationMembersProps
 
   return {
     props: {
-      data: members
-    }
+      data: members,
+    },
   }
 }

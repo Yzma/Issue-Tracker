@@ -1,22 +1,26 @@
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider } from 'next-auth/react'
 
-import { trpc } from "@/lib/trpc";
+import { trpc } from '@/lib/trpc'
 
-import { config } from "@fortawesome/fontawesome-svg-core";
-import "@fortawesome/fontawesome-svg-core/styles.css"; 
+import { config } from '@fortawesome/fontawesome-svg-core'
+import '@fortawesome/fontawesome-svg-core/styles.css'
 
-import "@/styles/globals.css";
-import "@/styles/popover-styles.css"
+import '@/styles/globals.css'
+import '@/styles/popover-styles.css'
 
-config.autoAddCss = false;
+import type { AppType } from 'next/app'
 
-import type { AppType } from 'next/app';
+config.autoAddCss = false
 
-const MyApp: AppType = ({ Component, pageProps: { session, ...pageProps } }) => {
+const MyApp: AppType = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}) => {
   return (
-  <SessionProvider session={session}>
-    <Component {...pageProps} />
-  </SessionProvider>
-)};
+    <SessionProvider session={session}>
+      <Component {...pageProps} />
+    </SessionProvider>
+  )
+}
 
-export default trpc.withTRPC(MyApp);
+export default trpc.withTRPC(MyApp)

@@ -1,31 +1,38 @@
-import Head from "next/head"
-import { useRouter } from "next/router"
-import Header from "@/components/Header"
+import Head from 'next/head'
+import { useRouter } from 'next/router'
 
-import { trpc } from "@/lib/trpc"
-import { SubmitHandler, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { NamespaceSchema } from "@/lib/zod-schemas"
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { trpc } from '@/lib/trpc'
+import Header from '@/components/Header'
+import { NamespaceSchema } from '@/lib/zod-schemas'
 
-type OrganizationCreationType = z.infer<typeof NamespaceSchema>;
+type OrganizationCreationType = z.infer<typeof NamespaceSchema>
 
 export default function OrganizationCreate() {
   const router = useRouter()
-  const createOrganizationMutation = trpc.organizations.createOrganization.useMutation()
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<OrganizationCreationType>({
-    resolver: zodResolver(NamespaceSchema)
-  });
+  const createOrganizationMutation =
+    trpc.organizations.createOrganization.useMutation()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<OrganizationCreationType>({
+    resolver: zodResolver(NamespaceSchema),
+  })
 
-  const onSubmit: SubmitHandler<OrganizationCreationType> = data => {
-    createOrganizationMutation.mutateAsync(data).then((response) => {
-      console.log("RESPONSE:", response)
-      router.push(`/${response.name}`)
-    })
-      .catch((error) => {
-        console.log("ERROR:", error)
+  const onSubmit: SubmitHandler<OrganizationCreationType> = (data) => {
+    createOrganizationMutation
+      .mutateAsync(data)
+      .then((response) => {
+        console.log('RESPONSE:', response)
+        router.push(`/${response.name}`)
       })
-  };
+      .catch((error) => {
+        console.log('ERROR:', error)
+      })
+  }
   return (
     <>
       <Head>
@@ -46,30 +53,30 @@ export default function OrganizationCreate() {
 
             <div>
               <div className="space-y-4">
-
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  {errors.name?.message && <div className="py-3">
-                    <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
-                      <div>You must enter a valid organization name!</div>
+                  {errors.name?.message && (
+                    <div className="py-3">
+                      <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                        <div>You must enter a valid organization name!</div>
+                      </div>
                     </div>
-                  </div>
-                  }
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Organization Name{" "}
-                      <span className="text-rose-500">*</span>
+                      Organization Name <span className="text-rose-500">*</span>
                     </label>
                     <input
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       type="text"
-                      {...register("name")}
+                      {...register('name')}
                     />
-
                   </div>
 
                   <div className="text-sm pt-4">
-                    <p>This will be the name of your account on Issue Tracker.</p>
+                    <p>
+                      This will be the name of your account on Issue Tracker.
+                    </p>
                   </div>
 
                   <div className="mt-6">

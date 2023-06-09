@@ -1,39 +1,45 @@
-import { useMemo } from "react"
-import Head from "next/head"
-import { useRouter } from "next/router"
-import Header from "@/components/Header"
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useSession } from "next-auth/react"
-import { createServerSideHelpers } from '@trpc/react-query/server';
-import { SubmitHandler, useForm } from "react-hook-form";
-import { ProjectCreationSchema } from "@/lib/zod-schemas";
-import { z } from "zod";
+import { useMemo } from 'react'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useSession } from 'next-auth/react'
+import { createServerSideHelpers } from '@trpc/react-query/server'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-import superjson from 'superjson';
-import { appRouter } from "@/server/root";
-import { trpc } from "@/lib/trpc";
+import superjson from 'superjson'
+import { ProjectCreationSchema } from '@/lib/zod-schemas'
+import Header from '@/components/Header'
+import { appRouter } from '@/server/root'
+import { trpc } from '@/lib/trpc'
 
-type ProjectCreationType = z.infer<typeof ProjectCreationSchema>;
+type ProjectCreationType = z.infer<typeof ProjectCreationSchema>
 
 export default function ProjectCreate() {
   const router = useRouter()
 
   const createProjectMutation = trpc.projects.create.useMutation()
-  const userOrganizations = trpc.users.getOrganizations.useQuery();
+  const userOrganizations = trpc.users.getOrganizations.useQuery()
   const { data: session } = useSession()
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProjectCreationType>({
-    resolver: zodResolver(ProjectCreationSchema)
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ProjectCreationType>({
+    resolver: zodResolver(ProjectCreationSchema),
+  })
 
-  const onSubmit: SubmitHandler<ProjectCreationType> = data => {
-    createProjectMutation.mutateAsync(data).then((response) => {
-      router.push(`/${session?.user.namespace.name}/${response.name}`)
-    })
-    .catch((error) => {
-      console.log("ERROR:", error)
-    })
-  };
+  const onSubmit: SubmitHandler<ProjectCreationType> = (data) => {
+    createProjectMutation
+      .mutateAsync(data)
+      .then((response) => {
+        router.push(`/${session?.user.namespace.name}/${response.name}`)
+      })
+      .catch((error) => {
+        console.log('ERROR:', error)
+      })
+  }
 
   const options = useMemo(() => {
     if (!userOrganizations.data) return []
@@ -56,7 +62,6 @@ export default function ProjectCreate() {
           )
         })}
       </>
-
     )
   }, [session, userOrganizations.data])
 
@@ -87,14 +92,14 @@ export default function ProjectCreate() {
                           A project contains all stored issues.
                         </div>
                         <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-5">
-
                           <form onSubmit={handleSubmit(onSubmit)}>
-                            {errors.name?.message && <div className="py-3">
-                              <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
-                                <div>You must enter a valid username!</div>
+                            {errors.name?.message && (
+                              <div className="py-3">
+                                <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                                  <div>You must enter a valid username!</div>
+                                </div>
                               </div>
-                            </div>
-                            }
+                            )}
 
                             <section className="flex flex-row mb-4">
                               <div className="sm:w-1/3">
@@ -102,12 +107,11 @@ export default function ProjectCreate() {
                                   className="block text-sm font-medium mb-1"
                                   htmlFor="owner"
                                 >
-                                  Owner{" "}
-                                  <span className="text-rose-500">*</span>
+                                  Owner <span className="text-rose-500">*</span>
                                 </label>
                                 <select
                                   className="form-input w-full"
-                                  {...register("owner")}
+                                  {...register('owner')}
                                 >
                                   {options}
                                 </select>
@@ -122,13 +126,13 @@ export default function ProjectCreate() {
                                   className="block text-sm font-medium mb-1"
                                   htmlFor="name"
                                 >
-                                  Project Name{" "}
+                                  Project Name{' '}
                                   <span className="text-rose-500">*</span>
                                 </label>
                                 <input
                                   className="form-input w-full"
                                   type="text"
-                                  {...register("name")}
+                                  {...register('name')}
                                 />
                               </div>
                             </section>
@@ -144,11 +148,11 @@ export default function ProjectCreate() {
                                   <label
                                     className="sr-only"
                                     htmlFor="description"
-                                  ></label>
+                                  />
                                   <input
                                     className="form-input w-full"
                                     type="text"
-                                    {...register("description")}
+                                    {...register('description')}
                                   />
                                 </div>
                               </div>
@@ -162,22 +166,33 @@ export default function ProjectCreate() {
                               </h2>
 
                               <div className="flex flew-row gap-x-4 items-center pb-3">
-                                <input {...register("visibility")} className="form-radio" type="radio" value="public" defaultChecked />
+                                <input
+                                  {...register('visibility')}
+                                  className="form-radio"
+                                  type="radio"
+                                  value="public"
+                                  defaultChecked
+                                />
                                 <div>
                                   <p className="font-bold">Public</p>
                                   <p className="text-sm font-light">
-                                    Anyone on the internet can see this
-                                    project.
+                                    Anyone on the internet can see this project.
                                   </p>
                                 </div>
                               </div>
                               <div className="flex flew-row gap-x-4 items-center">
-                                <input {...register("visibility")} className="form-radio" type="radio" value="private" />
+                                <input
+                                  {...register('visibility')}
+                                  className="form-radio"
+                                  type="radio"
+                                  value="private"
+                                />
                                 <div>
                                   <p className="font-bold">Private</p>
                                   <p className="text-sm font-light">
-                                    Only invited users and users that are part of the same organization the project is created{" "}
-                                    will be able to view the project
+                                    Only invited users and users that are part
+                                    of the same organization the project is
+                                    created will be able to view the project
                                   </p>
                                 </div>
                               </div>
@@ -216,13 +231,13 @@ export async function getServerSideProps() {
     router: appRouter,
     ctx: {},
     transformer: superjson,
-  });
+  })
 
-  await helpers.users.getOrganizations.prefetch();
+  await helpers.users.getOrganizations.prefetch()
 
   return {
     props: {
       trpcState: helpers.dehydrate(),
     },
-  };
+  }
 }

@@ -1,26 +1,35 @@
-import Head from "next/head"
-import Image from "next/image"
-import Header from "@/components/Header"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Head from 'next/head'
+import Image from 'next/image'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faGithub,
   faGoogle,
   faGitlab,
   faMicrosoft,
-  faLinkedin
-} from "@fortawesome/free-brands-svg-icons"
+  faLinkedin,
+} from '@fortawesome/free-brands-svg-icons'
 
-import { getProviders, signIn, getSession, getCsrfToken, LiteralUnion, ClientSafeProvider } from "next-auth/react"
-import { GetServerSideProps, InferGetServerSidePropsType } from "next"
-import { BuiltInProviderType } from "next-auth/providers"
+import {
+  getProviders,
+  signIn,
+  getSession,
+  getCsrfToken,
+  LiteralUnion,
+  ClientSafeProvider,
+} from 'next-auth/react'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { BuiltInProviderType } from 'next-auth/providers'
+import Header from '@/components/Header'
 
-export default function SignIn({ providers }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function SignIn({
+  providers,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const providerIcons = {
     GitHub: faGithub,
     Google: faGoogle,
     GitLab: faGitlab,
     Microsoft: faMicrosoft,
-    LinkedIn: faLinkedin
+    LinkedIn: faLinkedin,
   }
 
   return (
@@ -47,10 +56,14 @@ export default function SignIn({ providers }: InferGetServerSidePropsType<typeof
                       return (
                         <div key={provider.name} className="mb-4">
                           <button
+                            type="button"
                             className="w-full bg-white hover:bg-gray-300 text-black p-2 rounded flex items-center justify-center border"
                             onClick={() => signIn(provider.id)}
                           >
-                            <FontAwesomeIcon icon={lookupIcon} className="mr-2" />
+                            <FontAwesomeIcon
+                              icon={lookupIcon}
+                              className="mr-2"
+                            />
                             Sign in with {provider.name}
                           </button>
                         </div>
@@ -67,8 +80,8 @@ export default function SignIn({ providers }: InferGetServerSidePropsType<typeof
               alt="Sign In Page"
               fill
               style={{
-                objectFit: "cover",
-                objectPosition: "center"
+                objectFit: 'cover',
+                objectPosition: 'center',
               }}
             />
           </div>
@@ -77,14 +90,20 @@ export default function SignIn({ providers }: InferGetServerSidePropsType<typeof
     </>
   )
 }
-export const getServerSideProps: GetServerSideProps<{ providers: Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>, csrfToken: string }> = async (context) => {
+export const getServerSideProps: GetServerSideProps<{
+  providers: Record<
+    LiteralUnion<BuiltInProviderType, string>,
+    ClientSafeProvider
+  >
+  csrfToken: string
+}> = async (context) => {
   const session = await getSession(context)
   if (session) {
     return {
       redirect: {
-        destination: "/",
-        permanent: false
-      }
+        destination: '/',
+        permanent: false,
+      },
     }
   }
 
@@ -94,7 +113,7 @@ export const getServerSideProps: GetServerSideProps<{ providers: Record<LiteralU
   return {
     props: {
       providers,
-      csrfToken
-    }
+      csrfToken,
+    },
   }
 }

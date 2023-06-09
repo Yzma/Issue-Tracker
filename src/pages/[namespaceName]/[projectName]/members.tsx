@@ -1,27 +1,28 @@
-import { useState } from "react"
-import Head from "next/head"
-import Link from "next/link"
-import { useRouter } from "next/router"
+import { useState } from 'react'
+import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
-import Header from "@/components/Header"
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faXmark } from "@fortawesome/free-solid-svg-icons"
+import moment from 'moment'
+import * as Dialog from '@radix-ui/react-dialog'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
-import moment from "moment"
-import * as Dialog from "@radix-ui/react-dialog"
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import { useSession } from 'next-auth/react'
 
-import { useSession } from "next-auth/react"
-import prisma from "@/lib/prisma/prisma"
+import axios from 'axios'
 
-import axios from "axios"
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { OrganizationRole } from '@prisma/client'
+import prisma from '@/lib/prisma/prisma'
+import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
+import Header from '@/components/Header'
 
-import { GetServerSideProps, InferGetServerSidePropsType } from "next"
-import { OrganizationRole } from "@prisma/client"
-
-export default function ProjectMembers({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function ProjectMembers({
+  data,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
@@ -30,21 +31,21 @@ export default function ProjectMembers({ data }: InferGetServerSidePropsType<typ
   const [open, setOpen] = useState(false)
 
   const removeMember = (memberId: string) => {
-    console.log("removing ", memberId)
+    console.log('removing ', memberId)
     axios
       .delete(`/api/${namespaceName}/${projectName}/members`, {
         data: {
-          memberId: memberId
-        }
+          memberId,
+        },
       })
       .then((response) => {
-        console.log("RESPONSE:", response)
+        console.log('RESPONSE:', response)
         // TODO: Redirect to new project page
         // router.push("/")
       })
       .catch((error) => {
-        console.log("ERROR:", error.response.data)
-        console.log("ERROR:", error)
+        console.log('ERROR:', error.response.data)
+        console.log('ERROR:', error)
       })
   }
 
@@ -68,9 +69,9 @@ export default function ProjectMembers({ data }: InferGetServerSidePropsType<typ
             <div
               className="gap-2"
               style={{
-                display: "flex",
+                display: 'flex',
                 marginTop: 25,
-                justifyContent: "flex-end"
+                justifyContent: 'flex-end',
               }}
             >
               <Dialog.Close asChild>
@@ -102,7 +103,7 @@ export default function ProjectMembers({ data }: InferGetServerSidePropsType<typ
           <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
-            selected={"members"}
+            selected="members"
           />
 
           <main>
@@ -118,7 +119,7 @@ export default function ProjectMembers({ data }: InferGetServerSidePropsType<typ
               <div className="bg-white shadow-lg rounded-sm border border-slate-200 relative">
                 <header className="px-5 py-4">
                   <h2 className="font-semibold text-slate-800">
-                    {projectName} Members ({data.length}){" "}
+                    {projectName} Members ({data.length}){' '}
                   </h2>
                 </header>
 
@@ -160,7 +161,8 @@ export default function ProjectMembers({ data }: InferGetServerSidePropsType<typ
                                   {member.user.username}
                                 </Link>
                                 {session &&
-                                session.user.username === member.user.username ? (
+                                session.user.username ===
+                                  member.user.username ? (
                                   <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-500 bg-green-100 rounded-full">
                                     You
                                   </span>
@@ -172,7 +174,7 @@ export default function ProjectMembers({ data }: InferGetServerSidePropsType<typ
 
                             <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                               <div className="text-center">
-                                {moment(member.createdAt).format("MMM Do YY")}
+                                {moment(member.createdAt).format('MMM Do YY')}
                               </div>
                             </td>
 
@@ -203,12 +205,12 @@ export default function ProjectMembers({ data }: InferGetServerSidePropsType<typ
                                       onClick={() =>
                                         setOpen({
                                           id: member.id,
-                                          name: member.user.username
+                                          name: member.user.username,
                                         })
                                       }
                                     >
                                       Remove User
-                                      <div className="RightSlot"></div>
+                                      <div className="RightSlot" />
                                     </DropdownMenu.Item>
                                   </DropdownMenu.Content>
                                 </DropdownMenu.Portal>
@@ -234,12 +236,14 @@ type OrganizationMembersProps = {
   role: OrganizationRole
   createdAt: Date
   user: {
-    id: string,
+    id: string
     username: string
   }
 }[]
 
-export const getServerSideProps: GetServerSideProps<{ data: OrganizationMembersProps }> = async (context) => {
+export const getServerSideProps: GetServerSideProps<{
+  data: OrganizationMembersProps
+}> = async (context) => {
   const { namespaceName, projectName } = context.query
   const members: unknown = await prisma.member.findMany({
     where: {
@@ -248,9 +252,9 @@ export const getServerSideProps: GetServerSideProps<{ data: OrganizationMembersP
         name: projectName,
         namespace: {
           // @ts-ignore
-          name: namespaceName
-        }
-      }
+          name: namespaceName,
+        },
+      },
     },
     select: {
       id: true,
@@ -259,14 +263,14 @@ export const getServerSideProps: GetServerSideProps<{ data: OrganizationMembersP
       user: {
         select: {
           id: true,
-          username: true
-        }
-      }
-    }
-  }) 
+          username: true,
+        },
+      },
+    },
+  })
   return {
     props: {
-      data: members as OrganizationMembersProps
-    }
+      data: members as OrganizationMembersProps,
+    },
   }
 }

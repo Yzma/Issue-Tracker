@@ -1,49 +1,46 @@
-import React, { useState } from "react"
-import Head from "next/head"
-import Link from "next/link"
-import { useRouter } from "next/router"
+import React, { useState } from 'react'
+import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
-import Header from "@/components/Header"
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
-import IssueComment from "@/components/comment-api/IssueComment"
+import moment from 'moment'
+import { Formik, Form, Field } from 'formik'
 
-import moment from "moment"
-import { Formik, Form, Field } from "formik"
-import { IssueCreationSchema } from "@/lib/yup-schemas"
+import * as Dialog from '@radix-ui/react-dialog'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
-import * as Dialog from "@radix-ui/react-dialog"
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faLock,
   faThumbTack,
   faTrash,
   faGear,
   faCircle,
-  faXmark
-} from "@fortawesome/free-solid-svg-icons"
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons'
 
-import axios from "axios"
+import axios from 'axios'
 
-import { useSession } from "next-auth/react"
-import prisma from "@/lib/prisma/prisma"
+import { useSession } from 'next-auth/react'
+import { IssueCreationSchema } from '@/lib/yup-schemas'
+import IssueComment from '@/components/comment-api/IssueComment'
+import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
+import Header from '@/components/Header'
+import prisma from '@/lib/prisma/prisma'
 
-const FormButton = (props) => {
+function FormButton(props) {
   return (
-    <>
-      <button
-        {...props}
-        onClick={(e) => {
-          if (!props.shouldSubmit) {
-            e.preventDefault(e)
-          }
-          props.onClick?.(e)
-        }}
-      >
-        {props.children}
-      </button>
-    </>
+    <button
+      {...props}
+      onClick={(e) => {
+        if (!props.shouldSubmit) {
+          e.preventDefault(e)
+        }
+        props.onClick?.(e)
+      }}
+    >
+      {props.children}
+    </button>
   )
 }
 
@@ -59,7 +56,7 @@ export default function IssuesView(props) {
   issueState.comments.sort((a, b) => {
     return new Date(b.createdAt) - new Date(a.createdAt)
   })
-  console.log("ISSUE STATE: ", issueState)
+  console.log('ISSUE STATE: ', issueState)
 
   const [showEditTitle, setShowEditTitle] = useState(false)
   const [showEditDescription, setShowDescription] = useState(false)
@@ -111,18 +108,18 @@ export default function IssuesView(props) {
   const closeIssue = async () => {
     axios
       .put(`/api/${namespaceName}/${projectName}/issues`, {
-        issueId: issueId,
-        open: !issueState.open
+        issueId,
+        open: !issueState.open,
       })
       .then((response) => {
-        console.log("RESPONSE:", response)
+        console.log('RESPONSE:', response)
         setIssueState((prevState) => ({
           ...prevState,
-          open: response.data.result.open
+          open: response.data.result.open,
         }))
       })
       .catch((error) => {
-        console.log("ERROR:", error)
+        console.log('ERROR:', error)
       })
   }
 
@@ -130,46 +127,45 @@ export default function IssuesView(props) {
     const inverse = !issueState.pinned
     axios
       .put(`/api/${namespaceName}/${projectName}/issues`, {
-        issueId: issueId,
-        pinned: inverse
+        issueId,
+        pinned: inverse,
       })
       .then((response) => {
-        console.log("RESPONSE:", response)
+        console.log('RESPONSE:', response)
         setIssueState((prevState) => ({
           ...prevState,
-          pinned: response.data.result.pinned
+          pinned: response.data.result.pinned,
         }))
       })
       .catch((error) => {
-        console.log("ERROR:", error)
+        console.log('ERROR:', error)
       })
   }
 
   const deleteIssue = async () => {
     const data = {
-      issueId: issueState.id
+      issueId: issueState.id,
     }
-    console.log("deleting data ", data)
+    console.log('deleting data ', data)
 
     axios
       .delete(`/api/${namespaceName}/${projectName}/issues`, {
-        data: data
+        data,
       })
       .then((response) => {
-        console.log("RESPONSE:", response)
+        console.log('RESPONSE:', response)
       })
       .catch((error) => {
-        console.log("ERROR:", error)
+        console.log('ERROR:', error)
       })
   }
 
   const copyIssueLink = async () => {
     const link = `/${namespaceName}/${projectName}/issues/${issueId}`
-    if ("clipboard" in navigator) {
-      return await navigator.clipboard.writeText(link)
-    } else {
-      return document.execCommand("copy", true, link)
+    if ('clipboard' in navigator) {
+      return navigator.clipboard.writeText(link)
     }
+    return document.execCommand('copy', true, link)
   }
 
   return (
@@ -207,9 +203,9 @@ export default function IssuesView(props) {
             <div
               className="gap-2"
               style={{
-                display: "flex",
+                display: 'flex',
                 marginTop: 25,
-                justifyContent: "flex-end"
+                justifyContent: 'flex-end',
               }}
             >
               <Dialog.Close asChild>
@@ -259,15 +255,15 @@ export default function IssuesView(props) {
           <Dialog.Content className="DialogContent">
             <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
             <Dialog.Description className="DialogDescription">
-              Are you sure you want to{" "}
+              Are you sure you want to{' '}
               {issueState.open ? <>close</> : <>reopen</>} this issue?
             </Dialog.Description>
             <div
               className="gap-2"
               style={{
-                display: "flex",
+                display: 'flex',
                 marginTop: 25,
-                justifyContent: "flex-end"
+                justifyContent: 'flex-end',
               }}
             >
               <Dialog.Close asChild>
@@ -322,9 +318,9 @@ export default function IssuesView(props) {
             <div
               className="gap-2"
               style={{
-                display: "flex",
+                display: 'flex',
                 marginTop: 25,
-                justifyContent: "flex-end"
+                justifyContent: 'flex-end',
               }}
             >
               <Dialog.Close asChild>
@@ -376,15 +372,15 @@ export default function IssuesView(props) {
           <Dialog.Content className="DialogContent">
             <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
             <Dialog.Description className="DialogDescription">
-              Are you sure you want to {issueState.pinned ? "unpin" : "pin"}{" "}
+              Are you sure you want to {issueState.pinned ? 'unpin' : 'pin'}{' '}
               this issue?
             </Dialog.Description>
             <div
               className="gap-2"
               style={{
-                display: "flex",
+                display: 'flex',
                 marginTop: 25,
-                justifyContent: "flex-end"
+                justifyContent: 'flex-end',
               }}
             >
               <Dialog.Close asChild>
@@ -400,7 +396,7 @@ export default function IssuesView(props) {
                   className="btn bg-red-500 hover:bg-red-600 text-white"
                   onClick={pinIssue}
                 >
-                  {issueState.pinned ? "Unpin" : "Pin"} Issue
+                  {issueState.pinned ? 'Unpin' : 'Pin'} Issue
                 </button>
               </Dialog.Close>
             </div>
@@ -420,36 +416,36 @@ export default function IssuesView(props) {
           <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
-            selected={"issues"}
+            selected="issues"
           />
 
           <main>
             <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
-              <div class="col-start-2 col-span-6">
+              <div className="col-start-2 col-span-6">
                 {/* Title Section */}
                 <section>
                   {/* Title and Edit buttons */}
                   <Formik
                     initialValues={{
-                      name: ""
+                      name: '',
                     }}
                     // validationSchema={IssueCreationSchema}
                     onSubmit={(values, { setSubmitting }) => {
                       axios
                         .put(`/api/${namespaceName}/${projectName}/issues`, {
-                          issueId: issueId,
-                          name: values.name
+                          issueId,
+                          name: values.name,
                         })
                         .then((response) => {
-                          console.log("RESPONSE:", response)
+                          console.log('RESPONSE:', response)
                           setIssueState((prevState) => ({
                             ...prevState,
-                            name: response.data.result.name
+                            name: response.data.result.name,
                           }))
                           setShowEditTitle(false)
                         })
                         .catch((error) => {
-                          console.log("ERROR:", error)
+                          console.log('ERROR:', error)
                         })
                         .finally(() => {
                           setSubmitting(false)
@@ -475,7 +471,7 @@ export default function IssuesView(props) {
                           {showEditTitle ? (
                             <>
                               <FormButton
-                                shouldSubmit={true}
+                                shouldSubmit
                                 className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
                               >
                                 Save
@@ -522,7 +518,7 @@ export default function IssuesView(props) {
                           <>
                             <div className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full">
                               Pinned
-                            </div>{" "}
+                            </div>{' '}
                           </>
                         )}
                         {issueState.open && (
@@ -530,7 +526,7 @@ export default function IssuesView(props) {
                             <div className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full">
                               Open
                             </div>
-                            Opened{" "}
+                            Opened{' '}
                           </>
                         )}
                         {!issueState.open && (
@@ -538,15 +534,13 @@ export default function IssuesView(props) {
                             <div className="text-sm text-center font-semibold px-1.5 bg-rose-100 text-rose-600 rounded-full">
                               Closed
                             </div>
-                            Closed{" "}
+                            Closed{' '}
                           </>
                         )}
                       </div>
                       <div className="pl-1">
                         <p>
-                          {moment(issueState.createdAt).format("MMM Do YY")}
-                          {" "}
-                          by{" "}
+                          {moment(issueState.createdAt).format('MMM Do YY')} by{' '}
                           <Link
                             className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
                             href={`/${issueState.user.username}`}
@@ -557,7 +551,7 @@ export default function IssuesView(props) {
                       </div>
                     </div>
                   </div>
-                </section>{" "}
+                </section>{' '}
                 <hr className="mt-3 mb-2" />
               </div>
 
@@ -586,7 +580,7 @@ export default function IssuesView(props) {
 
                           <Formik
                             initialValues={{
-                              description: issueState.description
+                              description: issueState.description,
                             }}
                             // validationSchema={IssueCreationSchema}
                             onSubmit={(
@@ -597,23 +591,23 @@ export default function IssuesView(props) {
                                 .put(
                                   `/api/${namespaceName}/${projectName}/issues`,
                                   {
-                                    issueId: issueId,
-                                    description: values.description
+                                    issueId,
+                                    description: values.description,
                                   }
                                 )
                                 .then((response) => {
-                                  console.log("RESPONSE:", response)
+                                  console.log('RESPONSE:', response)
                                   setIssueState((prevState) => ({
                                     ...prevState,
                                     description:
-                                      response.data.result.description
+                                      response.data.result.description,
                                   }))
                                   setShowDescription(false)
                                   // props.issuesData.name = values.name // TODO: Probably a better way to do this
                                   // setShowEditTitle(false)
                                 })
                                 .catch((error) => {
-                                  console.log("ERROR:", error)
+                                  console.log('ERROR:', error)
                                 })
                                 .finally(() => {
                                   setSubmitting(false)
@@ -626,7 +620,7 @@ export default function IssuesView(props) {
                               isSubmitting,
                               values,
                               setFieldValue,
-                              setValues
+                              setValues,
                             }) => (
                               <Form>
                                 <IssueComment
@@ -639,7 +633,7 @@ export default function IssuesView(props) {
                                   }
                                   now={props.now}
                                   onChange={(text) =>
-                                    setFieldValue("description", text)
+                                    setFieldValue('description', text)
                                   }
                                   onEdit={() => setShowDescription(true)}
                                   onCancel={() => setShowDescription(false)}
@@ -678,224 +672,227 @@ export default function IssuesView(props) {
                       </section>
                       {/* End Issue body */}
 
-                     
-
                       {/* Comment Section */}
                       {issueState.comments.length > 0 && (
                         <>
-                         <hr className="mt-3 mb-6 divide-y divide-gray-400 hover:divide-y-8" />
-                         <section className="flex flex-col gap-y-12">
-                          <div className="font-bold text-slate-800 text-3xl">
-                            Comments ({issueState.comments.length})
-                          </div>
-
-                          {issueState.comments.map((comment, index) => (
-                            <div key={index}>
-                              <Formik
-                                initialValues={{
-                                  description: comment.description
-                                }}
-                                // validationSchema={IssueCreationSchema}
-                                onSubmit={(
-                                  values,
-                                  { setSubmitting, setFieldError }
-                                ) => {
-                                  axios
-                                    .put(
-                                      `/api/${namespaceName}/${projectName}/comments`,
-                                      {
-                                        commentId: comment.id,
-                                        description: values.description
-                                      }
-                                    )
-                                    .then((response) => {
-                                      console.log("RESPONSE:", response)
-
-                                      setIssueState((prevState) => ({
-                                        ...prevState,
-                                        comments: prevState.comments.map((comment, index) => {
-                                          if(comment.id === response.data.result.id) {
-                                            return {
-                                              ...comment,
-                                              description: response.data.result.description
-                                            }
-                                          }
-                                          return {
-                                            ...comment,
-                                          }
-                                        }) 
-                                      }))
-                                      setEditComment(null)
-                                    })
-                                    .catch((error) => {
-                                      console.log("ERROR:", error)
-                                    })
-                                    .finally(() => {
-                                      setSubmitting(false)
-                                    })
-                                }}
-                              >
-                                {({
-                                  errors,
-                                  isSubmitting,
-                                  values,
-                                  setFieldValue,
-                                  submitForm,
-                                  setValues
-                                }) => (
-                                  <Form>
-                                     <IssueComment
-                                text={comment.description}
-                                username={comment.user.username}
-                                createdAt={comment.createdAt}
-                                formatter={formatter}
-                                canEdit={
-                                  session &&
-                                  session.namespace === comment.user.username
-                                }
-                                now={props.now}
-                                onChange={(text) =>
-                                  setFieldValue("description", text)
-                                }
-                                onEdit={() =>
-                                  setEditComment({ id: comment.id })
-                                } //setShowDescription(true)
-                                onCancel={() => setEditComment(null)}
-                                onSubmit={() => submitForm()}
-                                editing={
-                                  showEditComment !== null &&
-                                  showEditComment.id === comment.id
-                                }
-                              />
-                                  </Form>
-                                )}
-                              </Formik>
-
-                             
+                          <hr className="mt-3 mb-6 divide-y divide-gray-400 hover:divide-y-8" />
+                          <section className="flex flex-col gap-y-12">
+                            <div className="font-bold text-slate-800 text-3xl">
+                              Comments ({issueState.comments.length})
                             </div>
 
-                            // <div key={index} className="card mb-5">
-                            //   <div className="card-header d-flex justify-content-between align-items-center">
-                            //     <div>
-                            //       <Link href={`/${comment.user.username}`}>
-                            //         {comment.user.username}
-                            //       </Link>{" "}
-                            //       commented{" "}
-                            //       {
-                            //         <TimeAgo
-                            //           date={comment.createdAt}
-                            //           live={false}
-                            //           now={() => props.now}
-                            //           formatter={formatter}
-                            //         />
-                            //       }
-                            //     </div>
+                            {issueState.comments.map((comment, index) => (
+                              <div key={index}>
+                                <Formik
+                                  initialValues={{
+                                    description: comment.description,
+                                  }}
+                                  // validationSchema={IssueCreationSchema}
+                                  onSubmit={(
+                                    values,
+                                    { setSubmitting, setFieldError }
+                                  ) => {
+                                    axios
+                                      .put(
+                                        `/api/${namespaceName}/${projectName}/comments`,
+                                        {
+                                          commentId: comment.id,
+                                          description: values.description,
+                                        }
+                                      )
+                                      .then((response) => {
+                                        console.log('RESPONSE:', response)
 
-                            //     {session &&
-                            //     session.user &&
-                            //     session.user.id === comment.user.id ? (
-                            //       <Dropdown>
-                            //         <Dropdown.Toggle
-                            //           as={CustomToggle}
-                            //           id="dropdown-custom-components"
-                            //         >
-                            //           Custom toggle
-                            //         </Dropdown.Toggle>
+                                        setIssueState((prevState) => ({
+                                          ...prevState,
+                                          comments: prevState.comments.map(
+                                            (comment, index) => {
+                                              if (
+                                                comment.id ===
+                                                response.data.result.id
+                                              ) {
+                                                return {
+                                                  ...comment,
+                                                  description:
+                                                    response.data.result
+                                                      .description,
+                                                }
+                                              }
+                                              return {
+                                                ...comment,
+                                              }
+                                            }
+                                          ),
+                                        }))
+                                        setEditComment(null)
+                                      })
+                                      .catch((error) => {
+                                        console.log('ERROR:', error)
+                                      })
+                                      .finally(() => {
+                                        setSubmitting(false)
+                                      })
+                                  }}
+                                >
+                                  {({
+                                    errors,
+                                    isSubmitting,
+                                    values,
+                                    setFieldValue,
+                                    submitForm,
+                                    setValues,
+                                  }) => (
+                                    <Form>
+                                      <IssueComment
+                                        text={comment.description}
+                                        username={comment.user.username}
+                                        createdAt={comment.createdAt}
+                                        formatter={formatter}
+                                        canEdit={
+                                          session &&
+                                          session.namespace ===
+                                            comment.user.username
+                                        }
+                                        now={props.now}
+                                        onChange={(text) =>
+                                          setFieldValue('description', text)
+                                        }
+                                        onEdit={() =>
+                                          setEditComment({ id: comment.id })
+                                        } // setShowDescription(true)
+                                        onCancel={() => setEditComment(null)}
+                                        onSubmit={() => submitForm()}
+                                        editing={
+                                          showEditComment !== null &&
+                                          showEditComment.id === comment.id
+                                        }
+                                      />
+                                    </Form>
+                                  )}
+                                </Formik>
+                              </div>
 
-                            //         <Dropdown.Menu>
-                            //           <Dropdown.Item
-                            //             onClick={() =>
-                            //               setEditComment({ id: comment.id })
-                            //             }
-                            //           >
-                            //             Edit
-                            //           </Dropdown.Item>
-                            //           <Dropdown.Item
-                            //             onClick={() => handleShow(comment)}
-                            //           >
-                            //             Delete
-                            //           </Dropdown.Item>
-                            //         </Dropdown.Menu>
-                            //       </Dropdown>
-                            //     ) : (
-                            //       <div></div>
-                            //     )}
-                            //   </div>
-                            //   <div className="card-body">
-                            //     {showEditComment &&
-                            //     showEditComment.id === comment.id ? (
-                            // <Formik
-                            //   initialValues={{
-                            //     description: comment.description
-                            //   }}
-                            //   // validationSchema={IssueCreationSchema}
-                            //   onSubmit={(
-                            //     values,
-                            //     { setSubmitting, setFieldError }
-                            //   ) => {
-                            //     axios
-                            //       .put(
-                            //         `/api/${namespaceName}/${projectName}/comments`,
-                            //         {
-                            //           commentId: comment.id,
-                            //           description: values.description
-                            //         }
-                            //       )
-                            //       .then((response) => {
-                            //         console.log("RESPONSE:", response)
-                            //         // props.issuesData.name = values.name // TODO: Probably a better way to do this
-                            //         // setShowEditTitle(false)
-                            //       })
-                            //       .catch((error) => {
-                            //         console.log("ERROR:", error)
-                            //       })
-                            //       .finally(() => {
-                            //         setSubmitting(false)
-                            //       })
-                            //   }}
-                            // >
-                            //   {({
-                            //     errors,
-                            //     isSubmitting,
-                            //     values,
-                            //     setFieldValue,
-                            //     setValues
-                            //   }) => (
-                            //     <Form>
-                            //       <MarkdownEditor
-                            //         placeholder={comment.description}
-                            //         onChange={(text) =>
-                            //           setFieldValue("description", text)
-                            //         }
-                            //       >
-                            //         <div className="d-flex flex-row-reverse">
-                            //           <button
-                            //             type="submit"
-                            //             className="btn btn-danger"
-                            //             onClick={() => setEditComment(null)}
-                            //           >
-                            //             Cancel
-                            //           </button>
-                            //           <button
-                            //             type="submit"
-                            //             className="btn btn-success"
-                            //           >
-                            //             Submit
-                            //           </button>
-                            //         </div>
-                            //       </MarkdownEditor>
-                            //     </Form>
-                            //   )}
-                            // </Formik>
-                            //     ) : (
-                            //       <MarkdownViewer text={comment.description} />
-                            //     )}
-                            //   </div>
-                            // </div>
-                          ))}
-                        </section>
+                              // <div key={index} className="card mb-5">
+                              //   <div className="card-header d-flex justify-content-between align-items-center">
+                              //     <div>
+                              //       <Link href={`/${comment.user.username}`}>
+                              //         {comment.user.username}
+                              //       </Link>{" "}
+                              //       commented{" "}
+                              //       {
+                              //         <TimeAgo
+                              //           date={comment.createdAt}
+                              //           live={false}
+                              //           now={() => props.now}
+                              //           formatter={formatter}
+                              //         />
+                              //       }
+                              //     </div>
+
+                              //     {session &&
+                              //     session.user &&
+                              //     session.user.id === comment.user.id ? (
+                              //       <Dropdown>
+                              //         <Dropdown.Toggle
+                              //           as={CustomToggle}
+                              //           id="dropdown-custom-components"
+                              //         >
+                              //           Custom toggle
+                              //         </Dropdown.Toggle>
+
+                              //         <Dropdown.Menu>
+                              //           <Dropdown.Item
+                              //             onClick={() =>
+                              //               setEditComment({ id: comment.id })
+                              //             }
+                              //           >
+                              //             Edit
+                              //           </Dropdown.Item>
+                              //           <Dropdown.Item
+                              //             onClick={() => handleShow(comment)}
+                              //           >
+                              //             Delete
+                              //           </Dropdown.Item>
+                              //         </Dropdown.Menu>
+                              //       </Dropdown>
+                              //     ) : (
+                              //       <div></div>
+                              //     )}
+                              //   </div>
+                              //   <div className="card-body">
+                              //     {showEditComment &&
+                              //     showEditComment.id === comment.id ? (
+                              // <Formik
+                              //   initialValues={{
+                              //     description: comment.description
+                              //   }}
+                              //   // validationSchema={IssueCreationSchema}
+                              //   onSubmit={(
+                              //     values,
+                              //     { setSubmitting, setFieldError }
+                              //   ) => {
+                              //     axios
+                              //       .put(
+                              //         `/api/${namespaceName}/${projectName}/comments`,
+                              //         {
+                              //           commentId: comment.id,
+                              //           description: values.description
+                              //         }
+                              //       )
+                              //       .then((response) => {
+                              //         console.log("RESPONSE:", response)
+                              //         // props.issuesData.name = values.name // TODO: Probably a better way to do this
+                              //         // setShowEditTitle(false)
+                              //       })
+                              //       .catch((error) => {
+                              //         console.log("ERROR:", error)
+                              //       })
+                              //       .finally(() => {
+                              //         setSubmitting(false)
+                              //       })
+                              //   }}
+                              // >
+                              //   {({
+                              //     errors,
+                              //     isSubmitting,
+                              //     values,
+                              //     setFieldValue,
+                              //     setValues
+                              //   }) => (
+                              //     <Form>
+                              //       <MarkdownEditor
+                              //         placeholder={comment.description}
+                              //         onChange={(text) =>
+                              //           setFieldValue("description", text)
+                              //         }
+                              //       >
+                              //         <div className="d-flex flex-row-reverse">
+                              //           <button
+                              //             type="submit"
+                              //             className="btn btn-danger"
+                              //             onClick={() => setEditComment(null)}
+                              //           >
+                              //             Cancel
+                              //           </button>
+                              //           <button
+                              //             type="submit"
+                              //             className="btn btn-success"
+                              //           >
+                              //             Submit
+                              //           </button>
+                              //         </div>
+                              //       </MarkdownEditor>
+                              //     </Form>
+                              //   )}
+                              // </Formik>
+                              //     ) : (
+                              //       <MarkdownViewer text={comment.description} />
+                              //     )}
+                              //   </div>
+                              // </div>
+                            ))}
+                          </section>
                         </>
-
                       )}
 
                       {/* End Comment Section  */}
@@ -909,7 +906,7 @@ export default function IssuesView(props) {
 
                         <Formik
                           initialValues={{
-                            description: ""
+                            description: '',
                           }}
                           // validationSchema={IssueCreationSchema}
                           onSubmit={(
@@ -920,17 +917,17 @@ export default function IssuesView(props) {
                               .post(
                                 `/api/${namespaceName}/${projectName}/comments`,
                                 {
-                                  issueId: issueId,
-                                  description: values.description
+                                  issueId,
+                                  description: values.description,
                                 }
                               )
                               .then((response) => {
-                                console.log("RESPONSE:", response)
+                                console.log('RESPONSE:', response)
                                 // TODO: Render to the screen - don't refresh the page
                               })
                               .catch((error) => {
-                                console.log("ERROR:", error.response.data)
-                                console.log("ERROR:", error)
+                                console.log('ERROR:', error.response.data)
+                                console.log('ERROR:', error)
                               })
                               .finally(() => {
                                 setSubmitting(false)
@@ -943,7 +940,7 @@ export default function IssuesView(props) {
                             values,
                             setFieldValue,
                             submitForm,
-                            setValues
+                            setValues,
                           }) => (
                             <Form>
                               {(errors.name ||
@@ -962,13 +959,13 @@ export default function IssuesView(props) {
                               )}
 
                               <IssueComment
-                                text={""}
+                                text=""
                                 canEdit={false}
                                 onChange={(text) =>
-                                  setFieldValue("description", text)
+                                  setFieldValue('description', text)
                                 }
                                 onSubmit={() => submitForm()}
-                                editing={true}
+                                editing
                               />
 
                               {/* <MarkdownEditor
@@ -1051,7 +1048,7 @@ export default function IssuesView(props) {
                                   <FontAwesomeIcon
                                     className="mr-4 align-self-center align-middle"
                                     style={{
-                                      color: `#${label.color}`
+                                      color: `#${label.color}`,
                                     }}
                                     icon={faCircle}
                                   />
@@ -1070,7 +1067,7 @@ export default function IssuesView(props) {
                     <div>
                       <Formik
                         initialValues={{
-                          labels: labels
+                          labels,
                         }}
                         // validationSchema={IssueCreationSchema}
                         onSubmit={(
@@ -1082,25 +1079,25 @@ export default function IssuesView(props) {
                             return { id: e.id }
                           })
 
-                          console.log("map: ", map)
+                          console.log('map: ', map)
                           axios
                             .put(
                               `/api/${namespaceName}/${projectName}/issues`,
                               {
-                                issueId: issueId,
-                                labels: map
+                                issueId,
+                                labels: map,
                               }
                             )
                             .then((response) => {
-                              console.log("RESPONSE:", response)
+                              console.log('RESPONSE:', response)
                               setIssueState((prevState) => ({
                                 ...prevState,
-                                labels: response.data.result.labels
+                                labels: response.data.result.labels,
                               }))
                             })
                             .catch((error) => {
-                              console.log("ERROR:", error.response.data)
-                              console.log("ERROR:", error)
+                              console.log('ERROR:', error.response.data)
+                              console.log('ERROR:', error)
                             })
                             .finally(() => {
                               setSubmitting(false)
@@ -1112,7 +1109,7 @@ export default function IssuesView(props) {
                           isSubmitting,
                           values,
                           setFieldValue,
-                          setValues
+                          setValues,
                         }) => (
                           <Form>
                             <div className="flex gap-x-1 pt-2">
@@ -1120,8 +1117,8 @@ export default function IssuesView(props) {
                                 <span
                                   className="text-sm text-center font-semibold text-white px-1.5 bg-emerald-500 rounded-full"
                                   style={{
-                                    color: "white",
-                                    background: `#${label.color}`
+                                    color: 'white',
+                                    background: `#${label.color}`,
                                   }}
                                   key={index}
                                 >
@@ -1131,17 +1128,15 @@ export default function IssuesView(props) {
                             </div>
 
                             {!arraysEqual(labels, defaultLabels) && (
-                              <>
-                                <div className="d-flex flex-row-reverse pt-5">
-                                  <button
-                                    type="submit"
-                                    className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white"
-                                    disabled={isSubmitting}
-                                  >
-                                    Save Changes
-                                  </button>
-                                </div>
-                              </>
+                              <div className="d-flex flex-row-reverse pt-5">
+                                <button
+                                  type="submit"
+                                  className="btn-xs h-8 bg-emerald-500 hover:bg-emerald-600 text-white"
+                                  disabled={isSubmitting}
+                                >
+                                  Save Changes
+                                </button>
+                              </div>
                             )}
                           </Form>
                         )}
@@ -1171,7 +1166,7 @@ export default function IssuesView(props) {
                       className="text-gray-600 font-semibold hover:text-gray-900 hover:underline hover:cursor-pointer"
                       onClick={() => setPinIssue(true)}
                     >
-                      {issueState.pinned ? "Unpin" : "Pin"} Issue
+                      {issueState.pinned ? 'Unpin' : 'Pin'} Issue
                     </a>
                   </div>
 
@@ -1198,10 +1193,10 @@ export default function IssuesView(props) {
 export async function getServerSideProps(context) {
   const { namespaceName, projectName, issueId } = context.query
 
-  console.log("issueId", issueId)
+  console.log('issueId', issueId)
   const issuesData = await prisma.issue.findFirst({
     where: {
-      id: issueId
+      id: issueId,
     },
 
     select: {
@@ -1218,14 +1213,14 @@ export async function getServerSideProps(context) {
       user: {
         select: {
           id: true,
-          username: true
-        }
+          username: true,
+        },
       },
 
       project: {
         select: {
-          labels: true
-        }
+          labels: true,
+        },
       },
 
       labels: true,
@@ -1238,12 +1233,12 @@ export async function getServerSideProps(context) {
           user: {
             select: {
               id: true,
-              username: true
-            }
-          }
-        }
-      }
-    }
+              username: true,
+            },
+          },
+        },
+      },
+    },
   })
 
   console.log(issuesData)
@@ -1251,9 +1246,9 @@ export async function getServerSideProps(context) {
   if (!issuesData) {
     return {
       redirect: {
-        destination: "/404",
-        permanent: false
-      }
+        destination: '/404',
+        permanent: false,
+      },
     }
   }
 
@@ -1261,7 +1256,7 @@ export async function getServerSideProps(context) {
     return {
       ...e,
       createdAt: e.createdAt.toISOString(),
-      updatedAt: e.updatedAt.toISOString()
+      updatedAt: e.updatedAt.toISOString(),
     }
   })
 
@@ -1272,8 +1267,8 @@ export async function getServerSideProps(context) {
         ...issuesData,
         comments: mappedComments,
         createdAt: issuesData.createdAt.toISOString(),
-        updatedAt: issuesData.updatedAt.toISOString()
-      }
-    }
+        updatedAt: issuesData.updatedAt.toISOString(),
+      },
+    },
   }
 }

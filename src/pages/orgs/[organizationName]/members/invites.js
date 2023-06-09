@@ -1,21 +1,21 @@
-import { useState } from "react"
-import Head from "next/head"
-import Link from "next/link"
-import { useRouter } from "next/router"
+import { useState } from 'react'
+import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faXmark } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
 
-import * as Dialog from "@radix-ui/react-dialog"
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import * as Dialog from '@radix-ui/react-dialog'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
-import { useSession } from "next-auth/react"
+import { useSession } from 'next-auth/react'
 
-import axios from "axios"
-import prisma from "@/lib/prisma/prisma"
-import Header from "@/components/Header"
-import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
-import moment from "moment"
+import axios from 'axios'
+import moment from 'moment'
+import prisma from '@/lib/prisma/prisma'
+import Header from '@/components/Header'
+import OrganizationBelowNavbar from '@/components/navbar/OrganizationBelowNavbar'
 
 export default function OrganizationMembers(props) {
   const router = useRouter()
@@ -26,21 +26,21 @@ export default function OrganizationMembers(props) {
   const [open, setOpen] = useState(false)
 
   const cancelInvite = (inviteId) => {
-    console.log("canceling ", inviteId)
+    console.log('canceling ', inviteId)
     axios
       .delete(`/api/orgs/${organizationName}/invites`, {
         data: {
-          inviteId: inviteId
-        }
+          inviteId,
+        },
       })
       .then((response) => {
-        console.log("RESPONSE:", response)
+        console.log('RESPONSE:', response)
         // TODO: Redirect to new project page
         // router.push("/")
       })
       .catch((error) => {
-        console.log("ERROR:", error.response.data)
-        console.log("ERROR:", error)
+        console.log('ERROR:', error.response.data)
+        console.log('ERROR:', error)
       })
   }
 
@@ -59,14 +59,15 @@ export default function OrganizationMembers(props) {
           <Dialog.Content className="DialogContent">
             <Dialog.Title className="DialogTitle">Confirmation</Dialog.Title>
             <Dialog.Description className="DialogDescription">
-              Are you sure you want to cancel the organization invite to {open.name}?
+              Are you sure you want to cancel the organization invite to{' '}
+              {open.name}?
             </Dialog.Description>
             <div
               className="gap-2"
               style={{
-                display: "flex",
+                display: 'flex',
                 marginTop: 25,
-                justifyContent: "flex-end"
+                justifyContent: 'flex-end',
               }}
             >
               <Dialog.Close asChild>
@@ -94,9 +95,11 @@ export default function OrganizationMembers(props) {
 
       <div className="flex h-screen overflow-hidden bg-slate-100">
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            
           <Header />
-          <OrganizationBelowNavbar namespaceName={organizationName} selected={"invites"}/>
+          <OrganizationBelowNavbar
+            namespaceName={organizationName}
+            selected="invites"
+          />
 
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
@@ -112,7 +115,7 @@ export default function OrganizationMembers(props) {
                 <header className="px-5 py-4">
                   <h2 className="font-semibold text-slate-800">
                     {organizationName} Outgoing Invitations (
-                    {props.outgoingInvites.length}){" "}
+                    {props.outgoingInvites.length}){' '}
                   </h2>
                 </header>
 
@@ -181,7 +184,7 @@ export default function OrganizationMembers(props) {
 
                             <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                               <div className="text-center">
-                                {moment(invite.createdAt).format("MMM Do YY")}
+                                {moment(invite.createdAt).format('MMM Do YY')}
                               </div>
                             </td>
 
@@ -212,12 +215,12 @@ export default function OrganizationMembers(props) {
                                       onClick={() =>
                                         setOpen({
                                           id: invite.id,
-                                          name: invite.invitedUser.username
+                                          name: invite.invitedUser.username,
                                         })
                                       }
                                     >
                                       Cancel Invite
-                                      <div className="RightSlot"></div>
+                                      <div className="RightSlot" />
                                     </DropdownMenu.Item>
                                   </DropdownMenu.Content>
                                 </DropdownMenu.Portal>
@@ -243,8 +246,8 @@ export async function getServerSideProps(context) {
   const outgoingInvites = await prisma.memberInvitation.findMany({
     where: {
       organization: {
-        name: organizationName
-      }
+        name: organizationName,
+      },
     },
     select: {
       id: true,
@@ -252,28 +255,28 @@ export async function getServerSideProps(context) {
       createdAt: true,
       invitedUser: {
         select: {
-          username: true
-        }
+          username: true,
+        },
       },
       inviteeUser: {
         select: {
-          username: true
-        }
-      }
-    }
+          username: true,
+        },
+      },
+    },
   })
   console.log(outgoingInvites)
 
   const mapped = outgoingInvites.map((e) => {
     return {
       ...e,
-      createdAt: e.createdAt.toISOString()
+      createdAt: e.createdAt.toISOString(),
     }
   })
 
   return {
     props: {
-      outgoingInvites: mapped
-    }
+      outgoingInvites: mapped,
+    },
   }
 }

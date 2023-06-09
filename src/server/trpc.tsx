@@ -85,19 +85,19 @@ export const getViewableProject = publicProcedure
     // 2. The user is a part of the project (manually invited)
     const searchCondition = foundProject.namespace.organizationId
       ? // Condition 1 - The user is a part of the same organization that owns the project
-      {
-        userId_organizationId: {
-          userId: ctx.session?.user.id,
-          organizationId: foundProject.namespace.organizationId,
-        },
-      }
+        {
+          userId_organizationId: {
+            userId: ctx.session?.user.id,
+            organizationId: foundProject.namespace.organizationId,
+          },
+        }
       : // Condition 2 - A part of the Project by invite
-      {
-        userId_projectId: {
-          userId: ctx.session?.user.id,
-          projectId: foundProject.id,
-        },
-      }
+        {
+          userId_projectId: {
+            userId: ctx.session?.user.id,
+            projectId: foundProject.id,
+          },
+        }
 
     const foundMember = await ctx.prisma.member.findUnique({
       where: {
@@ -169,7 +169,7 @@ export const ensureUserIsProjectMember = getViewableProject.use(
     const updatedCtx = {
       ...rest,
       session: session!,
-      member: member!,
+      member,
     }
 
     return next({ ctx: updatedCtx })
