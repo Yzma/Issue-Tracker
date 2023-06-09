@@ -1,15 +1,15 @@
-import React, { createContext, useState, Fragment } from "react"
+import React, { createContext, useState, Fragment } from 'react'
 
-import { Tab } from "@headlessui/react"
+import { Tab } from '@headlessui/react'
 
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
-import CommentApi from "./CommentApi"
-import MarkdownEditor from "@/components/markdown/MarkdownEditor"
-import MarkdownViewer from "@/components/markdown/MarkdownViewer"
-import moment from "moment"
+import moment from 'moment'
+import CommentApi from './CommentApi'
+import MarkdownEditor from '@/components/markdown/MarkdownEditor'
+import MarkdownViewer from '@/components/markdown/MarkdownViewer'
 
-const IssueComment = ({
+function IssueComment({
   text: placeholder,
   username,
   createdAt,
@@ -21,8 +21,8 @@ const IssueComment = ({
   onChange,
   onSubmit,
   onEdit,
-  onCancel
-}) => {
+  onCancel,
+}) {
   const [text, setText] = useState(placeholder)
 
   return (
@@ -38,8 +38,8 @@ const IssueComment = ({
                     <button
                       className={
                         selected
-                          ? "tab tab-active bg-gray-400 rounded-lg"
-                          : "tab"
+                          ? 'tab tab-active bg-gray-400 rounded-lg'
+                          : 'tab'
                       }
                     >
                       Write
@@ -52,8 +52,8 @@ const IssueComment = ({
                     <button
                       className={
                         selected
-                          ? "tab tab-active bg-gray-400 rounded-lg"
-                          : "tab"
+                          ? 'tab tab-active bg-gray-400 rounded-lg'
+                          : 'tab'
                       }
                     >
                       Preview
@@ -107,7 +107,7 @@ const IssueComment = ({
                       <p>Nothing to preview</p>
                     ) : (
                       <>
-                        <MarkdownViewer text={text} />{" "}
+                        <MarkdownViewer text={text} />{' '}
                       </>
                     )}
                   </div>
@@ -210,7 +210,7 @@ const IssueComment = ({
 }
 
 const TabContext = createContext({
-  selectedTabIndex: 0
+  selectedTabIndex: 0,
 })
 
 function TabsList({ children }) {

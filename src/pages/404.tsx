@@ -1,6 +1,6 @@
-import Header from "@/components/Header"
-import Head from "next/head"
-import Link from "next/link"
+import Head from 'next/head'
+import Link from 'next/link'
+import Header from '@/components/Header'
 
 export default function NotFound() {
   return (
@@ -27,7 +27,7 @@ export default function NotFound() {
                     The requested page does not exist...
                   </div>
                   <Link
-                    href={"/"}
+                    href="/"
                     className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
                   >
                     Back To Home

@@ -1,18 +1,19 @@
-import { useState } from "react"
-import { useRouter } from "next/router"
+import { useState } from 'react'
+import { useRouter } from 'next/router'
 
-import Header from "@/components/Header"
-import IssueList from "@/components/IssueList"
-import IssueButtons from "@/components/IssueButtons"
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { Issue, Label, Namespace, Project } from '@prisma/client'
+import Header from '@/components/Header'
+import IssueList from '@/components/IssueList'
+import IssueButtons from '@/components/IssueButtons'
+import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
 
-import { getServerSideSession } from "@/lib/sessions"
-import prisma from "@/lib/prisma/prisma"
+import { getServerSideSession } from '@/lib/sessions'
+import prisma from '@/lib/prisma/prisma'
 
-import { GetServerSideProps, InferGetServerSidePropsType } from "next"
-import { Issue, Label, Namespace, Project } from "@prisma/client"
-
-export default function Issues({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Issues({
+  data,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   console.log(data)
 
   const router = useRouter()
@@ -37,7 +38,7 @@ export default function Issues({ data }: InferGetServerSidePropsType<typeof getS
           <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
-            selected={"issues"}
+            selected="issues"
           />
           <div className="container mx-auto px-4 py-8 max-w-3/4">
             <IssueButtons
@@ -54,53 +55,50 @@ export default function Issues({ data }: InferGetServerSidePropsType<typeof getS
         </div>
       </div>
     </main>
-
-  );
+  )
 }
 
-type IssueProps = {
-
-}
-
-export const getServerSideProps: GetServerSideProps<{ data: (Issue & { labels: Label[] })[] }> = async (context) => {
+export const getServerSideProps: GetServerSideProps<{
+  data: (Issue & { labels: Label[] })[]
+}> = async (context) => {
   const { namespaceName, projectName } = context.query
 
   const session = await getServerSideSession(context)
 
-  const project = await prisma.project.findFirst({
+  const project = (await prisma.project.findFirst({
     where: {
       // @ts-ignore
       name: projectName,
       namespace: {
         // @ts-ignore
-        name: namespaceName
-      }
+        name: namespaceName,
+      },
     },
 
     include: {
-      namespace: true
-    }
-  }) as Project & { namespace: Namespace }
+      namespace: true,
+    },
+  })) as Project & { namespace: Namespace }
 
   if (!project) {
     return {
       redirect: {
-        destination: "/404",
-        permanent: false
-      }
+        destination: '/404',
+        permanent: false,
+      },
     }
   }
 
-  console.log("Project: ", project)
+  console.log('Project: ', project)
 
   if (project.private) {
     if (!session) {
-      console.log("private - session is null")
+      console.log('private - session is null')
       return {
         redirect: {
-          destination: "/404",
-          permanent: false
-        }
+          destination: '/404',
+          permanent: false,
+        },
       }
     }
 
@@ -108,8 +106,8 @@ export const getServerSideProps: GetServerSideProps<{ data: (Issue & { labels: L
     let isMember = await prisma.member.findFirst({
       where: {
         userId: session.user.id,
-        projectId: project.id
-      }
+        projectId: project.id,
+      },
     })
 
     if (!isMember) {
@@ -118,50 +116,49 @@ export const getServerSideProps: GetServerSideProps<{ data: (Issue & { labels: L
         const isOrganizationMember = await prisma.member.findFirst({
           where: {
             userId: session.user.id,
-            organizationId: project.namespace.organizationId
-          }
+            organizationId: project.namespace.organizationId,
+          },
         })
 
-        console.log("isOrganizationMember ", isOrganizationMember)
+        console.log('isOrganizationMember ', isOrganizationMember)
 
         if (!isOrganizationMember) {
-          console.log("private - is not organization member")
+          console.log('private - is not organization member')
           return {
             redirect: {
-              destination: "/404",
-              permanent: false
-            }
+              destination: '/404',
+              permanent: false,
+            },
           }
-        } else {
-          isMember = true
         }
+        isMember = true
       }
     }
 
     if (!isMember) {
       return {
         redirect: {
-          destination: "/404",
-          permanent: false
-        }
+          destination: '/404',
+          permanent: false,
+        },
       }
     }
   }
 
   const issuesData = await prisma.issue.findMany({
     where: {
-      projectId: project.id
+      projectId: project.id,
     },
     include: {
-      labels: true
-    }
+      labels: true,
+    },
   })
 
   console.log(issuesData)
 
   return {
     props: {
-      data: issuesData
-    }
+      data: issuesData,
+    },
   }
 }

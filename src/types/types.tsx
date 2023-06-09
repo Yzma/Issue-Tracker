@@ -1,4 +1,4 @@
-import { OrganizationRole } from "@prisma/client"
+import { OrganizationRole } from '@prisma/client'
 
 export type User = {
   id: string
@@ -22,7 +22,7 @@ export type Project = {
   id: string
   name: string
   description: string
-  private: Boolean
+  private: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -36,29 +36,29 @@ export type SharedProperties = {
 }
 
 export type UserProfileProps = SharedProperties & {
-  type: "User"
-  user: User,
+  type: 'User'
+  user: User
   organizations: {
     name: string
   }[]
 }
 
 export type OrganizationProps = SharedProperties & {
-  type: "Organization"
+  type: 'Organization'
   organization: {
     id: string
     name: string
     createdAt: Date
     updatedAt: Date
-    members: OrganizationMember[];
+    members: OrganizationMember[]
   }
 }
 
 export type SearchFilters = {
-  open: boolean;
-  sort: "newest" | "oldest" | "recently-updated" | "least-recently-updated";
+  open: boolean
+  sort: 'newest' | 'oldest' | 'recently-updated' | 'least-recently-updated'
 }
 
 export type Optional<T, K extends keyof T> = {
-  [P in keyof T]: P extends K ? T[P] | undefined : T[P];
-};
+  [P in keyof T]: P extends K ? T[P] | undefined : T[P]
+}

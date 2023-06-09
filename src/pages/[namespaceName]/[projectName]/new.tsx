@@ -1,27 +1,26 @@
-import { useEffect, useState } from "react"
-import Head from "next/head"
-import { useRouter } from "next/router"
-import Link from "next/link"
+import { useEffect, useState } from 'react'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import Link from 'next/link'
 
-import Header from "@/components/Header"
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar"
-import IssueComment from "@/components/comment-api/IssueComment"
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faGear, faCircle } from '@fortawesome/free-solid-svg-icons'
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faGear, faCircle } from "@fortawesome/free-solid-svg-icons"
+import { useSession } from 'next-auth/react'
 
-import { useSession } from "next-auth/react"
-import prisma from "@/lib/prisma/prisma"
-
-import { GetServerSideProps, InferGetServerSidePropsType } from "next"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { CreateIssueSchema } from "@/lib/zod-schemas"
-import { SubmitHandler, useForm } from "react-hook-form"
-import { z } from "zod"
-import Labels from "@/components/labels/Labels"
-import axios from "axios"
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { z } from 'zod'
+import axios from 'axios'
+import Labels from '@/components/labels/Labels'
+import { CreateIssueSchema } from '@/lib/zod-schemas'
+import prisma from '@/lib/prisma/prisma'
+import IssueComment from '@/components/comment-api/IssueComment'
+import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
+import Header from '@/components/Header'
 
 type LabelProps = {
   id: string
@@ -29,39 +28,45 @@ type LabelProps = {
   color: string
 }
 
-type IssueCreationType = z.infer<typeof CreateIssueSchema>;
+type IssueCreationType = z.infer<typeof CreateIssueSchema>
 
-export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function IssuesCreate({
+  data,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
   const [labels, setLabels] = useState<LabelProps[]>([])
   const { data: session } = useSession()
 
-  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<IssueCreationType>({
-    resolver: zodResolver(CreateIssueSchema)
-  });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<IssueCreationType>({
+    resolver: zodResolver(CreateIssueSchema),
+  })
 
   // TODO: Move to tRPC
-  const onSubmit: SubmitHandler<IssueCreationType> = data => {
+  const onSubmit: SubmitHandler<IssueCreationType> = (data) => {
     const labelIds = labels.map((e) => e.id)
     axios
       .post(`/api/${namespaceName}/${projectName}/issues`, {
         name: data.title,
         description: data.description,
-        labels: labelIds
+        labels: labelIds,
       })
-      .then((response) => {
-        console.log("RESPONSE:", response)
+      .then((response) =>
         router.push(
           `/${namespaceName}/${projectName}/issues/${response.data.result.id}`
         )
-      })
+      )
       .catch((error) => {
-        console.log("ERROR:", error.response.data)
-        console.log("ERROR:", error)
+        // setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
+        console.log('ERROR:', error) // TODO: remove this
       })
-  };
+  }
 
   const onLabelClick = (label: LabelProps) => {
     if (labels.find((e) => e.id === label.id)) {
@@ -72,7 +77,10 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
   }
 
   useEffect(() => {
-    setValue("labels", labels.map((e) => e.id))
+    setValue(
+      'labels',
+      labels.map((e) => e.id)
+    )
   }, [labels, setValue])
 
   return (
@@ -87,10 +95,10 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
           <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
-            selected={"issues"}
+            selected="issues"
           />
           <main>
-
+            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
                 <div className="col-start-2 col-span-6">
@@ -124,12 +132,13 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
                               htmlFor="name"
                             >
                               Title <span className="text-rose-500">*</span>
+                              <input
+                                className="form-input w-full"
+                                type="text"
+                                // eslint-disable-next-line react/jsx-props-no-spreading
+                                {...register('title')}
+                              />
                             </label>
-                            <input
-                              className="form-input w-full"
-                              type="text"
-                              {...register("title")}
-                            />
                           </div>
                         </section>
 
@@ -141,17 +150,17 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
                               className="block text-sm font-medium mb-1"
                               htmlFor="name"
                             >
-                              Description{" "}
+                              Description{' '}
                               <span className="text-rose-500">*</span>
                             </label>
                             <IssueComment
-                              text={""}
+                              text=""
                               onChange={(text: string) =>
                                 // setFieldValue("description", text)
-                                setValue("description", text)
+                                setValue('description', text)
                               }
-                              onSubmit={() => { }}
-                              editing={true}
+                              onSubmit={() => {}}
+                              editing
                               showButtons={false}
                             />
                           </section>
@@ -185,7 +194,7 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
                     </div>
                     <Link
                       className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
-                      href={session ? `/${session.user.username}/` : ""}
+                      href={session ? `/${session.user.username}/` : ''}
                     >
                       {session && session.user.username}
                     </Link>
@@ -212,9 +221,9 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
                               className="DropdownMenuContent"
                               sideOffset={5}
                             >
-                              {data.map((label, index) => (
+                              {data.map((label) => (
                                 <DropdownMenu.Item
-                                  key={index}
+                                  key={label.id}
                                   className="DropdownMenuItem"
                                   onClick={() => onLabelClick(label)}
                                 >
@@ -222,7 +231,7 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
                                     <FontAwesomeIcon
                                       className="mr-4 align-self-center align-middle"
                                       style={{
-                                        color: `#${label.color}`
+                                        color: `#${label.color}`,
                                       }}
                                       icon={faCircle}
                                     />
@@ -250,29 +259,31 @@ export default function IssuesCreate({ data }: InferGetServerSidePropsType<typeo
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{ data: LabelProps[] }> = async (context) => {
+export const getServerSideProps: GetServerSideProps<{
+  data: LabelProps[]
+}> = async (context) => {
   const { namespaceName, projectName } = context.query
-  const labels = await prisma.label.findMany({
+  const labels = (await prisma.label.findMany({
     where: {
       project: {
         // @ts-ignore
         name: projectName,
         namespace: {
           // @ts-ignore
-          name: namespaceName
-        }
-      }
+          name: namespaceName,
+        },
+      },
     },
     select: {
       id: true,
       name: true,
-      color: true
-    }
-  }) as LabelProps[]
+      color: true,
+    },
+  })) as LabelProps[]
 
   return {
     props: {
-      data: labels
-    }
+      data: labels,
+    },
   }
 }

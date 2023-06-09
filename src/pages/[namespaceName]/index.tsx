@@ -1,18 +1,20 @@
-import Head from "next/head"
+import Head from 'next/head'
 
-import Header from "@/components/Header"
-import UserPage from "@/components/namespace/UserPage"
-import OrganizationPage from "@/components/namespace/OrganizationPage"
-
-import prisma from "@/lib/prisma/prisma"
-
-import { UserProfileProps, OrganizationProps }  from "@/types/types"
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
-import { getServerSideSession } from "@/lib/sessions"
+import Header from '@/components/Header'
+import UserPage from '@/components/namespace/UserPage'
+import OrganizationPage from '@/components/namespace/OrganizationPage'
 
-type NamespaceProps = | UserProfileProps | OrganizationProps
+import prisma from '@/lib/prisma/prisma'
 
-export default function NamespaceIndexRoute({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+import { UserProfileProps, OrganizationProps } from '@/types/types'
+import { getServerSideSession } from '@/lib/sessions'
+
+type NamespaceProps = UserProfileProps | OrganizationProps
+
+export default function NamespaceIndexRoute({
+  data,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div>
       <Head>
@@ -23,11 +25,11 @@ export default function NamespaceIndexRoute({ data }: InferGetServerSidePropsTyp
         <div className="flex h-screen overflow-hidden">
           <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             <Header />
-            {(data.type === "User") ? (
-               <UserPage data={data as UserProfileProps} />
-             ) : (
-               <OrganizationPage data={data as OrganizationProps} />
-             )}
+            {data.type === 'User' ? (
+              <UserPage data={data} />
+            ) : (
+              <OrganizationPage data={data} />
+            )}
           </div>
         </div>
       </main>
@@ -35,7 +37,9 @@ export default function NamespaceIndexRoute({ data }: InferGetServerSidePropsTyp
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{ data: NamespaceProps }> = async (context) => {
+export const getServerSideProps: GetServerSideProps<{
+  data: NamespaceProps
+}> = async (context) => {
   const namespaceName = context.query.namespaceName as string
 
   const session = await getServerSideSession(context)
@@ -43,7 +47,7 @@ export const getServerSideProps: GetServerSideProps<{ data: NamespaceProps }> = 
 
   const namespace = await prisma.namespace.findUnique({
     where: {
-      name: namespaceName
+      name: namespaceName,
     },
 
     select: {
@@ -59,26 +63,26 @@ export const getServerSideProps: GetServerSideProps<{ data: NamespaceProps }> = 
           private: isUserViewingOwnProfile,
           createdAt: true,
           updatedAt: true,
-        }
-      }
-    }
+        },
+      },
+    },
   })
 
   if (!namespace) {
     return {
       redirect: {
-        destination: "/404",
-        permanent: false
-      }
+        destination: '/404',
+        permanent: false,
+      },
     }
   }
 
-  if(namespace.userId) {
+  if (namespace.userId) {
     const userResponse = await prisma.user.findUnique({
       where: {
-        id: namespace.userId
+        id: namespace.userId,
       },
-  
+
       select: {
         id: true,
         username: true,
@@ -89,76 +93,75 @@ export const getServerSideProps: GetServerSideProps<{ data: NamespaceProps }> = 
         socialLink4: true,
         members: {
           where: {
-            project: null 
+            project: null,
           },
           select: {
             organization: {
               select: {
                 name: true,
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     })
 
     const data: UserProfileProps = {
-      type: "User",
+      type: 'User',
       user: {
         ...userResponse,
       },
       namespace: {
-        ...namespace
+        ...namespace,
       },
-      organizations: userResponse.members.map(member => {
+      organizations: userResponse.members.map((member) => {
         return {
-          name: member.organization.name
+          name: member.organization.name,
         }
-      })
+      }),
     }
 
     return {
       props: {
-        data
-      }
-    }
-  } else {
-    const orgResponse = await prisma.user.findUnique({
-      where: {
-        id: namespace.organizationId
+        data,
       },
-  
-      select: {
-        id: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
-        members: {
-          select: {
-            id: true,
-            role: true,
-            createdAt: true,
-            organizationId: true,
-            userId: true,
-          }
-        }
-      }
-    })
+    }
+  }
+  const orgResponse = await prisma.user.findUnique({
+    where: {
+      id: namespace.organizationId,
+    },
 
-    const data: OrganizationProps = {
-      type: "Organization",
-      organization: {
-        ...orgResponse
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+      members: {
+        select: {
+          id: true,
+          role: true,
+          createdAt: true,
+          organizationId: true,
+          userId: true,
+        },
       },
-      namespace: {
-        ...namespace
-      }
-    }
+    },
+  })
 
-    return {
-      props: {
-        data
-      }
-    }
+  const data: OrganizationProps = {
+    type: 'Organization',
+    organization: {
+      ...orgResponse,
+    },
+    namespace: {
+      ...namespace,
+    },
+  }
+
+  return {
+    props: {
+      data,
+    },
   }
 }

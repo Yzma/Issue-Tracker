@@ -1,14 +1,13 @@
-import { useState } from "react"
-import Head from "next/head"
-import { useRouter } from "next/router"
+import { useState } from 'react'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
 
-import Header from "@/components/Header"
-import OrganizationBelowNavbar from "@/components/navbar/OrganizationBelowNavbar"
+import { Formik, Form, Field } from 'formik'
+import axios from 'axios'
+import Header from '@/components/Header'
+import OrganizationBelowNavbar from '@/components/navbar/OrganizationBelowNavbar'
 
-import { Formik, Form, Field } from "formik"
-import { NamespaceNameCreationSchema } from "@/lib/yup-schemas"
-
-import axios from "axios"
+import { NamespaceNameCreationSchema } from '@/lib/yup-schemas'
 
 type ResponseError = {
   error?: string | null
@@ -33,7 +32,7 @@ export default function OrganizationInvitation() {
           <Header />
           <OrganizationBelowNavbar
             namespaceName={organizationName}
-            selected={"invite"}
+            selected="invite"
           />
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
@@ -48,7 +47,7 @@ export default function OrganizationInvitation() {
                         <div className="">
                           <Formik
                             initialValues={{
-                              name: ""
+                              name: '',
                             }}
                             validationSchema={NamespaceNameCreationSchema}
                             onSubmit={(
@@ -61,22 +60,22 @@ export default function OrganizationInvitation() {
                                   {
                                     name: values.name,
                                     // @ts-ignore
-                                    role: values.role
+                                    role: values.role,
                                   }
                                 )
                                 .then((response) => {
-                                  console.log("RESPONSE:", response)
+                                  console.log('RESPONSE:', response)
                                   setResponse({
-                                    success: `You have invited ${values.name}!`
+                                    success: `You have invited ${values.name}!`,
                                   })
                                   // TODO: Redirect to new project page
                                   // router.push("/")
                                 })
                                 .catch((error) => {
-                                  console.log("ERROR:", error.response.data)
-                                  console.log("ERROR:", error)
+                                  console.log('ERROR:', error.response.data)
+                                  console.log('ERROR:', error)
                                   setResponse({
-                                    error: "That user does not exist!"
+                                    error: 'That user does not exist!',
                                   })
                                 })
                                 .finally(() => {
@@ -88,10 +87,12 @@ export default function OrganizationInvitation() {
                               values,
                               errors,
                               isSubmitting,
-                              setFieldError
+                              setFieldError,
                             }) => (
                               <Form
-                                onChange={() => setFieldError("name", undefined)}
+                                onChange={() =>
+                                  setFieldError('name', undefined)
+                                }
                               >
                                 {response && response.error && (
                                   <div className="py-3">
@@ -115,7 +116,7 @@ export default function OrganizationInvitation() {
                                       className="block text-sm font-medium mb-1"
                                       htmlFor="name"
                                     >
-                                      Username{" "}
+                                      Username{' '}
                                       <span className="text-rose-500">*</span>
                                     </label>
                                     <Field
@@ -130,7 +131,7 @@ export default function OrganizationInvitation() {
                                       className="block text-sm font-medium mb-1"
                                       htmlFor="owner"
                                     >
-                                      Role{" "}
+                                      Role{' '}
                                       <span className="text-rose-500">*</span>
                                     </label>
 

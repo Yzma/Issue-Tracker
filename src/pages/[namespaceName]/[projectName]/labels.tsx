@@ -1,15 +1,14 @@
-import { useState } from "react";
-import Head from "next/head";
-import { useRouter } from "next/router";
+import { useState } from 'react'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
 
-import Header from "@/components/Header";
-import LabelList from "@/components/LabelList";
-import LabelSearchBar from "@/components/LabelSearchBar";
-import ProjectBelowNavbar from "@/components/navbar/ProjectBelowNavbar";
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import Header from '@/components/Header'
+import LabelList from '@/components/LabelList'
+import LabelSearchBar from '@/components/LabelSearchBar'
+import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
 
-import prisma from "@/lib/prisma/prisma";
-
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import prisma from '@/lib/prisma/prisma'
 
 // TODO: Create one type and emit it from /new page
 type LabelProps = {
@@ -19,19 +18,21 @@ type LabelProps = {
   color: string
 }
 
-export default function LabelPage({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const router = useRouter();
-  const { namespaceName, projectName } = router.query;
+export default function LabelPage({
+  data,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const router = useRouter()
+  const { namespaceName, projectName } = router.query
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const handleSearch = (searchTerm: string) => {
-    setSearchTerm(searchTerm);
-  };
+  const handleSearch = (search: string) => {
+    setSearchTerm(search)
+  }
 
   const filteredLabels = data.filter((label) =>
     label.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
 
   return (
     <>
@@ -49,7 +50,7 @@ export default function LabelPage({ data }: InferGetServerSidePropsType<typeof g
             <ProjectBelowNavbar
               namespaceName={namespaceName}
               projectName={projectName}
-              selected={"labels"}
+              selected="labels"
             />
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
               <header className="px-5 py-4">
@@ -68,8 +69,10 @@ export default function LabelPage({ data }: InferGetServerSidePropsType<typeof g
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{ data: LabelProps[] }> = async (context) => {
-  const { namespaceName, projectName } = context.query;
+export const getServerSideProps: GetServerSideProps<{
+  data: LabelProps[]
+}> = async (context) => {
+  const { namespaceName, projectName } = context.query
   const labelData = await prisma.label.findMany({
     where: {
       project: {
@@ -78,14 +81,14 @@ export const getServerSideProps: GetServerSideProps<{ data: LabelProps[] }> = as
         namespace: {
           // @ts-ignore
           name: namespaceName,
-        }
-      }
-    }
+        },
+      },
+    },
   })
 
   return {
     props: {
-      data: labelData
-    }
+      data: labelData,
+    },
   }
 }

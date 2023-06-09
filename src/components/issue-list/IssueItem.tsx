@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { Issue } from "./types";
-import moment from "moment";
-import Labels from "@/components/labels/Labels";
+import Link from 'next/link'
+import moment from 'moment'
+import { Issue } from './types'
+import Labels from '@/components/labels/Labels'
 
 export default function IssueItem({ issue }: { issue: Issue }) {
   return (
@@ -18,12 +18,15 @@ export default function IssueItem({ issue }: { issue: Issue }) {
         </div>
 
         <div>
-          <p className="text-xs text-gray-600">Opened on {moment(issue.updatedAt).format("MMM Do, YYYY")} by <Link
-            href={`/${issue.user.username}`}
-            className="font-semibold text-blue-600 hover:text-blue-900 hover:cursor-pointer hover:underline pr-1"
-          >
-            {issue.user.username}
-          </Link></p>
+          <p className="text-xs text-gray-600">
+            Opened on {moment(issue.updatedAt).format('MMM Do, YYYY')} by{' '}
+            <Link
+              href={`/${issue.user.username}`}
+              className="font-semibold text-blue-600 hover:text-blue-900 hover:cursor-pointer hover:underline pr-1"
+            >
+              {issue.user.username}
+            </Link>
+          </p>
         </div>
       </div>
     </div>
