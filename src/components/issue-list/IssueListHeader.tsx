@@ -16,14 +16,16 @@ export default function IssueListHeader() {
       <div className="flex items-center gap-x-3">
         <button
           type="button"
-          className={`flex items-center gap-x-1 
-            ${searchFilters.open && 'text-blue-500'}`}
+          className={`flex items-center gap-x-1 ${
+            searchFilters.open ? 'text-blue-500' : ''
+          }`}
           onClick={() => setSearchParam('open', true)}
         >
           <FontAwesomeIcon icon={faCircleDot} />
           <p
-            className={`font-semibold text-gray-900  ${searchFilters.open && 'text-blue-500'
-              }`}
+            className={`font-semibold text-gray-900 ${
+              searchFilters.open ? 'text-blue-500' : ''
+            }`}
           >
             Open
           </p>
@@ -32,13 +34,15 @@ export default function IssueListHeader() {
         <button
           type="button"
           className={`flex items-center gap-x-1 
-          ${!searchFilters.open ? 'text-blue-500' : ''}`}
+            ${!searchFilters.open ? 'text-blue-500' : ''}
+          `}
           onClick={() => setSearchParam('open', false)}
         >
           <FontAwesomeIcon icon={faCheck} />
           <p
-            className={`font-semibold text-gray-900 ${!searchFilters.open ? 'text-blue-500' : ''
-              }`}
+            className={`font-semibold text-gray-900 ${
+              !searchFilters.open ? 'text-blue-500' : ''
+            }`}
           >
             Closed
           </p>
