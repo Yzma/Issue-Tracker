@@ -101,5 +101,10 @@ export const namespaceRouter = createTRPCRouter({
           },
         }
       }
+
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: `A namespace without a userId or organizationId was returned`,
+      })
     }),
 })

@@ -27,7 +27,7 @@ export const onboardingRouter = createTRPCRouter({
           return ctx.prisma.$transaction(async (tx) => {
             const updateResult = await tx.user.update({
               where: {
-                id: token.payload.data,
+                id: token.payload.data as string,
                 AND: [
                   {
                     username: null,

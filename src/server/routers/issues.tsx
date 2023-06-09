@@ -48,8 +48,8 @@ const ensureUserIsAuthorizedForIssue = getViewableIssue
 export const issuesRouter = createTRPCRouter({
   getIssue: getViewableProject
     .input(GetIssueSchema)
-    .mutation(async ({ input }) => {
-      return prisma.issue.findUnique({
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.issue.findUnique({
         where: {
           id: input.issueId,
         },
@@ -108,7 +108,7 @@ export const issuesRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const mapped = mapIssues(input.labels)
 
-      return prisma.issue.update({
+      return ctx.prisma.issue.update({
         where: {
           id: ctx.issue.id,
         },

@@ -34,6 +34,7 @@ const ensureUserIsAuthorizedForComment = getViewableIssue
     return next({
       ctx: {
         ...ctx,
+        session: ctx.session,
       },
     })
   })
@@ -42,16 +43,23 @@ export const commentsRouter = createTRPCRouter({
   createComment: getViewableIssue
     .input(ModifyCommentSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.comment.create({
+      if (!ctx.session) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'User is not authorized to perform this action',
+        })
+      }
+
+      return ctx.prisma.comment.create({
         data: {
           description: input.description,
-          userId: ctx.session?.user.id,
+          userId: ctx.session.user.id,
           issueId: ctx.issue.id,
         },
       })
     }),
 
-  updateComment: getViewableProject
+  updateComment: ensureUserIsAuthorizedForComment
     .input(ModifyCommentSchema)
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.comment.update({
@@ -59,7 +67,7 @@ export const commentsRouter = createTRPCRouter({
           id: input.commentId,
           OR: [
             {
-              userId: ctx.session?.user.id,
+              userId: ctx.session.user.id,
             },
             {
               issue: {
@@ -90,7 +98,7 @@ export const commentsRouter = createTRPCRouter({
           id: input.commentId,
           OR: [
             {
-              userId: ctx.session?.user.id,
+              userId: ctx.session.user.id,
             },
             {
               issue: {
@@ -98,7 +106,7 @@ export const commentsRouter = createTRPCRouter({
                   id: ctx.project.id,
                   members: {
                     some: {
-                      userId: ctx.session?.user.id,
+                      userId: ctx.session.user.id,
                       role: 'Owner',
                     },
                   },
@@ -112,8 +120,8 @@ export const commentsRouter = createTRPCRouter({
 
   getComments: getViewableProject
     .input(GetIssueSchema)
-    .mutation(async ({ input }) => {
-      return prisma.comment.findMany({
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.comment.findMany({
         where: {
           issueId: input.issueId,
         },

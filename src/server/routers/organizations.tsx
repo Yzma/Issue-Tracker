@@ -103,7 +103,7 @@ export const organizationsRouter = createTRPCRouter({
 
   inviteMember: ensureUserIsOrganizationMember(OrganizationRole.Owner)
     .input(OrganizationMemberSchema)
-    .mutation(async () => { }),
+    .mutation(async () => {}),
 
   getOutgoingInvites: ensureUserIsOrganizationMember(
     OrganizationRole.Owner
@@ -148,7 +148,6 @@ export const organizationsRouter = createTRPCRouter({
       return ctx.prisma.member.delete({
         where: {
           user: {
-            // @ts-ignore
             name: input.username,
           },
           AND: [
@@ -174,8 +173,7 @@ export const organizationsRouter = createTRPCRouter({
       return ctx.prisma.member.update({
         where: {
           user: {
-            // @ts-ignore
-            name: input.username,
+            name: input.name,
           },
           AND: [
             {
@@ -193,5 +191,5 @@ export const organizationsRouter = createTRPCRouter({
 
   deleteOrganization: ensureUserIsOrganizationMember(OrganizationRole.Owner)
     .input(NamespaceSchema)
-    .mutation(async () => { }),
+    .mutation(async () => {}),
 })

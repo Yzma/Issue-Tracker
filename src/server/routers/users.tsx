@@ -1,10 +1,11 @@
 import { z } from 'zod'
 import { createTRPCRouter, privateProcedure } from '../trpc'
 import { SortTypeSchema } from '@/lib/zod-types'
-import { NamespaceSchema, SHORT_DESCRIPTION } from '@/lib/zod-schemas'
+import { NAMESPACE, SHORT_DESCRIPTION } from '@/lib/zod-schemas'
+import { SortOptions } from './types'
 
 const ProfileUpdateSchema = z.object({
-  name: NamespaceSchema.optional(),
+  name: NAMESPACE,
   bio: SHORT_DESCRIPTION,
   socialLink1: z.string().max(75).optional(),
   socialLink2: z.string().max(75).optional(),
@@ -12,7 +13,7 @@ const ProfileUpdateSchema = z.object({
   socialLink4: z.string().max(75).optional(),
 })
 
-const sort = {
+const sort: SortOptions = {
   newest: {
     createdAt: 'desc',
   },
@@ -25,7 +26,7 @@ const sort = {
   'least-recently-updated': {
     updatedAt: 'asc',
   },
-} as any
+}
 
 export const usersRouter = createTRPCRouter({
   updateProfile: privateProcedure

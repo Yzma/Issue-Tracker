@@ -168,6 +168,7 @@ export const ensureUserIsProjectMember = getViewableProject.use(
     // Assert that ctx.session is not null or undefined
     const updatedCtx = {
       ...rest,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       session: session!,
       member,
     }

@@ -38,7 +38,7 @@ export const projectsRouter = createTRPCRouter({
       }
 
       if (foundNamespace.userId) {
-        if (foundNamespace.userId != ctx.session.user.id) {
+        if (foundNamespace.userId !== ctx.session.user.id) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: `You do not have permission to perform this action.`,
@@ -52,7 +52,7 @@ export const projectsRouter = createTRPCRouter({
           },
         })
 
-        if (!foundMember || foundMember.role != OrganizationRole.Owner) {
+        if (!foundMember || foundMember.role !== OrganizationRole.Owner) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: `You do not have permission to perform this action.`,
@@ -111,6 +111,7 @@ export const projectsRouter = createTRPCRouter({
       })
     }),
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   getProject: getViewableProject.query(async ({ ctx }) => ctx.project),
 
   /*
@@ -126,17 +127,19 @@ export const projectsRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const affiliation =
+        // TODO: Cleanup
+        // eslint-disable-next-line no-nested-ternary
         input.affiliation === 'direct'
           ? {
-            NOT: {
-              acceptedAt: null,
-            },
-          }
+              NOT: {
+                acceptedAt: null,
+              },
+            }
           : input.affiliation === 'outside'
-            ? {
+          ? {
               acceptedAt: null,
             }
-            : {} // Empty - fetch all
+          : {} // Empty - fetch all
 
       return ctx.prisma.member.findMany({
         where: {
@@ -151,6 +154,8 @@ export const projectsRouter = createTRPCRouter({
     .input(NamespaceSchema)
     .mutation(async ({ ctx, input }) => {
       await ctx.prisma.member.create({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         data: {
           role: OrganizationRole.User,
           user: {
