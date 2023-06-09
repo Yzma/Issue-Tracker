@@ -1,14 +1,14 @@
-import BelowNavbar from "./BelowNavbar"
-import Link from "next/link"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Link from 'next/link'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBug,
   faTag,
   faEnvelope,
   faUserGroup,
-} from "@fortawesome/free-solid-svg-icons"
+} from '@fortawesome/free-solid-svg-icons'
+import BelowNavbar from './BelowNavbar'
 
-const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
+function ProjectBelowNavbar({ namespaceName, projectName, selected }) {
   return (
     <BelowNavbar>
       <BelowNavbar.BreadcrumbLinks>
@@ -23,7 +23,7 @@ const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
 
       <BelowNavbar.MenuList selected={selected}>
         <BelowNavbar.MenuListItem
-          id={"issues"}
+          id="issues"
           href={`/${namespaceName}/${projectName}`}
         >
           <div>
@@ -33,7 +33,7 @@ const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
         </BelowNavbar.MenuListItem>
 
         <BelowNavbar.MenuListItem
-          id={"labels"}
+          id="labels"
           href={`/${namespaceName}/${projectName}/labels`}
         >
           <div>
@@ -43,7 +43,7 @@ const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
         </BelowNavbar.MenuListItem>
 
         <BelowNavbar.MenuListItem
-          id={"members"}
+          id="members"
           href={`/${namespaceName}/${projectName}/members`}
         >
           <div>
@@ -53,7 +53,7 @@ const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
         </BelowNavbar.MenuListItem>
 
         <BelowNavbar.MenuListItem
-          id={"invites"}
+          id="invites"
           href={`/${namespaceName}/${projectName}/invite`}
         >
           <div>
@@ -61,7 +61,6 @@ const ProjectBelowNavbar = ({ namespaceName, projectName, selected }) => {
           </div>
           <div className="pl-2">Invites</div>
         </BelowNavbar.MenuListItem>
-        
       </BelowNavbar.MenuList>
     </BelowNavbar>
   )

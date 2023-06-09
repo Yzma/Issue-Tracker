@@ -1,10 +1,9 @@
-
 export interface ProjectItem {
   id: string
   namespace: string
   name: string
   description: string
-  private: Boolean
+  private: boolean
   createdAt: Date
   updatedAt: Date
 }

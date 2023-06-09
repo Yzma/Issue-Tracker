@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { ProjectItem } from "./types";
-
-import moment from "moment"
+import Link from 'next/link'
+import moment from 'moment'
+import { ProjectItem } from './types'
 
 export default function ProjectList({ project }: { project: ProjectItem }) {
   return (
@@ -16,8 +15,7 @@ export default function ProjectList({ project }: { project: ProjectItem }) {
               {project.name}
             </Link>
 
-            <span
-              className="text-sm text-center font-semibold text-white px-1.5 bg-gray-700 rounded-full">
+            <span className="text-sm text-center font-semibold text-white px-1.5 bg-gray-700 rounded-full">
               {project.private ? <>Private</> : <>Public</>}
             </span>
           </div>
@@ -25,8 +23,12 @@ export default function ProjectList({ project }: { project: ProjectItem }) {
             <p className="text-base text-gray-600">{project.description}</p>
           </div>
           <div className="flex gap-x-3">
-            <p className="text-base text-gray-600">Created: {moment(project.updatedAt).format("MMM Do YY")}</p>
-            <p className="text-base text-gray-600">Last Updated: {moment(project.createdAt).fromNow()}</p>
+            <p className="text-base text-gray-600">
+              Created: {moment(project.updatedAt).format('MMM Do YY')}
+            </p>
+            <p className="text-base text-gray-600">
+              Last Updated: {moment(project.createdAt).fromNow()}
+            </p>
           </div>
         </div>
         <hr className="border-gray-300 mx-auto w-full" />

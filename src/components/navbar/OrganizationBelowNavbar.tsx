@@ -1,14 +1,14 @@
-import BelowNavbar from "./BelowNavbar"
-import Link from "next/link"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Link from 'next/link'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBug,
   faEnvelope,
   faPaperPlane,
-  faUserGroup
-} from "@fortawesome/free-solid-svg-icons"
+  faUserGroup,
+} from '@fortawesome/free-solid-svg-icons'
+import BelowNavbar from './BelowNavbar'
 
-const OrganizationBelowNavbar = ({ namespaceName, selected }) => {
+function OrganizationBelowNavbar({ namespaceName, selected }) {
   return (
     <BelowNavbar>
       <BelowNavbar.BreadcrumbLinks>
@@ -18,7 +18,7 @@ const OrganizationBelowNavbar = ({ namespaceName, selected }) => {
       </BelowNavbar.BreadcrumbLinks>
 
       <BelowNavbar.MenuList selected={selected}>
-        <BelowNavbar.MenuListItem id={"projects"} href={`/${namespaceName}/`}>
+        <BelowNavbar.MenuListItem id="projects" href={`/${namespaceName}/`}>
           <div>
             <FontAwesomeIcon icon={faBug} />
           </div>
@@ -26,7 +26,7 @@ const OrganizationBelowNavbar = ({ namespaceName, selected }) => {
         </BelowNavbar.MenuListItem>
 
         <BelowNavbar.MenuListItem
-          id={"members"}
+          id="members"
           href={`/orgs/${namespaceName}/members`}
         >
           <div>
@@ -36,7 +36,7 @@ const OrganizationBelowNavbar = ({ namespaceName, selected }) => {
         </BelowNavbar.MenuListItem>
 
         <BelowNavbar.MenuListItem
-          id={"invite"}
+          id="invite"
           href={`/orgs/${namespaceName}/invite`}
         >
           <div>
@@ -46,7 +46,7 @@ const OrganizationBelowNavbar = ({ namespaceName, selected }) => {
         </BelowNavbar.MenuListItem>
 
         <BelowNavbar.MenuListItem
-          id={"invites"}
+          id="invites"
           href={`/orgs/${namespaceName}/members/invites`}
         >
           <div>

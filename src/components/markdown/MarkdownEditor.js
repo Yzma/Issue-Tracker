@@ -1,37 +1,35 @@
-import React, { useState } from "react"
+import React, { useState } from 'react'
 
-import MarkdownIt from "markdown-it"
+import MarkdownIt from 'markdown-it'
 
-import dynamic from "next/dynamic"
+import dynamic from 'next/dynamic'
 
-import "react-markdown-editor-lite/lib/index.css"
+import 'react-markdown-editor-lite/lib/index.css'
 
-const MdEditor = dynamic(() => import("react-markdown-editor-lite"), {
-  ssr: true
+const MdEditor = dynamic(() => import('react-markdown-editor-lite'), {
+  ssr: true,
 })
 
 const mdParser = new MarkdownIt({})
 
-const MarkdownEditor = (props) => {
+function MarkdownEditor(props) {
   const [text, setText] = useState(props.placeholder)
 
   return (
-    <>
-      <div>
-        <MdEditor
-          value={text}
-          style={{ height: "350px" }}
-          renderHTML={(text) => mdParser.render(text)}
-          onChange={({ html, text }, event) => {
-            setText(text)
-            props.onChange?.(text)
-          }}
-          view={{ menu: true, md: true, html: false }}
-        />
+    <div>
+      <MdEditor
+        value={text}
+        style={{ height: '350px' }}
+        renderHTML={(text) => mdParser.render(text)}
+        onChange={({ html, text }, event) => {
+          setText(text)
+          props.onChange?.(text)
+        }}
+        view={{ menu: true, md: true, html: false }}
+      />
 
-        {props.children}
-      </div>
-    </>
+      {props.children}
+    </div>
   )
 
   // return (

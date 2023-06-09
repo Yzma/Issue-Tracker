@@ -1,4 +1,4 @@
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 
 export interface ProfileInformation {
   name: string
@@ -10,7 +10,7 @@ export interface ProfileInformation {
 }
 
 export interface SocialLink {
-  regex: RegExp,
+  regex: RegExp
   icon: IconDefinition
 }
 export interface Organizations {
