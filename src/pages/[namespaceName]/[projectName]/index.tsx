@@ -58,8 +58,6 @@ export default function Issues({
   )
 }
 
-type IssueProps = {}
-
 export const getServerSideProps: GetServerSideProps<{
   data: (Issue & { labels: Label[] })[]
 }> = async (context) => {

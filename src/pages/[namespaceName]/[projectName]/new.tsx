@@ -57,15 +57,14 @@ export default function IssuesCreate({
         description: data.description,
         labels: labelIds,
       })
-      .then((response) => {
-        console.log('RESPONSE:', response)
+      .then((response) =>
         router.push(
           `/${namespaceName}/${projectName}/issues/${response.data.result.id}`
         )
-      })
+      )
       .catch((error) => {
-        console.log('ERROR:', error.response.data)
-        console.log('ERROR:', error)
+        // setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
+        console.log('ERROR:', error) // TODO: remove this
       })
   }
 
@@ -99,6 +98,7 @@ export default function IssuesCreate({
             selected="issues"
           />
           <main>
+            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
                 <div className="col-start-2 col-span-6">
@@ -132,12 +132,13 @@ export default function IssuesCreate({
                               htmlFor="name"
                             >
                               Title <span className="text-rose-500">*</span>
+                              <input
+                                className="form-input w-full"
+                                type="text"
+                                // eslint-disable-next-line react/jsx-props-no-spreading
+                                {...register('title')}
+                              />
                             </label>
-                            <input
-                              className="form-input w-full"
-                              type="text"
-                              {...register('title')}
-                            />
                           </div>
                         </section>
 
@@ -220,9 +221,9 @@ export default function IssuesCreate({
                               className="DropdownMenuContent"
                               sideOffset={5}
                             >
-                              {data.map((label, index) => (
+                              {data.map((label) => (
                                 <DropdownMenu.Item
-                                  key={index}
+                                  key={label.id}
                                   className="DropdownMenuItem"
                                   onClick={() => onLabelClick(label)}
                                 >

@@ -44,7 +44,6 @@ export default function ProjectMembers({
         // router.push("/")
       })
       .catch((error) => {
-        console.log('ERROR:', error.response.data)
         console.log('ERROR:', error)
       })
   }
@@ -75,12 +74,16 @@ export default function ProjectMembers({
               }}
             >
               <Dialog.Close asChild>
-                <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                <button
+                  type="button"
+                  className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                >
                   Cancel
                 </button>
               </Dialog.Close>
               <Dialog.Close asChild>
                 <button
+                  type="button"
                   className="btn bg-red-500 hover:bg-red-600 text-white"
                   onClick={() => removeMember(open.id)}
                 >
@@ -89,7 +92,7 @@ export default function ProjectMembers({
               </Dialog.Close>
             </div>
             <Dialog.Close asChild>
-              <button className="IconButton" aria-label="Close">
+              <button type="button" className="IconButton" aria-label="Close">
                 <FontAwesomeIcon icon={faXmark} />
               </button>
             </Dialog.Close>
@@ -147,7 +150,7 @@ export default function ProjectMembers({
                       </thead>
                       <tbody className="text-sm divide-y divide-slate-200">
                         {data.map((member, index) => (
-                          <tr key={index}>
+                          <tr key={member.id}>
                             <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                               <div className="text-left">{index + 1}</div>
                             </td>
@@ -161,14 +164,12 @@ export default function ProjectMembers({
                                   {member.user.username}
                                 </Link>
                                 {session &&
-                                session.user.username ===
-                                  member.user.username ? (
-                                  <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-500 bg-green-100 rounded-full">
-                                    You
-                                  </span>
-                                ) : (
-                                  <></>
-                                )}
+                                  session.user.username ===
+                                    member.user.username && (
+                                    <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-500 bg-green-100 rounded-full">
+                                      You
+                                    </span>
+                                  )}
                               </div>
                             </td>
 

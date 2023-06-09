@@ -26,8 +26,8 @@ export default function LabelPage({
 
   const [searchTerm, setSearchTerm] = useState('')
 
-  const handleSearch = (searchTerm: string) => {
-    setSearchTerm(searchTerm)
+  const handleSearch = (search: string) => {
+    setSearchTerm(search)
   }
 
   const filteredLabels = data.filter((label) =>

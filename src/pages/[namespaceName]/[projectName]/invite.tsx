@@ -17,6 +17,7 @@ export default function ProjectInvites() {
     error?: string
     success?: string
   }>({})
+
   return (
     <>
       <Head>

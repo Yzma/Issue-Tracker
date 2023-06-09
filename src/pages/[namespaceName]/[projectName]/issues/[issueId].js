@@ -22,7 +22,6 @@ import {
 import axios from 'axios'
 
 import { useSession } from 'next-auth/react'
-import { IssueCreationSchema } from '@/lib/yup-schemas'
 import IssueComment from '@/components/comment-api/IssueComment'
 import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
 import Header from '@/components/Header'
