@@ -5,14 +5,12 @@ import * as z from 'zod'
 import Link from 'next/link'
 import { useState } from 'react'
 import ConfettiExplosion from 'react-confetti-explosion'
-import { useSession } from 'next-auth/react'
 import { trpc } from '@/lib/trpc'
 import { NamespaceSchema } from '@/lib/zod-schemas'
 
 type SignUpSchemaType = z.infer<typeof NamespaceSchema>
 
 export default function FinishUserCreation() {
-  const { data: session, status, update } = useSession()
   const [finishedSetupUsername, setFinishedSetupUsername] = useState<
     string | undefined
   >(undefined)
@@ -27,9 +25,7 @@ export default function FinishUserCreation() {
   })
 
   const submitUserMutation = trpc.onboarding.submitUsername.useMutation({
-    onSuccess: async (data) => {
-      await update()
-      console.log('Session: ', session)
+    onSuccess: (data) => {
       setFinishedSetupUsername(data.username)
     },
     onError: (error) => {
@@ -108,12 +104,15 @@ export default function FinishUserCreation() {
                   {finishedSetupUsername ? (
                     <>
                       <h1 className="text-3xl text-slate-800 font-bold mb-5 text-center">
-                        Welcome to Issue Tracker!
+                        Welcome to Issue Tracker, {finishedSetupUsername}!
                       </h1>
                       <div className="text-center">
                         Click the button below to go to your profile!
                         <div>
-                          <Link href="/">
+                          <Link
+                            href="/"
+                            onClick={() => window.location.reload()}
+                          >
                             <span className="btn bg-indigo-500 hover:bg-indigo-600 text-white ml-auto mt-5 text">
                               <ConfettiExplosion />
                               Finished!
