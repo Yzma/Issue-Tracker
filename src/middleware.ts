@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 
 import { NEW_USER_COOKIE, NEXT_AUTH_SESSION_COOKIE } from '@/lib/constants'
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (pathname === '/finish') {

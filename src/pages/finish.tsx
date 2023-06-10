@@ -10,7 +10,6 @@ type SignUpSchemaType = z.infer<typeof NamespaceSchema>
 
 export default function FinishUserCreation() {
   const router = useRouter()
-  const submitUserRouter = trpc.onboarding.submitUsername.useMutation()
 
   const {
     register,
@@ -21,20 +20,23 @@ export default function FinishUserCreation() {
     resolver: zodResolver(NamespaceSchema),
   })
 
-  const onSubmit: SubmitHandler<SignUpSchemaType> = async (data) => {
-    await submitUserRouter
-      .mutateAsync(data)
-      .then(() => router.push(`/${data.name}`)) // TODO: Make response return the name
-      .catch((error) => {
-        setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
-        console.log('ERROR:', error) // TODO: remove this
-      })
+  const submitUserMutation = trpc.onboarding.submitUsername.useMutation({
+    onSuccess: async (data) => {
+      await router.push(`/${data.username}`)
+    },
+    onError: (error) => {
+      setError('root', { type: 'custom', message: error.message })
+    },
+  })
+
+  const onSubmit: SubmitHandler<SignUpSchemaType> = async (formData) => {
+    return submitUserMutation.mutateAsync(formData)
   }
 
   return (
     <>
       <Head>
-        <title>Create namespace</title>
+        <title>Finish User Creation</title>
       </Head>
       <main className="flex absolute inset-0 bg-slate-100 justify-center items-center">
         <div className="relative px-4 sm:px-6 lg:px-8 pb-8  max-w-lg mx-auto">
@@ -49,13 +51,20 @@ export default function FinishUserCreation() {
             </div>
 
             <div>
-              <div className="space-y-4">
+              <div className="space-y-4 px-4">
                 {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                 <form onSubmit={handleSubmit(onSubmit)}>
                   {errors.name?.message && (
                     <div className="py-3">
                       <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
                         <div>You must enter a valid username!</div>
+                      </div>
+                    </div>
+                  )}
+                  {errors.root && (
+                    <div className="py-3">
+                      <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                        <div>{errors.root.message}</div>
                       </div>
                     </div>
                   )}
@@ -80,7 +89,11 @@ export default function FinishUserCreation() {
                       <button
                         className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
                         type="submit"
-                        disabled={isSubmitting}
+                        disabled={
+                          isSubmitting ||
+                          submitUserMutation.isSuccess ||
+                          submitUserMutation.isLoading
+                        }
                       >
                         Finish Registration
                       </button>

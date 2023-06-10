@@ -1,19 +1,22 @@
-import NextAuth, { Account, AuthOptions, NextAuthOptions, Profile, User } from "next-auth"
+import NextAuth, { Account, AuthOptions, Profile, User } from 'next-auth'
 
-import GitHubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
+import GitHubProvider from 'next-auth/providers/github'
+import GoogleProvider from 'next-auth/providers/google'
 
-import CustomPrismaAdapter from "@/lib/prisma/prisma-adapter"
-import prisma from "@/lib/prisma/prisma"
+import { setCookie } from 'cookies-next'
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+  PreviewData,
+} from 'next'
+import { ParsedUrlQuery } from 'querystring'
+import { AdapterUser } from 'next-auth/adapters'
+import CustomPrismaAdapter from '@/lib/prisma/prisma-adapter'
+import prisma from '@/lib/prisma/prisma'
 
-import { generateToken } from "@/lib/jwt"
-import { NEW_USER_COOKIE } from "@/lib/constants"
-import { setCookie } from "cookies-next"
-
-import { GetServerSidePropsContext, NextApiRequest, NextApiResponse, PreviewData } from "next"
-import { ParsedUrlQuery } from "querystring"
-
-import { AdapterUser } from "next-auth/adapters"
+import { generateToken } from '@/lib/jwt'
+import { NEW_USER_COOKIE } from '@/lib/constants'
 
 export type ApiRouteRequest = {
   req: NextApiRequest
@@ -39,41 +42,41 @@ export function authOptions(context: Context): AuthOptions {
     providers: [
       GitHubProvider({
         clientId: process.env.GITHUB_CLIENT_ID,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
       }),
       GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         authorization: {
           params: {
-            prompt: "consent",
-            access_type: "offline",
-            response_type: "code"
-          }
-        }
-      })
+            prompt: 'consent',
+            access_type: 'offline',
+            response_type: 'code',
+          },
+        },
+      }),
     ],
     pages: {
-      signIn: "/signin"
+      signIn: '/signin',
     },
     callbacks: {
       async signIn(params) {
         const { user, account, profile } = params
-        console.log("signIn obj: ", { user, account, profile })
+        console.log('signIn obj: ', { user, account, profile })
 
         // If the user doesn't have a namespace yet, then their still in the process of creating their account
         if (!params.user.namespace) {
-          return await setupUserOnboarding({ user, account, profile }, context)
+          return setupUserOnboarding({ user, account, profile }, context)
             .then((result) => {
-              console.log("setupUserOnboarding result: ", result)
+              console.log('setupUserOnboarding result: ', result)
               if (result) {
                 return true
               }
-              return "/finish"
+              return '/finish'
             })
             .catch((e) => {
-              console.log("Error during onboarding: ", e)
-              return "/500"
+              console.log('Error during onboarding: ', e)
+              return '/500'
             })
         }
         return true
@@ -84,7 +87,7 @@ export function authOptions(context: Context): AuthOptions {
         session.user.username = user.username
         session.user.namespace = {
           id: user.namespace.id,
-          name: user.namespace.name
+          name: user.namespace.name,
         }
         return session
       },
@@ -97,7 +100,10 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
 }
 
 // TODO: Comment, rename function, and figure out how code should be written for readability
-async function setupUserOnboarding(userObj: OnboardingParams, context: Context): Promise<boolean> {
+async function setupUserOnboarding(
+  userObj: OnboardingParams,
+  context: Context
+): Promise<boolean> {
   const { user, account, profile } = userObj
 
   return prisma
@@ -112,7 +118,7 @@ async function setupUserOnboarding(userObj: OnboardingParams, context: Context):
         token_type: account.token_type,
         scope: account.scope,
         id_token: account.id_token,
-        session_state: account.session_state
+        session_state: account.session_state,
       }
 
       if (!profile.email) {
@@ -122,59 +128,68 @@ async function setupUserOnboarding(userObj: OnboardingParams, context: Context):
       // TODO: Only select fields that are needed
       const upsertUser = await tx.user.upsert({
         where: {
-          email: profile.email
+          email: profile.email,
         },
         update: {},
         create: {
           name: user.name,
           email: user.email,
           // emailVerified: user.emailVerified,
-          image: user.image
-        }
+          image: user.image,
+        },
       })
 
       await tx.account.upsert({
         where: {
           provider_providerAccountId: {
             providerAccountId: account.providerAccountId,
-            provider: account.provider
-          }
+            provider: account.provider,
+          },
         },
         update: {
-          ...accountInfo
+          ...accountInfo,
         },
         create: {
           ...accountInfo,
           user: {
             connect: {
-              id: upsertUser.id
-            }
-          }
-        }
+              id: upsertUser.id,
+            },
+          },
+        },
       })
 
       return upsertUser
     })
     .then((result) => {
       console.log()
-      console.log("Result from promise: ", result)
+      console.log('Result from promise: ', result)
       if (result.username) {
-        console.log("User already has username, they linked another account and logged in")
+        console.log(
+          'User already has username, they linked another account and logged in'
+        )
         return true
       }
 
-      return generateToken({ data: result.id }, { expiresIn: "1h" })
-        .then(token => {
+      return generateToken({ data: result.id }, { expiresIn: '1h' }).then(
+        (token) => {
           if (isApiRouteRequest(context)) {
-            setCookie(NEW_USER_COOKIE, token, { req: context.req, res: context.res })
+            setCookie(NEW_USER_COOKIE, token, {
+              req: context.req,
+              res: context.res,
+            })
           } else {
-            setCookie(NEW_USER_COOKIE, token, { req: context.context.req, res: context.context.res })
+            setCookie(NEW_USER_COOKIE, token, {
+              req: context.context.req,
+              res: context.context.res,
+            })
           }
           return false
-        })
+        }
+      )
     })
 }
 
 function isApiRouteRequest(object: any): object is ApiRouteRequest {
-  return 'req' in object;
+  return 'req' in object
 }
