@@ -75,6 +75,14 @@ export const onboardingRouter = createTRPCRouter({
                 req,
                 res,
               })
+              setCookie(
+                `__Secure-${NEXT_AUTH_SESSION_COOKIE}`,
+                newSession.sessionToken,
+                {
+                  req,
+                  res,
+                }
+              )
 
               return {
                 id: updateResult.id,
