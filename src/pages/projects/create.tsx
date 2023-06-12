@@ -145,19 +145,15 @@ export default function ProjectCreate() {
                               <h2 className="text-xl leading-snug text-slate-800 font-bold mb-1">
                                 Description (optional)
                               </h2>
+
                               <div className="flex flex-wrap mt-5 grow">
                                 <div className="mr-2 grow">
-                                  <label
-                                    className="sr-only"
-                                    htmlFor="description"
-                                  >
-                                    <input
-                                      className="form-input w-full"
-                                      type="text"
-                                      // eslint-disable-next-line react/jsx-props-no-spreading
-                                      {...register('description')}
-                                    />
-                                  </label>
+                                  <input
+                                    className="form-input w-full"
+                                    type="text"
+                                    // eslint-disable-next-line react/jsx-props-no-spreading
+                                    {...register('description')}
+                                  />
                                 </div>
                               </div>
                             </section>
@@ -239,11 +235,21 @@ export async function getServerSideProps() {
     transformer: superjson,
   })
 
-  await helpers.users.getOrganizations.prefetch()
-
-  return {
-    props: {
-      trpcState: helpers.dehydrate(),
-    },
-  }
+  return helpers.users.getOrganizations
+    .prefetch()
+    .then(() => {
+      return {
+        props: {
+          trpcState: helpers.dehydrate(),
+        },
+      }
+    })
+    .catch(() => {
+      return {
+        redirect: {
+          destination: '/404',
+          permanent: false,
+        },
+      }
+    })
 }
