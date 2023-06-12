@@ -114,28 +114,18 @@ export default function Header() {
                       >
                         <Link href={`/${session.user.namespace.name}`}>
                           <DropdownMenu.Item className="group text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1">
-                            Your Profile
+                            Profile
                           </DropdownMenu.Item>
                         </Link>
                         <Link href="/issues">
                           <DropdownMenu.Item className="group text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1">
-                            Your Issues
-                          </DropdownMenu.Item>
-                        </Link>
-                        <Link href={`/${session.user.namespace.name}/projects`}>
-                          <DropdownMenu.Item className="group text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1">
-                            Your Projects
-                          </DropdownMenu.Item>
-                        </Link>
-                        <Link href={`/${session.user.namespace.name}/projects`}>
-                          <DropdownMenu.Item className="group text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1">
-                            Your Organizations
+                            Issues
                           </DropdownMenu.Item>
                         </Link>
 
                         <Link href="/invites">
                           <DropdownMenu.Item className="group text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1">
-                            Your Invites
+                            Invites
                           </DropdownMenu.Item>
                         </Link>
 
