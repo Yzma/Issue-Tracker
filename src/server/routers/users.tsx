@@ -1,17 +1,8 @@
 import { z } from 'zod'
 import { createTRPCRouter, privateProcedure } from '../trpc'
 import { SortTypeSchema } from '@/lib/zod-types'
-import { NAMESPACE, SHORT_DESCRIPTION } from '@/lib/zod-schemas'
+import { UserProfileSchema } from '@/lib/zod-schemas'
 import { SortOptions } from './types'
-
-const ProfileUpdateSchema = z.object({
-  name: NAMESPACE,
-  bio: SHORT_DESCRIPTION,
-  socialLink1: z.string().max(75).optional(),
-  socialLink2: z.string().max(75).optional(),
-  socialLink3: z.string().max(75).optional(),
-  socialLink4: z.string().max(75).optional(),
-})
 
 const sort: SortOptions = {
   newest: {
@@ -30,8 +21,14 @@ const sort: SortOptions = {
 
 export const usersRouter = createTRPCRouter({
   updateProfile: privateProcedure
-    .input(ProfileUpdateSchema)
+    .input(UserProfileSchema)
     .mutation(async ({ ctx, input }) => {
+      const mappedSocialLinks = {
+        socialLink1: input.socialLinks[0] || undefined,
+        socialLink2: input.socialLinks[1] || undefined,
+        socialLink3: input.socialLinks[2] || undefined,
+        socialLink4: input.socialLinks[3] || undefined,
+      }
       return ctx.prisma.user.update({
         where: {
           id: ctx.session.user.id,
@@ -39,10 +36,7 @@ export const usersRouter = createTRPCRouter({
         data: {
           name: input.name,
           bio: input.bio,
-          socialLink1: input.socialLink1,
-          socialLink2: input.socialLink2,
-          socialLink3: input.socialLink3,
-          socialLink4: input.socialLink4,
+          ...mappedSocialLinks,
         },
       })
     }),

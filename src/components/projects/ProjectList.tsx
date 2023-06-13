@@ -1,6 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
 import ProjectItem from '@/components/projects/ProjectItem'
 
 import type { ProjectItem as ProjectItemType } from './types'
@@ -91,12 +92,14 @@ export default function ProjectList({
                   </DropdownMenu.Root>
                 </div>
               </div>
-              <button
-                className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
-                type="button"
-              >
-                New Project
-              </button>
+              <Link href="/projects/create">
+                <button
+                  className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
+                  type="button"
+                >
+                  New Project
+                </button>
+              </Link>
             </div>
           </div>
           <hr className="border-gray-300 mx-auto w-full" />

@@ -17,10 +17,6 @@ export default function NamespaceIndexRoute({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <main>
         <div className="flex h-screen overflow-hidden">
           <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">

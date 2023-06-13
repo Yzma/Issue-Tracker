@@ -74,6 +74,7 @@ export default function UserSocialLinks({ links }: { links: string[] }) {
           const icon = lookupLinkIconDefinition(link)
           return (
             <Link key={link} href={link} passHref legacyBehavior>
+              {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
               <a className="text-gray-500 hover:text-gray-700">
                 <FontAwesomeIcon className="pr-2" icon={icon} />
                 {link}

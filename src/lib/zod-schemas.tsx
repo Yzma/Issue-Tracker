@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const VALID_CHARACTER_REGEX = /^[a-zA-Z0-9_]*$/
 const BLACKLIST_NAMES =
-  /^(?!api|_next|favicon|invites|issues|login|logout|orgs|projects|users|404|finish|index)/
+  /^(?!api|_next|favicon|invites|issues|login|logout|orgs|projects|users|404|finish|index|settings)/
 
 export const NAMESPACE = z
   .string()
@@ -19,6 +19,11 @@ export const LABEL_NAME = z.string().min(1).max(50).regex(VALID_CHARACTER_REGEX)
 
 export const NamespaceSchema = z.object({
   name: NAMESPACE,
+})
+
+export const UserProfileSchema = z.object({
+  bio: SHORT_DESCRIPTION,
+  socialLinks: z.string().url().optional().array().max(4).optional(),
 })
 
 export const ProjectNamespaceSchema = NamespaceSchema.and(
