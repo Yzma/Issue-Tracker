@@ -23,7 +23,7 @@ export const NamespaceSchema = z.object({
 
 export const UserProfileSchema = z.object({
   bio: SHORT_DESCRIPTION,
-  socialLinks: z.string().url().optional().array().max(4).optional(),
+  socialLinks: z.array(z.string().url().optional()).max(4).optional(),
 })
 
 export const ProjectNamespaceSchema = NamespaceSchema.and(
