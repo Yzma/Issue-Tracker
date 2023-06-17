@@ -2,24 +2,23 @@ import superjson from 'superjson'
 import { ZodError } from 'zod'
 import { TRPCError, initTRPC } from '@trpc/server'
 
-import { CreateNextContextOptions } from '@trpc/server/adapters/next'
 import { OrganizationRole } from '@prisma/client'
-import { getServerSession } from '@/lib/sessions'
+import { GetServerSidePropsContext } from 'next'
+import { getServerSideSession } from '@/lib/sessions'
 import prisma from '@/lib/prisma/prisma'
 
 import { GetIssueSchema, ProjectNamespaceSchema } from '@/lib/zod-schemas'
 
-export const createTRPCContext = async (opts: CreateNextContextOptions) => {
+export const createTRPCContext = async (opts: GetServerSidePropsContext) => {
   const { req, res } = opts
 
-  // Get the session from the server using the unstable_getServerSession wrapper function
-  const session = await getServerSession(req, res)
+  const session = await getServerSideSession(opts)
 
   return {
+    session,
     prisma,
     req,
     res,
-    session,
   }
 }
 
@@ -100,6 +99,8 @@ export const getViewableProject = publicProcedure
         }
 
     const foundMember = await ctx.prisma.member.findUnique({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       where: {
         ...searchCondition,
         AND: [
@@ -169,7 +170,7 @@ export const ensureUserIsProjectMember = getViewableProject.use(
     const updatedCtx = {
       ...rest,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      session: session!,
+      session,
       member,
     }
 

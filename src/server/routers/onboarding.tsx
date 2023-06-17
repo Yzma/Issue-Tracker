@@ -68,8 +68,7 @@ export const onboardingRouter = createTRPCRouter({
                 },
               })
 
-              const { req } = ctx
-              const { res } = ctx
+              const { req, res } = ctx
               deleteCookie(NEW_USER_COOKIE, { req, res })
               setCookie(NEXT_AUTH_SESSION_COOKIE, newSession.sessionToken, {
                 req,

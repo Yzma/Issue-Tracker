@@ -5,7 +5,7 @@ import * as z from 'zod'
 import Link from 'next/link'
 import { useState } from 'react'
 import ConfettiExplosion from 'react-confetti-explosion'
-import { trpc } from '@/lib/trpc'
+import { trpc } from '@/lib/trpc/trpc'
 import { NamespaceSchema } from '@/lib/zod-schemas'
 
 type SignUpSchemaType = z.infer<typeof NamespaceSchema>

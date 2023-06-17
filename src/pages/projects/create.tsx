@@ -11,7 +11,7 @@ import superjson from 'superjson'
 import { ProjectCreationSchema } from '@/lib/zod-schemas'
 import Header from '@/components/Header'
 import { appRouter } from '@/server/root'
-import { trpc } from '@/lib/trpc'
+import { trpc } from '@/lib/trpc/trpc'
 
 type ProjectCreationType = z.infer<typeof ProjectCreationSchema>
 
