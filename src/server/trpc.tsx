@@ -8,11 +8,14 @@ import { getServerSideSession } from '@/lib/sessions'
 import prisma from '@/lib/prisma/prisma'
 
 import { GetIssueSchema, ProjectNamespaceSchema } from '@/lib/zod-schemas'
+import { NEXT_AUTH_SESSION_COOKIE } from '@/lib/constants'
 
 export const createTRPCContext = async (opts: GetServerSidePropsContext) => {
   const { req, res } = opts
 
-  const session = await getServerSideSession(opts)
+  const session = !req.cookies[NEXT_AUTH_SESSION_COOKIE]
+    ? null
+    : await getServerSideSession(opts)
 
   return {
     session,
