@@ -13,6 +13,16 @@ import { trpc } from '@/lib/trpc/trpc'
 import { UserResponseType } from './types'
 import { MemoizedUserSocialLinks } from './UserSocialLinks'
 
+const ModifiedSocialLinksSchema = UserProfileSchema.extend({
+  socialLinks: z.array(
+    z.object({
+      link: z.string().url().optional().or(z.string()),
+    })
+  ),
+})
+
+type ModifiedSocialLinksSchemaType = z.infer<typeof ModifiedSocialLinksSchema>
+
 type ProfileContextType = {
   profile: UserResponseType
   setEditing: Dispatch<SetStateAction<boolean>>
@@ -50,49 +60,17 @@ function ProfileContainerViewer({ profile, setEditing }: ProfileContextType) {
   )
 }
 
-// type Testing2 = UserProfileSchema & {
-//   socialLinks: z.arrz
-// }
-
-// data: [{ name: 'test' }, { name: 'test1' }, { name: 'test2' }],
-// const Testing2 = z.array(
-//   z.object({
-//     link: z.string().url(),
-//   })
-// )
-
-// type TT = z.infer<typeof Testing2>
-
-// const test: TT = [
-//   {
-//     link: '',
-//   },
-// ]
-
-const hah = UserProfileSchema.extend({
-  socialLinks: z.array(
-    z.object({
-      link: z.string().url().optional().or(z.string()),
-    })
-  ),
-})
-
-type TT = z.infer<typeof hah>
-
 function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
   const {
     control,
     register,
     handleSubmit,
     setError,
-    getValues,
-    getFieldState,
-    formState: { errors, isSubmitting, isDirty, dirtyFields, touchedFields },
-  } = useForm<TT>({
-    resolver: zodResolver(hah),
+    formState: { errors, isSubmitting, isDirty },
+  } = useForm<ModifiedSocialLinksSchemaType>({
+    resolver: zodResolver(ModifiedSocialLinksSchema),
     defaultValues: {
       bio: profile.bio,
-      // socialLinks: [{ link: '' }],
       socialLinks: profile.socialLinks.map((e) => {
         return {
           link: e,
@@ -104,20 +82,6 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
     control,
     name: 'socialLinks',
   })
-
-  // const remainingSocialLinks = 4 - data.socialLinks.length
-  //   return {
-  //     ...data,
-  //     socialLinks: data.socialLinks.concat(
-  //       Array(remainingSocialLinks).fill(undefined, 0, remainingSocialLinks)
-  //     ),
-  //   }
-  // const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-  //   {
-  //     control, // control props comes from useForm (optional: if you are using FormContext)
-  //     name: 'socialLinks', // unique name for your Field Array
-  //   }
-  // )
 
   const utils = trpc.useContext()
   const updateProjectMutation = trpc.users.updateProfile.useMutation({
@@ -150,13 +114,7 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
     },
   })
 
-  // console.log('Form errors: ', errors)
-  // console.log('getValues', getValues('socialLinks'))
-  // console.log('getFieldState', getFieldState('socialLinks'))
-  // console.log('isDirty', isDirty)
-  // console.log('dirtyFields', dirtyFields)
-
-  const onSubmit: SubmitHandler<TT> = (formData) => {
+  const onSubmit: SubmitHandler<ModifiedSocialLinksSchemaType> = (formData) => {
     console.log('formData', formData)
     const t = {
       ...formData,

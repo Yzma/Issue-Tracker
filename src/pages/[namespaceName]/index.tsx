@@ -24,8 +24,6 @@ export default function NamespaceIndexRoute(
     return <div />
   }
 
-  const { data } = namespaceQuery
-
   return (
     <DefaultLayout>
       {namespaceQuery.data.type === 'User' ? (
