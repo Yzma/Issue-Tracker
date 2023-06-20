@@ -18,13 +18,13 @@ export default function NamespaceIndexRoute(
       enabled: false,
     }
   )
+
+  // Unreachable code. Needed for type safety.
   if (namespaceQuery.status !== 'success') {
-    // won't happen since the query has been prefetched
-    console.log('SHOULD NEVER HAPPEN??')
-    return <>Loading...</>
+    return <div />
   }
+
   const { data } = namespaceQuery
-  console.log('Data: ', data)
 
   return (
     <DefaultLayout>

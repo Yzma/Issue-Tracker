@@ -50,15 +50,6 @@ function ProfileContainerViewer({ profile, setEditing }: ProfileContextType) {
   )
 }
 
-type UserProfileUpdateType = z.infer<typeof UserProfileSchema>
-
-// export const UserProfileSchema = z.object({
-//   bio: SHORT_DESCRIPTION,
-//   socialLinks: z.array(z.string().url()).max(4),
-// })
-
-// }
-
 // type Testing2 = UserProfileSchema & {
 //   socialLinks: z.arrz
 // }
@@ -78,22 +69,6 @@ type UserProfileUpdateType = z.infer<typeof UserProfileSchema>
 //   },
 // ]
 
-function TestComp() {
-  const { register, control, handleSubmit, reset, trigger, setError } = useForm(
-    {
-      defaultValues: {
-        socialLinks: [{ link: '' }],
-      },
-    }
-  )
-  const { fields, append, remove } = useFieldArray({
-    name: 'socialLinks',
-    control,
-  })
-
-  return <div />
-}
-
 const hah = UserProfileSchema.extend({
   socialLinks: z.array(
     z.object({
@@ -104,28 +79,7 @@ const hah = UserProfileSchema.extend({
 
 type TT = z.infer<typeof hah>
 
-const test: TT = {
-  bio: '',
-  socialLinks: [
-    {
-      link: '',
-    },
-  ],
-}
-
-// export const Test = z.object({
-//   socialLinks: z.array(z.string().url()).max(4),
-// })
-
-// type FormValues = {
-//   data: { name: string }[]
-// }
-
-// type TestType = z.infer<typeof Test>
-
 function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
-  // console.log('1st pr:', profile)
-
   const {
     control,
     register,
@@ -150,18 +104,6 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
     control,
     name: 'socialLinks',
   })
-
-  // const { control, handleSubmit, register } = useForm<FormValues>({
-  //   defaultValues: {
-  //     data: [{ name: 'test' }, { name: 'test1' }, { name: 'test2' }],
-  //   },
-  //   mode: 'onSubmit',
-  //   shouldUnregister: false,
-  // })
-  // const { fields } = useFieldArray({
-  //   control,
-  //   name: 'data',
-  // })
 
   // const remainingSocialLinks = 4 - data.socialLinks.length
   //   return {
@@ -271,21 +213,7 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
                     )}
                     {fields.map((link, index) => {
                       return (
-                        // eslint-disable-next-line react/no-array-index-key
                         <div key={link.id}>
-                          {/* <Controller
-                              render={({ field }) => (
-                                <input
-                                  // eslint-disable-next-line react/jsx-props-no-spreading
-                                  {...field}
-                                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                  type="text"
-                                  placeholder="Link to social profile"
-                                />
-                              )}
-                              name={`socialLinks.${index}`}
-                              control={control}
-                            /> */}
                           <input
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             type="text"

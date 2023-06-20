@@ -1,7 +1,5 @@
 import { useSession } from 'next-auth/react'
-import ProfileContainer, {
-  MemoizedProfileContainer,
-} from '@/components/user-profile/ProfileContainer'
+import { MemoizedProfileContainer } from '@/components/user-profile/ProfileContainer'
 import ProjectList from '@/components/projects/ProjectList'
 
 import { UserResponse } from '@/types/types'
