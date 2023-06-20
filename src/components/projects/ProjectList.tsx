@@ -1,26 +1,30 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
-import ProjectItem from '@/components/projects/ProjectItem'
-
-import type { ProjectItem as ProjectItemType } from './types'
+import Link from 'next/link'
+import { Project } from '@/types/types'
+import ProjectItem from './ProjectItem'
 
 export default function ProjectList({
   projects,
+  showCreateProjectButton,
 }: {
-  projects: ProjectItemType[]
+  projects: Project[]
+  showCreateProjectButton: boolean
 }) {
   return (
     <div>
       {projects.length === 0 ? (
         <div className="flex flex-col gap-y-5 justify-center items-center p-10 text-4xl">
-          This user has no projects
-          <button
-            className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
-            type="button"
-          >
-            Create Project
-          </button>
+          No projects found
+          {showCreateProjectButton && (
+            <button
+              className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
+              type="button"
+            >
+              Create Project
+            </button>
+          )}
         </div>
       ) : (
         <>
@@ -91,18 +95,20 @@ export default function ProjectList({
                   </DropdownMenu.Root>
                 </div>
               </div>
-              <button
-                className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
-                type="button"
-              >
-                New Project
-              </button>
+              <Link href="/projects/create">
+                <button
+                  className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
+                  type="button"
+                >
+                  New Project
+                </button>
+              </Link>
             </div>
           </div>
           <hr className="border-gray-300 mx-auto w-full" />
-          {projects.map((project) => (
-            <ProjectItem key={project.id} project={project} />
-          ))}
+          {projects.map((project) => {
+            return <ProjectItem key={project.id} project={project} />
+          })}
         </>
       )}
     </div>

@@ -1,18 +1,13 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { UserResponse } from '@/types/types'
 
-export interface ProfileInformation {
-  name: string
-  username: string
-  profilePictureURL: string
-  bio?: string
-  socialLinks?: string[]
-  organizations?: Organizations[]
+export type UserResponseType = UserResponse['user']
+
+export type SocialLinks = {
+  links: UserResponse['user']['socialLinks']
 }
 
 export interface SocialLink {
   regex: RegExp
   icon: IconDefinition
-}
-export interface Organizations {
-  name: string
 }

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { trpc } from '@/lib/trpc'
+import { trpc } from '@/lib/trpc/trpc'
 import Header from '@/components/Header'
 import { NamespaceSchema } from '@/lib/zod-schemas'
 

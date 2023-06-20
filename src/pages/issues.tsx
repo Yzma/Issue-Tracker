@@ -3,7 +3,7 @@ import { IssueList2 } from '@/components/issue-list/IssueList'
 import { Issue } from '@/components/issue-list/types'
 import { useSearchFilters } from '@/hooks/useSearchFilters'
 
-import { trpc } from '@/lib/trpc'
+import { trpc } from '@/lib/trpc/trpc'
 import { SearchFilters } from '@/types/types'
 
 export default function Issues() {

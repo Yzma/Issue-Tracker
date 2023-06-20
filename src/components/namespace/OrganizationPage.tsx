@@ -1,31 +1,28 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import Head from 'next/head'
 
-import OrgProjectSection from '@/components/OrgProjectSection'
 import OrganizationBelowNavbar from '../navbar/OrganizationBelowNavbar'
-import { OrganizationProps } from '@/types/types'
+import { OrganizationResponse } from '@/types/types'
+import ProjectList from '../projects/ProjectList'
 
-function OrganizationPage({ data }: { data: OrganizationProps }) {
+function OrganizationPage({ data }: { data: OrganizationResponse }) {
   const router = useRouter()
   const { namespaceName } = router.query
-  console.log('Org props ', data)
 
-  const projects = []
   return (
     <>
-      <Head>
-        <title />
-        <meta name="description" content="TODO: Description?" />
-      </Head>
-
       <OrganizationBelowNavbar
         namespaceName={namespaceName}
         selected="projects"
       />
 
       <div className="mt-9">
-        <OrgProjectSection projects={projects} />
+        <ProjectList
+          projects={data.organization.projects}
+          showCreateProjectButton={
+            !!(data.member.role && data.member.role !== 'User')
+          }
+        />
       </div>
     </>
   )

@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import moment from 'moment'
-import { ProjectItem } from './types'
+import { Project } from '@/types/types'
 
-export default function ProjectList({ project }: { project: ProjectItem }) {
+export default function ProjectItem({ project }: { project: Project }) {
   return (
     <div>
       <div>
