@@ -115,8 +115,7 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
   })
 
   const onSubmit: SubmitHandler<ModifiedSocialLinksSchemaType> = (formData) => {
-    console.log('formData', formData)
-    const t = {
+    const mappedSubmitData = {
       ...formData,
       socialLinks: formData.socialLinks.map((e) => {
         if (e.link) {
@@ -125,8 +124,7 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
         return undefined
       }),
     }
-    console.log(t)
-    return updateProjectMutation.mutate(t)
+    return updateProjectMutation.mutate(mappedSubmitData)
   }
 
   return (
