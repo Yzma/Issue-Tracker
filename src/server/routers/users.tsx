@@ -23,22 +23,23 @@ export const usersRouter = createTRPCRouter({
   updateProfile: privateProcedure
     .input(UserProfileSchema)
     .mutation(async ({ ctx, input }) => {
-      const mappedSocialLinks = {
-        socialLink1: input.socialLinks[0] || undefined,
-        socialLink2: input.socialLinks[1] || undefined,
-        socialLink3: input.socialLinks[2] || undefined,
-        socialLink4: input.socialLinks[3] || undefined,
-      }
-      return ctx.prisma.user.update({
+      // const mappedSocialLinks = {
+      //   socialLink1: input.socialLinks[0] ?? undefined,
+      //   socialLink2: input.socialLinks[1] ?? undefined,
+      //   socialLink3: input.socialLinks[2] ?? undefined,
+      //   socialLink4: input.socialLinks[3] ?? undefined,
+      // }
+      const t = await ctx.prisma.user.update({
         where: {
           id: ctx.session.user.id,
         },
         data: {
-          name: input.name,
           bio: input.bio,
-          ...mappedSocialLinks,
+          socialLinks: input.socialLinks ?? [],
         },
       })
+      console.log('Database t ', t)
+      return t
     }),
 
   getSessions: privateProcedure.query(async ({ ctx }) => {

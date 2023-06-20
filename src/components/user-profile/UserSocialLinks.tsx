@@ -17,7 +17,8 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { SocialLink } from './types'
+import React from 'react'
+import { SocialLink, SocialLinks } from './types'
 
 const socialLinksTable: SocialLink[] = [
   {
@@ -58,7 +59,7 @@ const socialLinksTable: SocialLink[] = [
   },
 ]
 
-export default function UserSocialLinks({ links }: { links: string[] }) {
+export default function UserSocialLinks({ links }: SocialLinks) {
   function lookupLinkIconDefinition(link: string): IconDefinition {
     const foundLinkIcon = socialLinksTable.find((value) =>
       value.regex.test(link)
@@ -69,7 +70,7 @@ export default function UserSocialLinks({ links }: { links: string[] }) {
   return (
     <div className="flex flex-col space-y-2 mb-2">
       {links
-        .filter((e) => e || e.length > 0)
+        .filter((e) => e) // TODO: Is this needed?
         .map((link) => {
           const icon = lookupLinkIconDefinition(link)
           return (
@@ -85,3 +86,5 @@ export default function UserSocialLinks({ links }: { links: string[] }) {
     </div>
   )
 }
+
+export const MemoizedUserSocialLinks = React.memo(UserSocialLinks)

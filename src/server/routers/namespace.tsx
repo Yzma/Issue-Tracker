@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server'
 import { createTRPCRouter, publicProcedure } from '../trpc'
 import { NamespaceSchema } from '@/lib/zod-schemas'
+import { OrganizationResponse, UserResponse } from '@/types/types'
 
 export const namespaceRouter = createTRPCRouter({
   getNamespace: publicProcedure
@@ -29,12 +30,22 @@ export const namespaceRouter = createTRPCRouter({
       }
 
       if (namespace.userId) {
+        const projectSelectionQuery = isUserViewingOwnProfile
+          ? {
+              where: {
+                private: false,
+              },
+            }
+          : {}
         const userResponse = await ctx.prisma.user.findUnique({
           where: {
             id: namespace.userId,
           },
 
           select: {
+            username: true,
+            bio: true,
+            socialLinks: true,
             namespace: {
               select: {
                 projects: {
@@ -42,9 +53,22 @@ export const namespaceRouter = createTRPCRouter({
                     id: true,
                     name: true,
                     description: true,
-                    private: isUserViewingOwnProfile,
+                    private: true,
                     createdAt: true,
                     updatedAt: true,
+                  },
+                  ...projectSelectionQuery,
+                },
+              },
+            },
+            members: {
+              where: {
+                project: null,
+              },
+              select: {
+                organization: {
+                  select: {
+                    name: true,
                   },
                 },
               },
@@ -52,19 +76,54 @@ export const namespaceRouter = createTRPCRouter({
           },
         })
 
+        if (!userResponse) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `A namespace was found but no user could be found!`,
+          })
+        }
+
         return {
           type: 'User',
           user: {
-            ...userResponse,
+            username: userResponse.username,
+            bio: userResponse.bio,
+            socialLinks: userResponse.socialLinks,
+            projects: userResponse.namespace?.projects.map((e) => {
+              return {
+                id: e.id,
+                name: e.name,
+                namespace: namespace.name,
+                description: e.description,
+                private: e.private,
+                createdAt: e.createdAt,
+                updatedAt: e.updatedAt,
+              }
+            }),
+            organizations: userResponse.members.map(
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              (e) => e.organization!.name
+            ),
           },
-        }
+          namespace: { ...namespace },
+        } as UserResponse
       }
       if (namespace.organizationId) {
-        const foundMember = await ctx.prisma.member.findFirst({
-          where: {
-            userId: ctx.session?.user?.id,
-          },
-        })
+        const foundMember = !ctx.session?.user?.id
+          ? null
+          : await ctx.prisma.member.findFirst({
+              where: {
+                userId: ctx.session?.user?.id,
+              },
+            })
+
+        const projectSelectionQuery = foundMember
+          ? {
+              where: {
+                private: false,
+              },
+            }
+          : {}
 
         const organizationResponse = await ctx.prisma.organization.findUnique({
           where: {
@@ -72,6 +131,7 @@ export const namespaceRouter = createTRPCRouter({
           },
 
           select: {
+            id: true,
             name: true,
             createdAt: true,
             namespace: {
@@ -82,24 +142,50 @@ export const namespaceRouter = createTRPCRouter({
               select: {
                 projects: {
                   select: {
+                    id: true,
                     name: true,
                     description: true,
-                    private: !foundMember,
+                    private: true,
                     createdAt: true,
                     updatedAt: true,
                   },
+                  ...projectSelectionQuery,
                 },
               },
             },
           },
         })
 
+        if (!organizationResponse) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `A namespace was found but no organization could be found!`,
+          })
+        }
+
         return {
           type: 'Organization',
           organization: {
-            ...organizationResponse,
+            id: organizationResponse.id,
+            name: organizationResponse.name,
+            createdAt: organizationResponse.createdAt,
+            projects: organizationResponse.namespace?.projects.map((e) => {
+              return {
+                id: e.id,
+                name: e.name,
+                namespace: namespace.name,
+                description: e.description,
+                private: e.private,
+                createdAt: e.createdAt,
+                updatedAt: e.updatedAt,
+              }
+            }),
           },
-        }
+          member: {
+            role: foundMember?.role,
+          },
+          namespace: { ...namespace },
+        } as OrganizationResponse
       }
 
       throw new TRPCError({

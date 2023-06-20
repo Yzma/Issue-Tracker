@@ -3,15 +3,14 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSession } from 'next-auth/react'
-import { createServerSideHelpers } from '@trpc/react-query/server'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import superjson from 'superjson'
+import { GetServerSidePropsContext } from 'next'
 import { ProjectCreationSchema } from '@/lib/zod-schemas'
 import Header from '@/components/Header'
-import { appRouter } from '@/server/root'
 import { trpc } from '@/lib/trpc/trpc'
+import ssrHelper from '@/lib/trpc/ssrHelper'
 
 type ProjectCreationType = z.infer<typeof ProjectCreationSchema>
 
@@ -228,13 +227,8 @@ export default function ProjectCreate() {
   )
 }
 
-export async function getServerSideProps() {
-  const helpers = createServerSideHelpers({
-    router: appRouter,
-    ctx: {},
-    transformer: superjson,
-  })
-
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const helpers = ssrHelper(context)
   return helpers.users.getOrganizations
     .prefetch()
     .then(() => {

@@ -18,15 +18,6 @@ export type OrganizationMember = {
   organizationId: string
 }
 
-export type Project = {
-  id: string
-  name: string
-  description: string
-  private: boolean
-  createdAt: Date
-  updatedAt: Date
-}
-
 export type SharedProperties = {
   namespace: {
     id: string
@@ -51,6 +42,50 @@ export type OrganizationProps = SharedProperties & {
     createdAt: Date
     updatedAt: Date
     members: OrganizationMember[]
+  }
+}
+
+export type Project = {
+  id: string
+  name: string
+  namespace: string
+  description: string
+  private: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type UserResponse = {
+  type: 'User'
+  namespace: {
+    id: string
+    name: string
+    userId: string
+  }
+  user: {
+    username: string
+    bio: string | undefined
+    socialLinks: string[]
+    projects: Project[]
+    organizations: string[]
+  }
+}
+
+export type OrganizationResponse = {
+  type: 'Organization'
+  namespace: {
+    id: string
+    name: string
+    organizationId: string
+  }
+  organization: {
+    id: string
+    name: string
+    createdAt: Date
+    projects: Project[]
+  }
+  member: {
+    role: OrganizationRole | undefined
   }
 }
 
