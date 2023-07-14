@@ -56,7 +56,7 @@ export default function Header() {
                 <li className="flex gap-x-1 text-gray-500 hover:text-gray-600">
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <div className="flex gap-x-1 text-gray-500 hover:text-gray-600">
+                      <div className="flex gap-x-1 text-gray-500 hover:text-gray-600 hover:cursor-pointer">
                         <FontAwesomeIcon icon={faPlus} />
                         <FontAwesomeIcon icon={faCaretDown} />
                       </div>
@@ -89,7 +89,7 @@ export default function Header() {
                 <li className="flex gap-x-1 text-gray-500 hover:text-gray-600">
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <div className="flex items-center justify-center text-gray-500 hover:text-gray-600">
+                      <div className="flex items-center justify-center text-gray-500 hover:text-gray-600 hover:cursor-pointer">
                         <Avatar.Root className="inline-flex h-[45px] w-[45px] select-none items-center justify-center overflow-hidden rounded-full align-middle">
                           <Avatar.Image
                             className="h-8 w-8 rounded-[inherit] object-cover"
@@ -102,7 +102,6 @@ export default function Header() {
                             {session.user.username.charAt(0).toUpperCase()}
                           </Avatar.Fallback>
                         </Avatar.Root>
-                        <FontAwesomeIcon icon={faCaretDown} />
                       </div>
                     </DropdownMenu.Trigger>
 
