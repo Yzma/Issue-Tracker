@@ -76,18 +76,18 @@ export default function ProjectCreate() {
       </Head>
 
       <DefaultLayout>
-        <div className="flex justify-center items-center">
-          <section>
-            <h2 className="text-3xl leading-snug text-slate-800 font-bold mb-1">
-              Create a new project
-            </h2>
-            <div className="font-light">
-              A project contains all stored issues.
+        <div className="flex flex-col justify-center items-center">
+          <div>
+            <div className="border-b border-gray-300 pb-2">
+              <h2 className="text-3xl leading-snug text-slate-800 font-bold mb-1">
+                Create a new project
+              </h2>
+              <div className="font-semibold">
+                A project contains all stored issues.
+              </div>
             </div>
 
-            <hr />
-
-            <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-5">
+            <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
               {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
               <form onSubmit={handleSubmit(onSubmit)}>
                 {errors.name?.message && (
@@ -98,7 +98,7 @@ export default function ProjectCreate() {
                   </div>
                 )}
 
-                <section className="flex flex-row mb-4">
+                <section className="flex flex-row py-4 border-b border-gray-300">
                   <div className="sm:w-1/3">
                     <label
                       className="block text-sm font-medium mb-1"
@@ -135,12 +135,13 @@ export default function ProjectCreate() {
                   </div>
                 </section>
 
-                <hr />
-
-                <section className="mt-4 mb-4 grow">
-                  <h2 className="text-xl leading-snug text-slate-800 font-bold mb-1">
-                    Description (optional)
-                  </h2>
+                <section className="py-4 border-b border-gray-300">
+                  <div className="flex align-middle mb-1 leading-snug gap-x-1">
+                    <h2 className="text-xl text-slate-800 font-bold">
+                      Description
+                    </h2>
+                    <p className="pt-1 font-thin">(optional)</p>
+                  </div>
 
                   <div className="flex flex-wrap mt-5 grow">
                     <div className="mr-2 grow">
@@ -154,9 +155,7 @@ export default function ProjectCreate() {
                   </div>
                 </section>
 
-                <hr />
-
-                <section className="mt-4 mb-4">
+                <section className="py-4 border-b border-gray-300">
                   <h2 className="text-xl leading-snug text-slate-800 font-bold mb-4">
                     Visibility
                   </h2>
@@ -207,7 +206,7 @@ export default function ProjectCreate() {
                 </div>
               </form>
             </div>
-          </section>
+          </div>
         </div>
       </DefaultLayout>
     </>
