@@ -5,6 +5,7 @@ export type Issue = {
   name: string
   createdAt: Date
   updatedAt: Date
+  open: boolean
   labels: Pick<Label, 'name' | 'description' | 'color'>[]
   user: {
     username: string
