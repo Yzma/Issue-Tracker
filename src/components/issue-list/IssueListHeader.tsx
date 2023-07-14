@@ -7,55 +7,66 @@ import {
 import { useContext } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { CheckIcon } from '@radix-ui/react-icons'
-import { IssueListContext } from './IssueList'
+import { twMerge } from 'tailwind-merge'
+import { IssueListContext } from './IssueListContext'
+import { Button } from '../ui/button'
 
 export default function IssueListHeader() {
   const { searchFilters, setSearchParam } = useContext(IssueListContext)
   return (
-    <div className="flex justify-between w-full p-4 border rounded-t-md border-gray-200 bg-gray-50">
-      <div className="flex items-center gap-x-3">
-        <button
-          type="button"
-          className={`flex items-center gap-x-1 ${
-            searchFilters.open ? 'text-blue-500' : ''
-          }`}
+    <div className="flex justify-between w-full p-4 rounded-t-md bg-slate-50">
+      <div className="flex items-center gap-x-1">
+        <Button
+          variant="invisible"
+          size="sm"
+          className={twMerge(
+            'text-gray-900 hover:text-blue-600 text-md',
+            searchFilters.open && 'text-blue-600'
+          )}
           onClick={() => setSearchParam('open', true)}
         >
-          <FontAwesomeIcon icon={faCircleDot} />
-          <p
-            className={`font-semibold text-gray-900 ${
-              searchFilters.open ? 'text-blue-500' : ''
-            }`}
-          >
-            Open
-          </p>
-        </button>
+          <div className="flex items-center gap-x-1">
+            <FontAwesomeIcon icon={faCircleDot} />
+            <p className={`font-semibold  ${searchFilters.open ? '' : ''}`}>
+              Open
+            </p>
+          </div>
+        </Button>
 
-        <button
-          type="button"
-          className={`flex items-center gap-x-1 
-            ${!searchFilters.open ? 'text-blue-500' : ''}
-          `}
+        <Button
+          variant="invisible"
+          size="sm"
+          className={twMerge(
+            'text-gray-900 hover:text-blue-600 text-md',
+            !searchFilters.open && 'text-blue-600'
+          )}
           onClick={() => setSearchParam('open', false)}
         >
-          <FontAwesomeIcon icon={faCheck} />
-          <p
-            className={`font-semibold text-gray-900 ${
-              !searchFilters.open ? 'text-blue-500' : ''
-            }`}
-          >
-            Closed
-          </p>
-        </button>
+          <div className="flex items-center gap-x-1">
+            <FontAwesomeIcon icon={faCheck} />
+            <p className={`font-semibold  ${searchFilters.open ? '' : ''}`}>
+              Closed
+            </p>
+          </div>
+        </Button>
       </div>
 
       <div className="flex items-center gap-x-3">
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
-            <div className="flex gap-x-2 text-gray-500 items-center hover:text-gray-600">
-              <p className="font-semibold text-gray-900">Sort</p>
-              <FontAwesomeIcon icon={faCaretDown} />
-            </div>
+            <Button
+              variant="invisible"
+              size="sm"
+              className="text-gray-900 hover:text-blue-600 text-md"
+              onClick={() => setSearchParam('open', false)}
+            >
+              <div className="flex items-center gap-x-1">
+                <p className={`font-semibold  ${searchFilters.open ? '' : ''}`}>
+                  Sort
+                </p>
+                <FontAwesomeIcon icon={faCaretDown} />
+              </div>
+            </Button>
           </DropdownMenu.Trigger>
 
           <DropdownMenu.Portal>

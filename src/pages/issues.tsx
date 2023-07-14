@@ -1,6 +1,6 @@
-import Header from '@/components/Header'
 import { IssueList2 } from '@/components/issue-list/IssueList'
 import { Issue } from '@/components/issue-list/types'
+import DefaultLayout from '@/components/ui/DefaultLayout'
 import { useSearchFilters } from '@/hooks/useSearchFilters'
 
 import { trpc } from '@/lib/trpc/trpc'
@@ -15,21 +15,14 @@ export default function Issues() {
     searchFilters.searchFilters
   )
 
-  // if (globalIssuesQuery.isLoading) return
-
-  // if (globalIssuesQuery.error) return <div>{globalIssuesQuery.error.message}</div>
-
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-        <Header />
-        <div>
-          <IssueList2
-            issues={globalIssuesQuery.data as Issue[]}
-            useSearchFiltersHook={searchFilters}
-          />
-        </div>
-      </div>
-    </div>
+    <DefaultLayout>
+      <IssueList2
+        issues={globalIssuesQuery.data as Issue[]}
+        useSearchFiltersHook={searchFilters}
+        loading={globalIssuesQuery.isLoading}
+        showFullPath
+      />
+    </DefaultLayout>
   )
 }
