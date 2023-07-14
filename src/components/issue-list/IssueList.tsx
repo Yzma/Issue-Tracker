@@ -28,17 +28,15 @@ export function IssueList2({
   )
 
   return (
-    <div className="container mx-auto py-8 max-w-3/4">
-      <div className="border border-gray-300 rounded-md">
-        <IssueListContext.Provider value={contextValue}>
-          <IssueListHeader />
-          <IssueListBody
-            issues={issues ?? []}
-            loading={loading}
-            showFullPath={showFullPath}
-          />
-        </IssueListContext.Provider>
-      </div>
+    <div className="border border-gray-300 rounded-md">
+      <IssueListContext.Provider value={contextValue}>
+        <IssueListHeader />
+        <IssueListBody
+          issues={issues ?? []}
+          loading={loading}
+          showFullPath={showFullPath}
+        />
+      </IssueListContext.Provider>
     </div>
   )
 }
