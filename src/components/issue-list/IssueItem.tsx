@@ -25,7 +25,7 @@ export default function IssueItem({ issue, showFullPath }: IssueItemProps) {
           <div className="flex">
             {showFullPath && (
               <Link
-                href={`/${issue.project.namespace.name}/${issue.project.name}/issues/${issue.id}`}
+                href={`/${issue.project.namespace.name}/${issue.project.name}`}
                 className="inline text-l font-bold text-lg text-gray-500 hover:text-blue-900 hover:cursor-pointer hover:underline pr-1"
               >
                 {issue.project.namespace.name}/{issue.project.name}
