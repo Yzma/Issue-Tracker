@@ -2,22 +2,7 @@ import { z } from 'zod'
 import { createTRPCRouter, privateProcedure } from '../trpc'
 import { SortTypeSchema } from '@/lib/zod-types'
 import { UserProfileSchema } from '@/lib/zod-schemas'
-import { SortOptions } from './types'
-
-const sort: SortOptions = {
-  newest: {
-    createdAt: 'desc',
-  },
-  oldest: {
-    createdAt: 'asc',
-  },
-  'recently-updated': {
-    updatedAt: 'desc',
-  },
-  'least-recently-updated': {
-    updatedAt: 'asc',
-  },
-}
+import { sort } from './types'
 
 export const usersRouter = createTRPCRouter({
   updateProfile: privateProcedure
@@ -119,6 +104,7 @@ export const usersRouter = createTRPCRouter({
           name: true,
           createdAt: true,
           updatedAt: true,
+          open: true,
           labels: true,
           user: {
             select: {

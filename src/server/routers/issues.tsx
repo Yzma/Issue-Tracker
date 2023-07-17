@@ -7,6 +7,8 @@ import {
   getViewableProject,
 } from '../trpc'
 import { CreateIssueSchema, GetIssueSchema } from '@/lib/zod-schemas'
+import { SortTypeSchema } from '@/lib/zod-types'
+import { sort } from './types'
 
 const ModifyIssueSchema = GetIssueSchema.and(CreateIssueSchema).and(
   z.object({
@@ -56,9 +58,12 @@ export const issuesRouter = createTRPCRouter({
       })
     }),
 
+  // TODO: Make this a common type
   getAllIssues: getViewableProject
     .input(
       z.object({
+        open: z.boolean(),
+        sort: SortTypeSchema,
         limit: z.number().int().max(25).default(15),
       })
     )
@@ -66,6 +71,33 @@ export const issuesRouter = createTRPCRouter({
       return ctx.prisma.issue.findMany({
         where: {
           projectId: ctx.project.id,
+          open: input.open,
+        },
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
+          updatedAt: true,
+          open: true,
+          labels: true,
+          user: {
+            select: {
+              username: true,
+            },
+          },
+          project: {
+            select: {
+              name: true,
+              namespace: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          ...sort[input.sort],
         },
         take: input.limit,
       })
