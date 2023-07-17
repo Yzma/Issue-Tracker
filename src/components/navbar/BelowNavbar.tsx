@@ -62,7 +62,7 @@ function MenuListItem({ children, id, href }) {
     <Link href={href}>
       <div className="flex flex-row px-2 py-2 rounded hover:bg-gray-300 relative">
         {selected === id && (
-          <div className="absolute top-[calc(50%+27px)] left-0 w-full h-[4px] rounded-md bg-orange-500 z-30" />
+          <div className="absolute top-[calc(50%+27px)] left-0 w-full h-[3px] rounded-md bg-orange-500 z-30" />
           //  top-11
         )}
         {children}
