@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
     if (!request.cookies.has(NEW_USER_COOKIE)) {
       return NextResponse.redirect(new URL('/', request.url))
     }
-  } else if (pathname === '/signin') {
+  } else if (pathname === '/login') {
     if (request.cookies.has(NEXT_AUTH_SESSION_COOKIE)) {
       return NextResponse.redirect(new URL('/', request.url))
     }

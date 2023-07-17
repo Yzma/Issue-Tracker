@@ -57,7 +57,7 @@ export function authOptions(context: Context): AuthOptions {
       }),
     ],
     pages: {
-      signIn: '/signin',
+      signIn: '/login',
     },
     callbacks: {
       async signIn(params) {
