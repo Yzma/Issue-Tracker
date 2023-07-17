@@ -75,6 +75,7 @@ export const projectsRouter = createTRPCRouter({
             create: {
               userId: ctx.session.user.id,
               role: OrganizationRole.Owner,
+              acceptedAt: new Date(),
             },
           },
           labels: {

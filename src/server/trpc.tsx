@@ -61,13 +61,9 @@ export const getViewableProject = publicProcedure
     const foundProject = await ctx.prisma.project.findFirst({
       where: {
         name: input.name,
-        AND: [
-          {
-            namespace: {
-              name: input.owner,
-            },
-          },
-        ],
+        namespace: {
+          name: input.owner,
+        },
       },
       include: {
         namespace: true,
@@ -84,21 +80,22 @@ export const getViewableProject = publicProcedure
     // Conditions:
     // 1. The user is a part of the same organization that owns the project
     // 2. The user is a part of the project (manually invited)
-    const searchCondition = foundProject.namespace.organizationId
-      ? // Condition 1 - The user is a part of the same organization that owns the project
-        {
-          userId_organizationId: {
-            userId: ctx.session?.user.id,
-            organizationId: foundProject.namespace.organizationId,
-          },
-        }
-      : // Condition 2 - A part of the Project by invite
-        {
-          userId_projectId: {
-            userId: ctx.session?.user.id,
-            projectId: foundProject.id,
-          },
-        }
+    const searchCondition =
+      foundProject.namespace.organizationId !== null
+        ? // Condition 1 - The user is a part of the same organization that owns the project
+          {
+            userId_organizationId: {
+              userId: ctx.session?.user.id,
+              organizationId: foundProject.namespace.organizationId,
+            },
+          }
+        : // Condition 2 - A part of the Project by invite
+          {
+            userId_projectId: {
+              userId: ctx.session?.user.id,
+              projectId: foundProject.id,
+            },
+          }
 
     const foundMember = await ctx.prisma.member.findUnique({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -117,7 +114,7 @@ export const getViewableProject = publicProcedure
 
     if (foundProject.private) {
       // If the user isn't logged in or isn't a part of the project, deny them
-      if (ctx.session === null || !foundMember) {
+      if (!foundMember) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: `The provided Project was not found.`,
@@ -127,6 +124,7 @@ export const getViewableProject = publicProcedure
 
     return next({
       ctx: {
+        ...ctx,
         project: foundProject,
         member: foundMember,
       },

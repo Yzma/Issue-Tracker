@@ -1,164 +1,77 @@
-import { useState } from 'react'
 import { useRouter } from 'next/router'
 
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
-import { Issue, Label, Namespace, Project } from '@prisma/client'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
 import Header from '@/components/Header'
-import IssueList from '@/components/IssueList'
-import IssueButtons from '@/components/IssueButtons'
 import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
 
-import { getServerSideSession } from '@/lib/sessions'
-import prisma from '@/lib/prisma/prisma'
+import { Button } from '@/components/ui/button'
+import { IssueList2 } from '@/components/issue-list/IssueList'
+import { SearchFilters } from '@/types/types'
+import { useSearchFilters } from '@/hooks/useSearchFilters'
+import { trpc } from '@/lib/trpc/trpc'
+import { Input } from '@/components/ui/input'
+import { Issue } from '@/components/issue-list/types'
 
-export default function Issues({
-  data,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  console.log(data)
-
+export default function Issues() {
   const router = useRouter()
   const { namespaceName, projectName } = router.query
 
-  const [filteredIssues, setFilteredIssues] = useState(data)
+  const searchFilters = useSearchFilters<SearchFilters>({
+    open: true,
+    sort: 'newest',
+  })
 
-  const handleSearch = (searchTerm: string) => {
-    const filtered = data.filter((issue) =>
-      issue.labels.some((label) =>
-        label.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    )
-    setFilteredIssues(filtered)
-  }
+  const globalIssuesQuery = trpc.issues.getAllIssues.useQuery(
+    {
+      name: projectName as string,
+      owner: namespaceName as string,
+      open: searchFilters.searchFilters.open,
+      sort: searchFilters.searchFilters.sort,
+      limit: 15,
+    },
+
+    {
+      retry: false,
+    }
+  )
 
   return (
-    <main>
-      <div className="flex h-screen overflow-hidden">
-        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-          <Header />
-          <ProjectBelowNavbar
-            namespaceName={namespaceName}
-            projectName={projectName}
-            selected="issues"
-          />
-          <div className="container mx-auto px-4 py-8 max-w-3/4">
-            <IssueButtons
-              onSearch={handleSearch}
-              path={`/${namespaceName}/${projectName}`}
-            />
-            <div className="bg-white shadow-md rounded-md">
-              <IssueList
-                issues={filteredIssues}
-                routePath={`/${namespaceName}/${projectName}`}
-              />
+    <div className="flex h-screen overflow-hidden">
+      <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        <Header />
+        <ProjectBelowNavbar
+          namespaceName={namespaceName}
+          projectName={projectName}
+          selected="issues"
+        />
+        <div className="container mx-auto px-4 py-8 max-w-3/4">
+          <div className="flex justify-between w-full items-center my-4">
+            <div className="flex w-5/6 items-center space-x-2">
+              <Input type="search" placeholder="Search for an issue" />
+              <Button type="button">Search</Button>
             </div>
+            <Button asChild>
+              <Link
+                href={`/${namespaceName as string}/${
+                  projectName as string
+                }/new`}
+              >
+                <FontAwesomeIcon className="mr-2" icon={faPlus} />
+                <span>New Issue</span>
+              </Link>
+            </Button>
+          </div>
+          <div>
+            <IssueList2
+              issues={globalIssuesQuery.data as Issue[]}
+              useSearchFiltersHook={searchFilters}
+              loading={globalIssuesQuery.isLoading}
+            />
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
-}
-
-export const getServerSideProps: GetServerSideProps<{
-  data: (Issue & { labels: Label[] })[]
-}> = async (context) => {
-  const { namespaceName, projectName } = context.query
-
-  const session = await getServerSideSession(context)
-
-  const project = (await prisma.project.findFirst({
-    where: {
-      // @ts-ignore
-      name: projectName,
-      namespace: {
-        // @ts-ignore
-        name: namespaceName,
-      },
-    },
-
-    include: {
-      namespace: true,
-    },
-  })) as Project & { namespace: Namespace }
-
-  if (!project) {
-    return {
-      redirect: {
-        destination: '/404',
-        permanent: false,
-      },
-    }
-  }
-
-  console.log('Project: ', project)
-
-  if (project.private) {
-    if (!session) {
-      console.log('private - session is null')
-      return {
-        redirect: {
-          destination: '/404',
-          permanent: false,
-        },
-      }
-    }
-
-    // Is the user apart of the project separately?
-    let isMember = await prisma.member.findFirst({
-      where: {
-        userId: session.user.id,
-        projectId: project.id,
-      },
-    })
-
-    if (!isMember) {
-      // If the project belongs to an organization, then check if they are apart of that organization
-      if (project.namespace.organizationId) {
-        const isOrganizationMember = await prisma.member.findFirst({
-          where: {
-            userId: session.user.id,
-            organizationId: project.namespace.organizationId,
-          },
-        })
-
-        console.log('isOrganizationMember ', isOrganizationMember)
-
-        if (!isOrganizationMember) {
-          console.log('private - is not organization member')
-          return {
-            redirect: {
-              destination: '/404',
-              permanent: false,
-            },
-          }
-        }
-        isMember = true
-      }
-    }
-
-    if (!isMember) {
-      return {
-        redirect: {
-          destination: '/404',
-          permanent: false,
-        },
-      }
-    }
-  }
-
-  const issuesData = await prisma.issue.findMany({
-    where: {
-      projectId: project.id,
-    },
-    include: {
-      labels: true,
-    },
-  })
-
-  console.log(issuesData)
-
-  return {
-    props: {
-      data: issuesData,
-    },
-  }
 }
