@@ -1,17 +1,20 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
-import Link from 'next/link'
 import { Project } from '@/types/types'
 import ProjectItem from './ProjectItem'
+import { Input } from '../ui/input'
+import { Button } from '../ui/button'
+
+type ProjectListProps = {
+  projects: Project[]
+  showCreateProjectButton: boolean
+}
 
 export default function ProjectList({
   projects,
   showCreateProjectButton,
-}: {
-  projects: Project[]
-  showCreateProjectButton: boolean
-}) {
+}: ProjectListProps) {
   return (
     <div>
       {projects.length === 0 ? (
@@ -29,19 +32,17 @@ export default function ProjectList({
       ) : (
         <>
           <div className="pt-6">
-            <div className="flex justify-between gap-x-1 mb-5">
-              <input
-                className="form-input w-9/12 py-2 pr-3"
-                placeholder="Search for a project"
-              />
+            <div className="flex items-center justify-between gap-x-1 mb-5">
+              <Input id="app-search" type="search" placeholder="Search…" />
+
               <div className="flex flex-row gap-x-1">
                 <div>
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <div className="btn-xs h-8 w-16 shrink bg-gray-500 hover:bg-gray-600 text-white">
-                        <button type="button">Type</button>
+                      <Button size="sm">
+                        Type
                         <FontAwesomeIcon icon={faCaretDown} className="pl-1" />
-                      </div>
+                      </Button>
                     </DropdownMenu.Trigger>
 
                     <DropdownMenu.Portal>
@@ -70,10 +71,10 @@ export default function ProjectList({
                 <div>
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <div className="btn-xs h-8 w-16 shrink bg-gray-500 hover:bg-gray-600 text-white">
-                        <button type="button">Sort</button>
+                      <Button size="sm">
+                        Sort
                         <FontAwesomeIcon icon={faCaretDown} className="pl-1" />
-                      </div>
+                      </Button>
                     </DropdownMenu.Trigger>
 
                     <DropdownMenu.Portal>
@@ -95,14 +96,11 @@ export default function ProjectList({
                   </DropdownMenu.Root>
                 </div>
               </div>
-              <Link href="/projects/create">
-                <button
-                  className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
-                  type="button"
-                >
-                  New Project
-                </button>
-              </Link>
+              <div className="flex flex-row">
+                <Button size="sm" className="flex w-[9rem]">
+                  Create Project
+                </Button>
+              </div>
             </div>
           </div>
           <hr className="border-gray-300 mx-auto w-full" />

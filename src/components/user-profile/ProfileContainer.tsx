@@ -12,6 +12,7 @@ import { UserProfileSchema } from '@/lib/zod-schemas'
 import { trpc } from '@/lib/trpc/trpc'
 import { UserResponseType } from './types'
 import { MemoizedUserSocialLinks } from './UserSocialLinks'
+import { Button } from '../ui/button'
 
 const ModifiedSocialLinksSchema = UserProfileSchema.extend({
   socialLinks: z.array(
@@ -45,13 +46,13 @@ function ProfileContainerViewer({ profile, setEditing }: ProfileContextType) {
             </p>
 
             {session?.user.namespace.name === profile.username && (
-              <button
+              <Button
                 type="button"
-                className="btn w-full"
+                variant="default"
                 onClick={() => setEditing(true)}
               >
                 Edit Profile
-              </button>
+              </Button>
             )}
           </div>
         </div>
