@@ -1,6 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
 import { Project } from '@/types/types'
 import ProjectItem from './ProjectItem'
 import { Input } from '../ui/input'
@@ -8,19 +9,19 @@ import { Button } from '../ui/button'
 
 type ProjectListProps = {
   projects: Project[]
-  showCreateProjectButton: boolean
+  projectCreationButton: JSX.Element | undefined
 }
 
 export default function ProjectList({
   projects,
-  showCreateProjectButton,
+  projectCreationButton,
 }: ProjectListProps) {
   return (
     <div>
       {projects.length === 0 ? (
         <div className="flex flex-col gap-y-5 justify-center items-center p-10 text-4xl">
           No projects found
-          {showCreateProjectButton && (
+          {projectCreationButton !== undefined && (
             <button
               className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
               type="button"
@@ -31,11 +32,15 @@ export default function ProjectList({
         </div>
       ) : (
         <>
-          <div className="pt-6">
-            <div className="flex items-center justify-between gap-x-1 mb-5">
-              <Input id="app-search" type="search" placeholder="Search…" />
+          <div className="flex mb-5 content-start pt-6 gap-x-1">
+            <div className="flex max-md:flex-col gap-x-2 gap-y-2 w-full">
+              <Input
+                id="app-search"
+                type="search"
+                placeholder="Find a project..."
+              />
 
-              <div className="flex flex-row gap-x-1">
+              <div className="flex flex-row gap-x-2">
                 <div>
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
@@ -96,13 +101,15 @@ export default function ProjectList({
                   </DropdownMenu.Root>
                 </div>
               </div>
-              <div className="flex flex-row">
-                <Button size="sm" className="flex w-[9rem]">
-                  Create Project
-                </Button>
-              </div>
             </div>
+
+            {projectCreationButton !== undefined && (
+              <div className="flex flex-row content-start align-top">
+                {projectCreationButton}
+              </div>
+            )}
           </div>
+
           <hr className="border-gray-300 mx-auto w-full" />
           {projects.map((project) => {
             return <ProjectItem key={project.id} project={project} />
