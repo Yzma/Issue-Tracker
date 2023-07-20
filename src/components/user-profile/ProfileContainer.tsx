@@ -13,6 +13,7 @@ import { trpc } from '@/lib/trpc/trpc'
 import { UserResponseType } from './types'
 import { MemoizedUserSocialLinks } from './UserSocialLinks'
 import { Button } from '../ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
 const ModifiedSocialLinksSchema = UserProfileSchema.extend({
   socialLinks: z.array(
@@ -36,7 +37,7 @@ function ProfileContainerViewer({ profile, setEditing }: ProfileContextType) {
       <div className="flex flex-col">
         <div className="flex flex-col gap-y-0 text-left">
           <div>
-            <p className="text-xl font-bold">{profile.username}</p>
+            <p className="text-2xl font-bold">{profile.username}</p>
           </div>
 
           <div className="flex flex-col gap-y-2">
@@ -228,12 +229,12 @@ export default function ProfileContainer({ data }: { data: UserResponseType }) {
   return (
     <div className="flex flex-col gap-y-3">
       <div className="flex items-center justify-center">
-        {/* <Avatar.Root className="bg-blackA3 inline-flex  select-none items-center justify-center overflow-hidden rounded-full align-middle">
-            <Avatar.Fallback className="text-violet11 leading-1 flex h-72x w-72px items-center justify-center bg-white text-[15px] font-medium">
-              PD
-            </Avatar.Fallback>
-          </Avatar.Root> */}
-        <div className="w-72 h-72 mb-4 bg-gray-200 text-gray-600 rounded-full" />
+        <Avatar className="w-72 h-72">
+          <AvatarImage src={data.image} className="mb-4 rounded-full" />
+          <AvatarFallback className="mb-4 rounded-full w-72 h-72 text-8xl border bg-slate-300">
+            {data.username.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </div>
       {editing ? (
         <ProfileContainerEditor profile={profile} setEditing={setEditing} />
@@ -241,8 +242,9 @@ export default function ProfileContainer({ data }: { data: UserResponseType }) {
         <ProfileContainerViewer profile={profile} setEditing={setEditing} />
       )}
       <MemoizedUserSocialLinks links={profile.socialLinks} />
-      <hr className="border-gray-300 my-4 mx-auto w-full" />
-      <MemoizedUsersOrganizationsSection organizations={data.organizations} />
+      <div className="border-gray-300 border-t mx-auto w-full pt-3 hidden md:block">
+        <MemoizedUsersOrganizationsSection organizations={data.organizations} />
+      </div>
     </div>
   )
 }
