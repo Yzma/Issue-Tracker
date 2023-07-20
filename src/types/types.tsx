@@ -64,6 +64,7 @@ export type UserResponse = {
   }
   user: {
     username: string
+    image: string
     bio: string | undefined
     socialLinks: string[]
     projects: Project[]

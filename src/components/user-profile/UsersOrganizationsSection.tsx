@@ -18,7 +18,7 @@ export default function UsersOrganizationsSection({
               return (
                 <div key={organization}>
                   <Link href={`/${organization.toLowerCase()}`}>
-                    <Avatar.Root className="inline-flex hover:cursor-pointer h-[45px] w-[45px] select-none items-center justify-center overflow-hidden rounded align-middle">
+                    <Avatar.Root className="inline-flex hover:cursor-pointer h-[45px] w-[45px] select-none items-center justify-center overflow-hidden rounded align-middle border-gray-400 border">
                       <Avatar.Fallback className="text-violet11 leading-1 flex h-full w-full items-center justify-center bg-white text-[15px] font-medium">
                         {organization.charAt(0).toUpperCase()}
                       </Avatar.Fallback>

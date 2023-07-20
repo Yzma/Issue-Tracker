@@ -4,20 +4,24 @@ import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
 import { Project } from '@/types/types'
 import ProjectItem from './ProjectItem'
+import { Input } from '../ui/input'
+import { Button } from '../ui/button'
+
+type ProjectListProps = {
+  projects: Project[]
+  projectCreationButton: JSX.Element | undefined
+}
 
 export default function ProjectList({
   projects,
-  showCreateProjectButton,
-}: {
-  projects: Project[]
-  showCreateProjectButton: boolean
-}) {
+  projectCreationButton,
+}: ProjectListProps) {
   return (
     <div>
       {projects.length === 0 ? (
         <div className="flex flex-col gap-y-5 justify-center items-center p-10 text-4xl">
           No projects found
-          {showCreateProjectButton && (
+          {projectCreationButton !== undefined && (
             <button
               className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
               type="button"
@@ -28,20 +32,22 @@ export default function ProjectList({
         </div>
       ) : (
         <>
-          <div className="pt-6">
-            <div className="flex justify-between gap-x-1 mb-5">
-              <input
-                className="form-input w-9/12 py-2 pr-3"
-                placeholder="Search for a project"
+          <div className="flex mb-5 content-start pt-6 gap-x-1">
+            <div className="flex max-md:flex-col gap-x-2 gap-y-2 w-full">
+              <Input
+                id="app-search"
+                type="search"
+                placeholder="Find a project..."
               />
-              <div className="flex flex-row gap-x-1">
+
+              <div className="flex flex-row gap-x-2">
                 <div>
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <div className="btn-xs h-8 w-16 shrink bg-gray-500 hover:bg-gray-600 text-white">
-                        <button type="button">Type</button>
+                      <Button size="sm">
+                        Type
                         <FontAwesomeIcon icon={faCaretDown} className="pl-1" />
-                      </div>
+                      </Button>
                     </DropdownMenu.Trigger>
 
                     <DropdownMenu.Portal>
@@ -70,10 +76,10 @@ export default function ProjectList({
                 <div>
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <div className="btn-xs h-8 w-16 shrink bg-gray-500 hover:bg-gray-600 text-white">
-                        <button type="button">Sort</button>
+                      <Button size="sm">
+                        Sort
                         <FontAwesomeIcon icon={faCaretDown} className="pl-1" />
-                      </div>
+                      </Button>
                     </DropdownMenu.Trigger>
 
                     <DropdownMenu.Portal>
@@ -95,16 +101,15 @@ export default function ProjectList({
                   </DropdownMenu.Root>
                 </div>
               </div>
-              <Link href="/projects/create">
-                <button
-                  className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
-                  type="button"
-                >
-                  New Project
-                </button>
-              </Link>
             </div>
+
+            {projectCreationButton !== undefined && (
+              <div className="flex flex-row content-start align-top">
+                {projectCreationButton}
+              </div>
+            )}
           </div>
+
           <hr className="border-gray-300 mx-auto w-full" />
           {projects.map((project) => {
             return <ProjectItem key={project.id} project={project} />

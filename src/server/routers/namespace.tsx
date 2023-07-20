@@ -46,6 +46,7 @@ export const namespaceRouter = createTRPCRouter({
             username: true,
             bio: true,
             socialLinks: true,
+            image: true,
             namespace: {
               select: {
                 projects: {
@@ -89,6 +90,7 @@ export const namespaceRouter = createTRPCRouter({
             username: userResponse.username,
             bio: userResponse.bio,
             socialLinks: userResponse.socialLinks,
+            image: userResponse.image,
             projects: userResponse.namespace?.projects.map((e) => {
               return {
                 id: e.id,
