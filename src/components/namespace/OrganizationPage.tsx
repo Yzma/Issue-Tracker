@@ -1,30 +1,41 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 
+import Link from 'next/link'
 import OrganizationBelowNavbar from '../navbar/OrganizationBelowNavbar'
 import { OrganizationResponse } from '@/types/types'
 import ProjectList from '../projects/ProjectList'
+import BelowNavbar2 from '../navbar2/BelowNavbar2'
+import Header from '../Header'
+import { Button } from '../ui/button'
+import DefaultLayout from '../ui/DefaultLayout'
 
 function OrganizationPage({ data }: { data: OrganizationResponse }) {
   const router = useRouter()
   const { namespaceName } = router.query
 
   return (
-    <>
-      <OrganizationBelowNavbar
-        namespaceName={namespaceName}
-        selected="projects"
-      />
-
-      <div className="mt-9">
-        <ProjectList
-          projects={data.organization.projects}
-          showCreateProjectButton={
-            !!(data.member.role && data.member.role !== 'User')
-          }
+    <DefaultLayout
+      underHeader={
+        <OrganizationBelowNavbar
+          namespaceName={namespaceName}
+          selected="projects"
         />
+      }
+    >
+      <div className="md:flex gap-x-7 px-3 ">
+        <div className="w-full">
+          <ProjectList
+            projects={data.organization.projects}
+            projectCreationButton={
+              <Button size="sm" asChild className="flex w-[7.5rem]">
+                <Link href="/login">Create Project</Link>
+              </Button>
+            }
+          />
+        </div>
       </div>
-    </>
+    </DefaultLayout>
   )
 }
 

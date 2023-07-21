@@ -4,7 +4,6 @@ import { trpc } from '@/lib/trpc/trpc'
 import UserPage from '@/components/namespace/UserPage'
 import ssrHelper from '@/lib/trpc/ssrHelper'
 import OrganizationPage from '@/components/namespace/OrganizationPage'
-import DefaultLayout from '@/components/ui/DefaultLayout'
 
 export default function NamespaceIndexRoute(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -24,14 +23,10 @@ export default function NamespaceIndexRoute(
     return <div />
   }
 
-  return (
-    <DefaultLayout>
-      {namespaceQuery.data.type === 'User' ? (
-        <UserPage data={namespaceQuery.data} />
-      ) : (
-        <OrganizationPage data={namespaceQuery.data} />
-      )}
-    </DefaultLayout>
+  return namespaceQuery.data.type === 'User' ? (
+    <UserPage data={namespaceQuery.data} />
+  ) : (
+    <OrganizationPage data={namespaceQuery.data} />
   )
 }
 
