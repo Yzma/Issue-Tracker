@@ -1,14 +1,17 @@
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faBug,
-  faEnvelope,
-  faPaperPlane,
-  faUserGroup,
-} from '@fortawesome/free-solid-svg-icons'
+import { faBug, faGear, faUserGroup } from '@fortawesome/free-solid-svg-icons'
 import BelowNavbar from './BelowNavbar'
 
-function OrganizationBelowNavbar({ namespaceName, selected }) {
+type OrganizationBelowNavbarProps = {
+  namespaceName: string
+  selected: string
+}
+
+function OrganizationBelowNavbar({
+  namespaceName,
+  selected,
+}: OrganizationBelowNavbarProps) {
   return (
     <BelowNavbar>
       <BelowNavbar.BreadcrumbLinks>
@@ -36,23 +39,13 @@ function OrganizationBelowNavbar({ namespaceName, selected }) {
         </BelowNavbar.MenuListItem>
 
         <BelowNavbar.MenuListItem
-          id="invite"
-          href={`/orgs/${namespaceName}/invite`}
+          id="settings"
+          href={`/orgs/${namespaceName}/settings`}
         >
           <div>
-            <FontAwesomeIcon icon={faEnvelope} />
+            <FontAwesomeIcon icon={faGear} />
           </div>
-          <div className="pl-2">Invite</div>
-        </BelowNavbar.MenuListItem>
-
-        <BelowNavbar.MenuListItem
-          id="invites"
-          href={`/orgs/${namespaceName}/members/invites`}
-        >
-          <div>
-            <FontAwesomeIcon icon={faPaperPlane} />
-          </div>
-          <div className="pl-2">Outgoing Invites</div>
+          <div className="pl-2">Settings</div>
         </BelowNavbar.MenuListItem>
       </BelowNavbar.MenuList>
     </BelowNavbar>

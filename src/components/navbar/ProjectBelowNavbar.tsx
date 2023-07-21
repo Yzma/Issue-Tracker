@@ -5,10 +5,21 @@ import {
   faTag,
   faEnvelope,
   faUserGroup,
+  faGear,
 } from '@fortawesome/free-solid-svg-icons'
 import BelowNavbar from './BelowNavbar'
 
-function ProjectBelowNavbar({ namespaceName, projectName, selected }) {
+type ProjectBelowNavbarProps = {
+  namespaceName: string
+  projectName: string
+  selected: string
+}
+
+function ProjectBelowNavbar({
+  namespaceName,
+  projectName,
+  selected,
+}: ProjectBelowNavbarProps) {
   return (
     <BelowNavbar>
       <BelowNavbar.BreadcrumbLinks>
@@ -17,7 +28,12 @@ function ProjectBelowNavbar({ namespaceName, projectName, selected }) {
         </BelowNavbar.BreadcrumbLink>
 
         <BelowNavbar.BreadcrumbLink>
-          <Link href={`/${namespaceName}/${projectName}`}>{projectName}</Link>
+          <Link
+            href={`/${namespaceName}/${projectName}`}
+            className="font-semibold"
+          >
+            {projectName}
+          </Link>
         </BelowNavbar.BreadcrumbLink>
       </BelowNavbar.BreadcrumbLinks>
 
@@ -60,6 +76,16 @@ function ProjectBelowNavbar({ namespaceName, projectName, selected }) {
             <FontAwesomeIcon icon={faEnvelope} />
           </div>
           <div className="pl-2">Invites</div>
+        </BelowNavbar.MenuListItem>
+
+        <BelowNavbar.MenuListItem
+          id="settings"
+          href={`/${namespaceName}/${projectName}/settings`}
+        >
+          <div>
+            <FontAwesomeIcon icon={faGear} />
+          </div>
+          <div className="pl-2">Settings</div>
         </BelowNavbar.MenuListItem>
       </BelowNavbar.MenuList>
     </BelowNavbar>
