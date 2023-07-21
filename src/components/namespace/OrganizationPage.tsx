@@ -5,8 +5,6 @@ import Link from 'next/link'
 import OrganizationBelowNavbar from '../navbar/OrganizationBelowNavbar'
 import { OrganizationResponse } from '@/types/types'
 import ProjectList from '../projects/ProjectList'
-import BelowNavbar2 from '../navbar2/BelowNavbar2'
-import Header from '../Header'
 import { Button } from '../ui/button'
 import DefaultLayout from '../ui/DefaultLayout'
 
@@ -18,7 +16,7 @@ function OrganizationPage({ data }: { data: OrganizationResponse }) {
     <DefaultLayout
       underHeader={
         <OrganizationBelowNavbar
-          namespaceName={namespaceName}
+          namespaceName={namespaceName as string}
           selected="projects"
         />
       }
