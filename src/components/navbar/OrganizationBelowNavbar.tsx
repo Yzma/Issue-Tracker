@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBug, faGear, faUserGroup } from '@fortawesome/free-solid-svg-icons'
 import BelowNavbar from './BelowNavbar'
+import { Avatar, AvatarFallback } from '../ui/avatar'
 
 type OrganizationBelowNavbarProps = {
   namespaceName: string
@@ -15,9 +16,20 @@ function OrganizationBelowNavbar({
   return (
     <BelowNavbar>
       <BelowNavbar.BreadcrumbLinks>
-        <BelowNavbar.BreadcrumbLink>
+        {/* TODO: Add variants  */}
+        {/* <BelowNavbar.BreadcrumbLink>
           <Link href={`/${namespaceName}`}>{namespaceName}</Link>
-        </BelowNavbar.BreadcrumbLink>
+        </BelowNavbar.BreadcrumbLink> */}
+        <div className="flex gap-x-5">
+          <Avatar className="rounded-lg h-24 w-24 ">
+            <AvatarFallback className="text-4xl rounded-lg bg-white border border-gray-300">
+              {namespaceName.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col justify-center">
+            <p className="text-2xl font-bold">Title</p>
+          </div>
+        </div>
       </BelowNavbar.BreadcrumbLinks>
 
       <BelowNavbar.MenuList selected={selected}>

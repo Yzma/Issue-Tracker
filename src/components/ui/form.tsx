@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/jsx-props-no-spreading */
 import * as React from 'react'
 import * as LabelPrimitive from '@radix-ui/react-label'
 import { Slot } from '@radix-ui/react-slot'
@@ -22,8 +24,16 @@ type FormFieldContextValue<
   name: TName
 }
 
+type FormItemContextValue = {
+  id: string
+}
+
 const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue
+)
+
+const FormItemContext = React.createContext<FormItemContextValue>(
+  {} as FormItemContextValue
 )
 
 function FormField<
@@ -59,14 +69,6 @@ const useFormField = () => {
     ...fieldState,
   }
 }
-
-type FormItemContextValue = {
-  id: string
-}
-
-const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue
-)
 
 const FormItem = React.forwardRef<
   HTMLDivElement,
