@@ -1,10 +1,11 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable react/function-component-definition */
+import { ReactElement, ReactNode } from 'react'
 import { type Session } from 'next-auth'
 import { SessionProvider } from 'next-auth/react'
-import { type AppType } from 'next/app'
+import { type AppProps } from 'next/app'
 import { config } from '@fortawesome/fontawesome-svg-core'
+import type { NextPage } from 'next'
+import Head from 'next/head'
 import { trpc } from '@/lib/trpc/trpc'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 
@@ -13,13 +14,31 @@ import '@/styles/popover-styles.css'
 
 config.autoAddCss = false
 
-const MyApp: AppType<{ session: Session | null }> = ({
+export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
+
+function MyApp({
   Component,
   pageProps: { session, ...pageProps },
-}) => {
+}: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? ((page) => page)
+  const layout = getLayout(<Component {...pageProps} />)
+
   return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
+    <SessionProvider session={session as Session}>
+      <Head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      {layout}
     </SessionProvider>
   )
 }
