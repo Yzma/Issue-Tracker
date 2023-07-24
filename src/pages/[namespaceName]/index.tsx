@@ -4,6 +4,7 @@ import { trpc } from '@/lib/trpc/trpc'
 import UserPage from '@/components/namespace/UserPage'
 import ssrHelper from '@/lib/trpc/ssrHelper'
 import OrganizationPage from '@/components/namespace/OrganizationPage'
+import NamespaceNotFound from '@/components/namespace/NamespaceNotFound'
 
 export default function NamespaceIndexRoute(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -15,12 +16,12 @@ export default function NamespaceIndexRoute(
     },
     {
       enabled: false,
+      retry: false,
     }
   )
 
-  // Unreachable code. Needed for type safety.
   if (namespaceQuery.status !== 'success') {
-    return <div />
+    return <NamespaceNotFound />
   }
 
   return namespaceQuery.data.type === 'User' ? (
@@ -32,11 +33,14 @@ export default function NamespaceIndexRoute(
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const helpers = ssrHelper(context)
-  const namespaceName = context.params?.namespaceName as string
+  const namespaceName = context.params?.namespaceName
 
-  if (typeof namespaceName !== 'string') throw new Error('no slug')
+  if (namespaceName === undefined || typeof namespaceName !== 'string')
+    throw new Error('no slug')
 
-  await helpers.namespaceRouter.getNamespace.prefetch({ name: namespaceName })
+  await helpers.namespaceRouter.getNamespace.prefetch({
+    name: namespaceName,
+  })
 
   return {
     props: {
