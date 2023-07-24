@@ -27,7 +27,9 @@ function OrganizationPage({ data }: { data: OrganizationResponse }) {
             projects={data.organization.projects}
             projectCreationButton={
               <Button size="sm" asChild className="flex w-[7.5rem]">
-                <Link href="/login">Create Project</Link>
+                <Link href={`/projects/create?name=${namespaceName as string}`}>
+                  Create Project
+                </Link>
               </Button>
             }
           />
