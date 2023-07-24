@@ -20,9 +20,7 @@ export default function ProjectList({
       {projects.length === 0 ? (
         <div className="flex flex-col gap-y-5 justify-center items-center p-10 text-4xl">
           No projects found
-          {projectCreationButton !== undefined && (
-            <Button>Create Project</Button>
-          )}
+          {projectCreationButton !== undefined && projectCreationButton}
         </div>
       ) : (
         <>
