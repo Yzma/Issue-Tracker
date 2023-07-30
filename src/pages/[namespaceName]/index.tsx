@@ -32,7 +32,7 @@ export default function NamespaceIndexRoute(
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const helpers = ssrHelper(context)
+  const helpers = await ssrHelper(context)
   const namespaceName = context.params?.namespaceName
 
   if (namespaceName === undefined || typeof namespaceName !== 'string')

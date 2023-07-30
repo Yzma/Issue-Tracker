@@ -1,12 +1,10 @@
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 import { TRPCError, initTRPC } from '@trpc/server'
-
 import { OrganizationRole } from '@prisma/client'
 import { GetServerSidePropsContext } from 'next'
 import { getServerSideSession } from '@/lib/sessions'
 import prisma from '@/lib/prisma/prisma'
-
 import { GetIssueSchema, ProjectNamespaceSchema } from '@/lib/zod-schemas'
 
 export const createTRPCContext = async (opts: GetServerSidePropsContext) => {
@@ -14,7 +12,7 @@ export const createTRPCContext = async (opts: GetServerSidePropsContext) => {
 
   const session = await getServerSideSession(opts)
 
-  console.log('Session fetch ran')
+  console.log('Session fetch ran ', session)
 
   return {
     session,
