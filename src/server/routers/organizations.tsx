@@ -98,8 +98,66 @@ export const organizationsRouter = createTRPCRouter({
           },
         ],
       },
+
+      select: {
+        id: true,
+        acceptedAt: true,
+        role: true,
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
     })
   }),
+
+  getOrganizationLayout: publicProcedure
+    .input(NamespaceSchema)
+    .query(async ({ ctx, input }) => {
+      console.log('ctx.session:', ctx.session)
+      console.log('ctx.req:', ctx.req === undefined)
+      console.log('ctx.res:', ctx.res === undefined)
+      const signedInUserSelect =
+        ctx.session?.user.id !== undefined
+          ? {
+              where: {
+                userId: ctx.session.user.id,
+              },
+              select: {
+                id: true,
+                role: true,
+              },
+              take: 1,
+            }
+          : false
+
+      // console.log('signedInUserSelect', ctx.session)
+      const org = await ctx.prisma.organization.findFirst({
+        where: {
+          name: input.name,
+        },
+
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
+          members: signedInUserSelect,
+        },
+      })
+
+      if (!org) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: `The provided name was not found.`,
+        })
+      }
+
+      return {
+        ...org,
+        members: org.members !== undefined ? org.members[0] : undefined,
+      }
+    }),
 
   inviteMember: ensureUserIsOrganizationMember(OrganizationRole.Owner)
     .input(OrganizationMemberSchema)
@@ -148,7 +206,7 @@ export const organizationsRouter = createTRPCRouter({
       return ctx.prisma.member.delete({
         where: {
           user: {
-            name: input.username,
+            name: input.username.name,
           },
           AND: [
             {
