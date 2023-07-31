@@ -1,8 +1,8 @@
-import { httpBatchLink } from '@trpc/client'
+import { TRPCClientErrorLike, httpBatchLink } from '@trpc/client'
 import { createTRPCNext } from '@trpc/next'
 import superjson from 'superjson'
 
-import { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
+import { Maybe, inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 import { AppRouter } from '@/server/root'
 
 function getBaseUrl() {
@@ -32,6 +32,21 @@ export const trpc = createTRPCNext<AppRouter>({
             queries: {
               refetchOnMount: false,
               refetchOnWindowFocus: false,
+              retry(failureCount, error) {
+                const err = error as never as Maybe<
+                  TRPCClientErrorLike<AppRouter>
+                >
+                const code = err?.data?.code
+                if (
+                  code === 'BAD_REQUEST' ||
+                  code === 'FORBIDDEN' ||
+                  code === 'UNAUTHORIZED'
+                ) {
+                  return false
+                }
+                const MAX_QUERY_RETRIES = 3
+                return failureCount < MAX_QUERY_RETRIES
+              },
             },
           },
         },
