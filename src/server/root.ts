@@ -4,13 +4,13 @@ import { usersRouter } from './routers/users'
 import { onboardingRouter } from './routers/onboarding'
 import { organizationsRouter } from './routers/organizations'
 import { issuesRouter } from './routers/issues'
-import { namespaceRouter } from './routers/namespace'
 import { commentsRouter } from './routers/comments'
+import { namespaceRouter } from './routers/namespace'
 
 export const appRouter = createTRPCRouter({
   comments: commentsRouter,
   issues: issuesRouter,
-  namespaceRouter,
+  namespace: namespaceRouter,
   onboarding: onboardingRouter,
   organizations: organizationsRouter,
   projects: projectsRouter,

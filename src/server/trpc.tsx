@@ -58,9 +58,15 @@ export const getViewableProject = publicProcedure
   .use(async ({ ctx, input, next }) => {
     const foundProject = await ctx.prisma.project.findFirst({
       where: {
-        name: input.name,
+        name: {
+          equals: input.name,
+          mode: 'insensitive',
+        },
         namespace: {
-          name: input.owner,
+          name: {
+            equals: input.name,
+            mode: 'insensitive',
+          },
         },
       },
       include: {
@@ -155,7 +161,11 @@ export const getViewableIssue = getViewableProject
 
 export const ensureUserIsProjectMember = getViewableProject.use(
   async ({ ctx, next }) => {
-    if (!ctx.member || ctx.member.role !== OrganizationRole.Owner) {
+    if (
+      !ctx.member ||
+      ctx.member.role !== OrganizationRole.Owner ||
+      !ctx.session
+    ) {
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: `The provided Project was not found.`,
