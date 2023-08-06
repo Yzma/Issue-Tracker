@@ -1,29 +1,71 @@
 import { z } from 'zod'
-import { createTRPCRouter, privateProcedure } from '../trpc'
+import { TRPCError } from '@trpc/server'
+import { createTRPCRouter, privateProcedure, publicProcedure } from '../trpc'
 import { SortTypeSchema } from '@/lib/zod-types'
-import { UserProfileSchema } from '@/lib/zod-schemas'
+import { NamespaceSchema, UserProfileSchema } from '@/lib/zod-schemas'
 import { sort } from './types'
+import getProjects from './common'
 
 export const usersRouter = createTRPCRouter({
+  getUser: publicProcedure
+    .input(NamespaceSchema)
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.findFirst({
+        where: {
+          name: {
+            equals: input.name,
+            mode: 'insensitive',
+          },
+        },
+
+        select: {
+          username: true,
+          bio: true,
+          socialLinks: true,
+          image: true,
+          members: {
+            where: {
+              project: null,
+            },
+            select: {
+              organization: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: `The provided name was not found.`,
+        })
+      }
+
+      return user
+    }),
+
   updateProfile: privateProcedure
     .input(UserProfileSchema)
     .mutation(async ({ ctx, input }) => {
-      // const mappedSocialLinks = {
-      //   socialLink1: input.socialLinks[0] ?? undefined,
-      //   socialLink2: input.socialLinks[1] ?? undefined,
-      //   socialLink3: input.socialLinks[2] ?? undefined,
-      //   socialLink4: input.socialLinks[3] ?? undefined,
-      // }
+      let socialLinks: string[] | undefined
+      if (Array.isArray(input.socialLinks)) {
+        socialLinks = input.socialLinks.filter(Boolean) as string[]
+      } else {
+        socialLinks = undefined
+      }
       const t = await ctx.prisma.user.update({
         where: {
           id: ctx.session.user.id,
         },
         data: {
           bio: input.bio,
-          socialLinks: input.socialLinks ?? [],
+          socialLinks,
         },
       })
-      console.log('Database t ', t)
       return t
     }),
 
@@ -68,11 +110,9 @@ export const usersRouter = createTRPCRouter({
     return ctx.prisma.member.findMany({
       where: {
         userId: ctx.session.user.id,
-        AND: [
-          {
-            project: null,
-          },
-        ],
+        organizationId: {
+          not: null,
+        },
       },
 
       select: {
@@ -85,6 +125,49 @@ export const usersRouter = createTRPCRouter({
       },
     })
   }),
+
+  getProjects: publicProcedure
+    .input(
+      NamespaceSchema.and(
+        z.object({
+          limit: z.number().int().max(25).default(15),
+        })
+      )
+    )
+    .query(async ({ ctx, input }) => {
+      // If the user isn't logged in, only return back public projects
+      if (!ctx.session) {
+        return ctx.prisma.project.findMany({
+          where: {
+            namespace: {
+              name: {
+                equals: input.name,
+                mode: 'insensitive',
+              },
+            },
+            private: false,
+          },
+        })
+      }
+
+      // Return all projects if the viewer is viewing their own profile
+      if (ctx.session.user.username === input.name) {
+        return ctx.prisma.project.findMany({
+          where: {
+            namespace: {
+              name: {
+                equals: input.name,
+                mode: 'insensitive',
+              },
+            },
+          },
+        })
+      }
+
+      // This had to manually be written as the old implementation produced over 15 SELECT statements.
+      // Here, we return public projects, and projects the user was invited to
+      return getProjects(input.name, ctx.session.user.id)
+    }),
 
   getGlobalIssues: privateProcedure
     .input(

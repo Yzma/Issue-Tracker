@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { OrganizationRole } from '@prisma/client'
 import { createTRPCRouter, privateProcedure, publicProcedure } from '../trpc'
 import { NamespaceSchema } from '@/lib/zod-schemas'
+import getProjects from './common'
 
 const OrganizationMemberSchema = NamespaceSchema.and(
   z.object({
@@ -19,15 +20,16 @@ const ensureUserIsOrganizationMember = (
         userId: ctx.session.user.id,
         role,
         organization: {
-          name: input.name,
-        },
-        AND: [
-          {
-            NOT: {
-              acceptedAt: null,
-            },
+          name: {
+            equals: input.name,
+            mode: 'insensitive',
           },
-        ],
+        },
+        NOT: {
+          acceptedAt: {
+            equals: null,
+          },
+        },
       },
     })
 
@@ -50,19 +52,22 @@ export const organizationsRouter = createTRPCRouter({
   createOrganization: privateProcedure
     .input(NamespaceSchema)
     .mutation(async ({ ctx, input }) => {
+      const finalOrganizationName = input.name.toLowerCase()
+
       return ctx.prisma.organization.create({
         data: {
-          name: input.name,
+          name: finalOrganizationName,
           userId: ctx.session.user.id,
           members: {
             create: {
               userId: ctx.session.user.id,
               role: 'Owner',
+              acceptedAt: new Date(),
             },
           },
           namespace: {
             create: {
-              name: input.name,
+              name: finalOrganizationName,
             },
           },
         },
@@ -87,37 +92,9 @@ export const organizationsRouter = createTRPCRouter({
       })
     }),
 
-  getMembers: publicProcedure.input(NamespaceSchema).query(async ({ ctx }) => {
-    return ctx.prisma.member.findMany({
-      where: {
-        AND: [
-          {
-            NOT: {
-              acceptedAt: null,
-            },
-          },
-        ],
-      },
-
-      select: {
-        id: true,
-        acceptedAt: true,
-        role: true,
-        user: {
-          select: {
-            username: true,
-          },
-        },
-      },
-    })
-  }),
-
-  getOrganizationLayout: publicProcedure
+  getOrganizationNonEnsure: publicProcedure
     .input(NamespaceSchema)
     .query(async ({ ctx, input }) => {
-      console.log('ctx.session:', ctx.session)
-      console.log('ctx.req:', ctx.req === undefined)
-      console.log('ctx.res:', ctx.res === undefined)
       const signedInUserSelect =
         ctx.session?.user.id !== undefined
           ? {
@@ -132,10 +109,12 @@ export const organizationsRouter = createTRPCRouter({
             }
           : false
 
-      // console.log('signedInUserSelect', ctx.session)
       const org = await ctx.prisma.organization.findFirst({
         where: {
-          name: input.name,
+          name: {
+            equals: input.name,
+            mode: 'insensitive',
+          },
         },
 
         select: {
@@ -163,16 +142,161 @@ export const organizationsRouter = createTRPCRouter({
     .input(OrganizationMemberSchema)
     .mutation(async () => {}),
 
+  getProjects: publicProcedure
+    .input(
+      NamespaceSchema.and(
+        z.object({
+          limit: z.number().int().max(25).default(15),
+        })
+      )
+    )
+    .query(async ({ ctx, input }) => {
+      // If the user isn't logged in, only return back public projects
+      if (!ctx.session) {
+        return ctx.prisma.project.findMany({
+          where: {
+            namespace: {
+              name: {
+                equals: input.name,
+                mode: 'insensitive',
+              },
+            },
+            private: false,
+          },
+        })
+      }
+
+      // The user is logged in, look them up to see if they are apart of the organization
+      const foundMember = await ctx.prisma.member.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+          organization: {
+            name: {
+              equals: input.name,
+              mode: 'insensitive',
+            },
+          },
+        },
+      })
+
+      // The user is apart of the organization, show them all the projects
+      if (foundMember) {
+        return ctx.prisma.project.findMany({
+          where: {
+            namespace: {
+              name: {
+                equals: input.name,
+                mode: 'insensitive',
+              },
+            },
+          },
+        })
+      }
+
+      // This had to manually be written as the old implementation produced over 15 SELECT statements.
+      // Here, we return public projects, and projects the user was invited to
+      return getProjects(input.name, ctx.session.user.id)
+      // return ctx.prisma.$queryRaw`
+      // SELECT "Project".*, "Namespace"."name" as namespaceName
+      // FROM public."Project"
+      // INNER JOIN public."Namespace" ON "Namespace".id = "Project"."namespaceId"
+      // WHERE LOWER("Namespace"."name") = LOWER(${input.name})
+      // AND (
+      //     "Project".private = 'false'
+      //     OR EXISTS (
+      //         SELECT 1
+      //         FROM public."Member"
+      //         WHERE "Member"."projectId" = "Project".id
+      //         AND "Member"."userId" = ${ctx.session.user.id}
+      //         AND "Member"."acceptedAt" IS NOT NULL
+      //     )
+      // );
+      // `
+      // return ctx.prisma.project.findMany({
+      //   where: {
+      //     namespace: {
+      //       name: {
+      //         equals: input.name,
+      //         mode: 'insensitive',
+      //       },
+      //     },
+      //     OR: [
+      //       {
+      //         private: false,
+      //       },
+
+      //       {
+      //         members: {
+      //           some: {
+      //             acceptedAt: {
+      //               not: null,
+      //             },
+      //             userId: ctx.session.user.id,
+      //           },
+      //         },
+      //       },
+      //     ],
+      //   },
+      // })
+    }),
+
+  getMembers: publicProcedure
+    .input(NamespaceSchema)
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.member.findMany({
+        where: {
+          organization: {
+            name: {
+              equals: input.name,
+              mode: 'insensitive',
+            },
+          },
+
+          NOT: {
+            acceptedAt: {
+              equals: null,
+            },
+          },
+        },
+
+        select: {
+          id: true,
+          acceptedAt: true,
+          role: true,
+          user: {
+            select: {
+              username: true,
+            },
+          },
+        },
+      })
+    }),
+
   getOutgoingInvites: ensureUserIsOrganizationMember(
     OrganizationRole.Owner
-  ).query(async ({ ctx }) => {
+  ).query(async ({ ctx, input }) => {
     return ctx.prisma.member.findMany({
       where: {
-        NOT: [
-          {
-            acceptedAt: null,
+        organization: {
+          name: {
+            equals: input.name,
+            mode: 'insensitive',
           },
-        ],
+        },
+        acceptedAt: {
+          equals: null,
+        },
+      },
+
+      select: {
+        id: true,
+        acceptedAt: true,
+        role: true,
+        user: {
+          select: {
+            username: true,
+          },
+        },
       },
     })
   }),
@@ -203,18 +327,29 @@ export const organizationsRouter = createTRPCRouter({
   removeMember: ensureUserIsOrganizationMember(OrganizationRole.Owner)
     .input(OrganizationMemberSchema)
     .mutation(async ({ ctx, input }) => {
-      return ctx.prisma.member.delete({
+      return ctx.prisma.member.deleteMany({
         where: {
           user: {
-            name: input.username.name,
-          },
-          AND: [
-            {
-              NOT: {
-                acceptedAt: null,
-              },
+            name: {
+              equals: input.name,
+              mode: 'insensitive',
             },
-          ],
+          },
+          // TODO: Test this
+          // New
+          NOT: {
+            acceptedAt: {
+              equals: null,
+            },
+          },
+          // Old:
+          // AND: [
+          //   {
+          //     NOT: {
+          //       acceptedAt: null,
+          //     },
+          //   },
+          // ],
         },
       })
     }),
@@ -228,18 +363,19 @@ export const organizationsRouter = createTRPCRouter({
       )
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.prisma.member.update({
+      return ctx.prisma.member.updateMany({
         where: {
           user: {
-            name: input.name,
-          },
-          AND: [
-            {
-              NOT: {
-                acceptedAt: null,
-              },
+            name: {
+              equals: input.name,
+              mode: 'insensitive',
             },
-          ],
+          },
+          NOT: {
+            acceptedAt: {
+              equals: null,
+            },
+          },
         },
         data: {
           role: input.role,
