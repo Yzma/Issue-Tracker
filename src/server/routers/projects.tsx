@@ -65,7 +65,7 @@ export const projectsRouter = createTRPCRouter({
         })
       }
 
-      return ctx.prisma.project.create({
+      const createdProject = await ctx.prisma.project.create({
         data: {
           name: input.name,
           description: input.description,
@@ -95,6 +95,11 @@ export const projectsRouter = createTRPCRouter({
           },
         },
       })
+
+      return {
+        ...createdProject,
+        namespace: foundNamespace.name,
+      }
     }),
 
   updateProject: ensureUserIsProjectMember
