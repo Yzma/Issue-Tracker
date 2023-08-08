@@ -37,7 +37,7 @@ export default function ProjectCreate() {
     createProjectMutation
       .mutateAsync(data)
       .then((response) =>
-        router.push(`/${session?.user.namespace.name}/${response.name}`)
+        router.push(`/${response.namespace}/${response.name}`)
       )
       .catch((error) => {
         setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
@@ -46,7 +46,7 @@ export default function ProjectCreate() {
   }
 
   const options = useMemo(() => {
-    if (!userOrganizations.data) return []
+    if (!userOrganizations.data || !session) return []
     return (
       <>
         <option
@@ -214,7 +214,7 @@ export default function ProjectCreate() {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const helpers = ssrHelper(context)
+  const helpers = await ssrHelper(context)
   return helpers.users.getOrganizations
     .prefetch()
     .then(() => {
