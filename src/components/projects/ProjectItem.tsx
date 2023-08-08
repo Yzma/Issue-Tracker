@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import moment from 'moment'
-import { Project } from '@/types/types'
 import { Badge } from '../ui/badge'
+import { Projects } from '@/server/routers/common'
 
 type ProjectItemProps = {
-  project: Project
+  project: Projects
 }
 
 export default function ProjectItem({ project }: ProjectItemProps) {
@@ -12,7 +12,7 @@ export default function ProjectItem({ project }: ProjectItemProps) {
     <div className="flex flex-col gap-y-1 py-6 border-gray-300 border-b mx-auto w-full">
       <div className="flex gap-x-1.5">
         <Link
-          href={`/${project.namespace}/${project.name}`}
+          href={`/${project.namespace.name}/${project.name}`}
           className="inline text-2xl text-blue-600 hover:text-blue-900 hover:cursor-pointer hover:underline pr-1"
         >
           {project.name}

@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { OrganizationRole } from '@prisma/client'
 import { createTRPCRouter, privateProcedure, publicProcedure } from '../trpc'
 import { NamespaceSchema } from '@/lib/zod-schemas'
-import getProjects from './common'
+import { getProjects, getProjectsWithInvitations } from './common'
 
 const OrganizationMemberSchema = NamespaceSchema.and(
   z.object({
@@ -153,17 +153,7 @@ export const organizationsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       // If the user isn't logged in, only return back public projects
       if (!ctx.session) {
-        return ctx.prisma.project.findMany({
-          where: {
-            namespace: {
-              name: {
-                equals: input.name,
-                mode: 'insensitive',
-              },
-            },
-            private: false,
-          },
-        })
+        return getProjects(input.name, false)
       }
 
       // The user is logged in, look them up to see if they are apart of the organization
@@ -181,21 +171,12 @@ export const organizationsRouter = createTRPCRouter({
 
       // The user is apart of the organization, show them all the projects
       if (foundMember) {
-        return ctx.prisma.project.findMany({
-          where: {
-            namespace: {
-              name: {
-                equals: input.name,
-                mode: 'insensitive',
-              },
-            },
-          },
-        })
+        return getProjects(input.name, true)
       }
 
       // This had to manually be written as the old implementation produced over 15 SELECT statements.
       // Here, we return public projects, and projects the user was invited to
-      return getProjects(input.name, ctx.session.user.id)
+      return getProjectsWithInvitations(input.name, ctx.session.user.id)
       // return ctx.prisma.$queryRaw`
       // SELECT "Project".*, "Namespace"."name" as namespaceName
       // FROM public."Project"

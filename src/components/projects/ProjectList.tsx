@@ -1,13 +1,13 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
-import { Project } from '@/types/types'
 import ProjectItem from './ProjectItem'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
+import { Projects } from '@/server/routers/common'
 
 type ProjectListProps = {
-  projects: Project[]
+  projects: Projects[]
   projectCreationButton: JSX.Element | undefined
 }
 

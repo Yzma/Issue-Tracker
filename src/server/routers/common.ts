@@ -1,19 +1,25 @@
-import { Project, PrismaClient } from '@prisma/client'
+import { Project } from '@prisma/client'
+import prisma from '@/lib/prisma/prisma'
 
-const prisma = new PrismaClient()
-
-type Projects = Project & {
-  namespaceName: string
+export type Projects = Project & {
+  namespace: {
+    name: string
+  }
 }
 
-export default async function getProjects(namespace: string, userId: string) {
+// TODO: Better comments
+// Gets projects for an authenticated user who is viewing another users/organizations projects
+export async function getProjectsWithInvitations(
+  namespace: string,
+  userId: string
+) {
   // TODO: Change this?
   if (!namespace || !userId) {
     throw new Error('namespace or userId cannot be undefined')
   }
 
-  return prisma.$queryRaw<Projects[]>`
-      SELECT "Project".*, "Namespace"."name" as namespaceName
+  const result = await prisma.$queryRaw<Projects[]>`
+      SELECT "Project".*
       FROM public."Project"
       INNER JOIN public."Namespace" ON "Namespace".id = "Project"."namespaceId"
       WHERE LOWER("Namespace"."name") = LOWER(${namespace})
@@ -28,4 +34,50 @@ export default async function getProjects(namespace: string, userId: string) {
           )
       );
       `
+
+  const map = result.map((project) => {
+    return {
+      ...project,
+      namespace: {
+        name: namespace,
+      },
+    }
+  })
+  return map as Projects[]
+}
+
+// Returns the projects of a user. This function is being ran from the perspective of someone who is viewing their own projects, ir isn't logged in
+// TODO: Rename these functions
+export async function getProjects(namespace: string, showAllProjects: boolean) {
+  const signedInUserSelect = !showAllProjects
+    ? {
+        private: false,
+      }
+    : false
+  const result = await prisma.project.findMany({
+    where: {
+      namespace: {
+        name: {
+          equals: namespace,
+          mode: 'insensitive',
+        },
+      },
+      ...signedInUserSelect,
+    },
+
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      private: true,
+      createdAt: true,
+      updatedAt: true,
+      namespace: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  })
+  return result as Projects[]
 }

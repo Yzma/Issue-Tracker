@@ -4,7 +4,7 @@ import { createTRPCRouter, privateProcedure, publicProcedure } from '../trpc'
 import { SortTypeSchema } from '@/lib/zod-types'
 import { NamespaceSchema, UserProfileSchema } from '@/lib/zod-schemas'
 import { sort } from './types'
-import getProjects from './common'
+import { getProjects, getProjectsWithInvitations } from './common'
 
 export const usersRouter = createTRPCRouter({
   getUser: publicProcedure
@@ -137,36 +137,17 @@ export const usersRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       // If the user isn't logged in, only return back public projects
       if (!ctx.session) {
-        return ctx.prisma.project.findMany({
-          where: {
-            namespace: {
-              name: {
-                equals: input.name,
-                mode: 'insensitive',
-              },
-            },
-            private: false,
-          },
-        })
+        return getProjects(input.name, false)
       }
 
       // Return all projects if the viewer is viewing their own profile
       if (ctx.session.user.username === input.name) {
-        return ctx.prisma.project.findMany({
-          where: {
-            namespace: {
-              name: {
-                equals: input.name,
-                mode: 'insensitive',
-              },
-            },
-          },
-        })
+        return getProjects(input.name, true)
       }
 
       // This had to manually be written as the old implementation produced over 15 SELECT statements.
       // Here, we return public projects, and projects the user was invited to
-      return getProjects(input.name, ctx.session.user.id)
+      return getProjectsWithInvitations(input.name, ctx.session.user.id)
     }),
 
   getGlobalIssues: privateProcedure

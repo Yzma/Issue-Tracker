@@ -3,29 +3,36 @@ import Link from 'next/link'
 import { MemoizedProfileContainer } from '@/components/user-profile/ProfileContainer'
 import ProjectList from '@/components/projects/ProjectList'
 
-import { UserResponse } from '@/types/types'
 import { Button } from '../ui/button'
-import DefaultLayout from '../ui/DefaultLayout'
+import { trpc } from '@/lib/trpc/trpc'
 
-export default function UserPage({ data }: { data: UserResponse }) {
+export default function UserPage({ username }: { username: string }) {
   const { data: session } = useSession()
+  const getUsersProjectsQuery = trpc.users.getProjects.useQuery({
+    name: username,
+    limit: 10,
+  })
+
   return (
-    <DefaultLayout>
-      <div className="md:flex gap-x-7 px-2">
-        <MemoizedProfileContainer data={data.user} />
-        <div className="w-full">
+    <div className="md:flex gap-x-7 px-2">
+      <MemoizedProfileContainer username={username} />
+      <div className="w-full">
+        {getUsersProjectsQuery.isLoading || !getUsersProjectsQuery.data ? (
+          // TODO: Loading
+          <>Loading user projects...</>
+        ) : (
           <ProjectList
-            projects={data.user.projects}
+            projects={getUsersProjectsQuery.data}
             projectCreationButton={
-              data.namespace.name === session?.user.name ? (
+              username === session?.user.name ? (
                 <Button size="sm" asChild className="flex w-[7.5rem]">
                   <Link href="/login">Create Project</Link>
                 </Button>
               ) : undefined
             }
           />
-        </div>
+        )}
       </div>
-    </DefaultLayout>
+    </div>
   )
 }
