@@ -29,7 +29,7 @@ function OrganizationPage({ organizationName }: { organizationName: string }) {
             projectCreationButton={
               getOrganizationQuery.data?.members !== undefined ? (
                 <Button size="sm" asChild className="flex w-[7.5rem]">
-                  <Link href="/login">Create Project</Link>
+                  <Link href="/projects/create">Create Project</Link>
                 </Button>
               ) : undefined
             }

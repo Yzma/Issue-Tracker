@@ -88,7 +88,7 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
   const utils = trpc.useContext()
   const updateProjectMutation = trpc.users.updateProfile.useMutation({
     onSuccess: (data) => {
-      utils.namespaceRouter.getNamespace.setData(
+      utils.namespace.getNamespace.setData(
         {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           name: data.username!,
@@ -214,25 +214,38 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
   )
 }
 
-export default function ProfileContainer({ data }: { data: UserResponseType }) {
+export default function ProfileContainer({ username }: { username: string }) {
   const [editing, setEditing] = useState<boolean>(false)
+  const getUserQuery = trpc.users.getUser.useQuery({
+    name: username,
+  })
+
+  // TODO: Change this
   const profile: UserResponseType = useMemo(() => {
-    const remainingSocialLinks = 4 - data.socialLinks.length
+    const remainingSocialLinks = 4 - getUserQuery.data?.socialLinks.length
     return {
-      ...data,
-      socialLinks: data.socialLinks.concat(
+      ...getUserQuery.data,
+      socialLinks: getUserQuery.data?.socialLinks.concat(
         Array(remainingSocialLinks).fill('', 0, remainingSocialLinks)
       ),
     }
-  }, [data])
+  }, [getUserQuery.data])
+
+  // TODO: Loading
+  if (getUserQuery.isLoading || !getUserQuery.data) {
+    console.log('USER COMPONENT IS LOADING')
+  }
 
   return (
     <div className="flex flex-col gap-y-3">
       <div className="flex items-center justify-center">
         <Avatar className="w-72 h-72">
-          <AvatarImage src={data.image} className="mb-4 rounded-full" />
+          <AvatarImage
+            src={getUserQuery.data?.image}
+            className="mb-4 rounded-full"
+          />
           <AvatarFallback className="mb-4 rounded-full w-72 h-72 text-8xl border bg-slate-300">
-            {data.username.charAt(0).toUpperCase()}
+            {getUserQuery.data?.username.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
       </div>
@@ -243,7 +256,7 @@ export default function ProfileContainer({ data }: { data: UserResponseType }) {
       )}
       <MemoizedUserSocialLinks links={profile.socialLinks} />
       <div className="border-gray-300 border-t mx-auto w-full pt-3 hidden md:block">
-        <MemoizedUsersOrganizationsSection organizations={data.organizations} />
+        {/* <MemoizedUsersOrganizationsSection organizations={data.organizations} /> */}
       </div>
     </div>
   )

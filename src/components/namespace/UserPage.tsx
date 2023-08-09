@@ -26,7 +26,7 @@ export default function UserPage({ username }: { username: string }) {
             projectCreationButton={
               username === session?.user.name ? (
                 <Button size="sm" asChild className="flex w-[7.5rem]">
-                  <Link href="/login">Create Project</Link>
+                  <Link href="/projects/create">Create Project</Link>
                 </Button>
               ) : undefined
             }
