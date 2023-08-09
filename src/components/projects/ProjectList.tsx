@@ -4,10 +4,10 @@ import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import ProjectItem from './ProjectItem'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import { Projects } from '@/server/routers/common'
+import { Project } from '@/server/routers/common'
 
 type ProjectListProps = {
-  projects: Projects[]
+  projects: Project[]
   projectCreationButton: JSX.Element | undefined
 }
 

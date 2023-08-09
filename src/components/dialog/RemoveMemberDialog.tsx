@@ -2,25 +2,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
 
 import { Button } from '../ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogTrigger,
-} from '../ui/dialog'
+import { Dialog, DialogContent, DialogFooter } from '../ui/dialog'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 
-type InviteMemberDialogProps = {
+type RemoveMemberDialogProps = {
   name: string
 }
 
-export function InviteMemberDialog({ name }: InviteMemberDialogProps) {
+export function RemoveMemberDialog({ name }: RemoveMemberDialogProps) {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button>Invite Member</Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <div className="grid gap-y-10 py-4">
           <div className="text-center space-y-6">
