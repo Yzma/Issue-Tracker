@@ -30,7 +30,7 @@ export async function getProjectsWithInvitations(
               AND "Member"."userId" = ${userId}
               AND "Member"."acceptedAt" IS NOT NULL
           )
-      );`
+      ) ORDER BY "Project"."updatedAt" DESC;`
   return result
 }
 
@@ -43,15 +43,16 @@ export async function getProjects(namespace: string, showAllProjects: boolean) {
     SELECT "Project".*, "Namespace"."name" as namespace
     FROM public."Project"
     INNER JOIN public."Namespace" ON "Namespace".id = "Project"."namespaceId"
-    WHERE "Namespace"."name" ILIKE ${namespace};`
+    WHERE "Namespace"."name" ILIKE ${namespace}
+    ORDER BY "Project"."updatedAt" DESC;`
   }
   return prisma.$queryRaw<Project[]>`
     SELECT "Project".*, "Namespace"."name" as namespace
     FROM public."Project"
     INNER JOIN public."Namespace" ON "Namespace".id = "Project"."namespaceId"
     WHERE "Namespace"."name" ILIKE ${namespace}
-    AND "Project".private = 'false';
-    `
+    AND "Project".private = 'false'
+    ORDER BY "Project"."updatedAt" DESC;`
 
   // const result = await prisma.$queryRaw<Projects[]>`
   // SELECT "Project".*, "Namespace"."name"
