@@ -5,6 +5,7 @@ import ProjectList from '@/components/projects/ProjectList'
 
 import { Button } from '../ui/button'
 import { trpc } from '@/lib/trpc/trpc'
+import UserProfileContextProvider from '../user-profile/UserProfileContext'
 
 export default function UserPage({ username }: { username: string }) {
   const { data: session } = useSession()
@@ -15,7 +16,9 @@ export default function UserPage({ username }: { username: string }) {
 
   return (
     <div className="md:flex gap-x-7 px-2">
-      <MemoizedProfileContainer username={username} />
+      <UserProfileContextProvider username={username}>
+        <MemoizedProfileContainer />
+      </UserProfileContextProvider>
       <div className="w-full">
         {getUsersProjectsQuery.isLoading || !getUsersProjectsQuery.data ? (
           // TODO: Loading

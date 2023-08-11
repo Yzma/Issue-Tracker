@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Dispatch, SetStateAction } from 'react'
+import React, { Dispatch, SetStateAction } from 'react'
 
 import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form'
 
@@ -9,11 +9,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { MemoizedUsersOrganizationsSection } from '@/components/user-profile/UsersOrganizationsSection'
 
 import { UserProfileSchema } from '@/lib/zod-schemas'
-import { trpc } from '@/lib/trpc/trpc'
-import { UserResponseType } from './types'
+import { RouterOutputs, trpc } from '@/lib/trpc/trpc'
 import { MemoizedUserSocialLinks } from './UserSocialLinks'
 import { Button } from '../ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Textarea } from '../ui/textarea'
+import { useUserProfile } from '@/hooks/useUserProfile'
+import ProfileContainerEditor1 from './view/ProfileContainerEditor'
+import ProfileContainerViewer1 from './view/ProfileContainerViewer'
 
 const ModifiedSocialLinksSchema = UserProfileSchema.extend({
   socialLinks: z.array(
@@ -26,7 +31,7 @@ const ModifiedSocialLinksSchema = UserProfileSchema.extend({
 type ModifiedSocialLinksSchemaType = z.infer<typeof ModifiedSocialLinksSchema>
 
 type ProfileContextType = {
-  profile: UserResponseType
+  profile: ActualType
   setEditing: Dispatch<SetStateAction<boolean>>
 }
 
@@ -62,7 +67,11 @@ function ProfileContainerViewer({ profile, setEditing }: ProfileContextType) {
   )
 }
 
-function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
+function ProfileContainerEditor({
+  profile,
+  setProfile,
+  setEditing,
+}: ProfileContextType) {
   const {
     control,
     register,
@@ -80,35 +89,22 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
       }),
     },
   })
+  console.log('FORM ERRORS: ', errors)
   const { fields } = useFieldArray({
     control,
     name: 'socialLinks',
   })
 
-  const utils = trpc.useContext()
   const updateProjectMutation = trpc.users.updateProfile.useMutation({
     onSuccess: (data) => {
-      utils.namespace.getNamespace.setData(
-        {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          name: data.username!,
-        },
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        (oldData) => {
-          return {
-            ...oldData,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            user: {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              ...oldData.user,
-              bio: data.bio,
-              socialLinks: data.socialLinks,
-            },
-          }
+      setProfile((prev) => {
+        return {
+          ...prev,
+          bio: data.bio,
+          socialLinks: data.socialLinks,
         }
-      )
+      })
+      console.log('success')
       setEditing(false)
     },
     onError: (error) => {
@@ -126,6 +122,8 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
         return undefined
       }),
     }
+    console.log('mappedSubmitData', mappedSubmitData)
+    console.log('formData', formData)
     return updateProjectMutation.mutate(mappedSubmitData)
   }
 
@@ -144,22 +142,19 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
             )}
             <div className="flex flex-col gap-y-3 pb-3">
               <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="bio">
+                <Label htmlFor="bio">
                   Bio
-                  <textarea
-                    className="form-textarea w-full min-h-16 max-h-44"
+                  <Textarea
+                    className="w-full max-h-44"
                     placeholder="Add a bio"
                     // eslint-disable-next-line react/jsx-props-no-spreading
                     {...register('bio')}
                   />
-                </label>
+                </Label>
               </div>
 
               <div>
-                <label
-                  className="block text-sm font-medium mb-1"
-                  htmlFor="socialLinks"
-                >
+                <Label htmlFor="socialLinks">
                   Social Accounts
                   <div className="flex flex-col gap-y-2">
                     {errors.socialLinks && (
@@ -172,8 +167,8 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
                     {fields.map((link, index) => {
                       return (
                         <div key={link.id}>
-                          <input
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          <Input
+                            // className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             type="text"
                             placeholder="Link to social profile"
                             // eslint-disable-next-line react/jsx-props-no-spreading
@@ -183,13 +178,14 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
                       )
                     })}
                   </div>
-                </label>
+                </Label>
               </div>
             </div>
           </div>
           <div className="flex flex-row gap-x-1">
-            <button
-              className="btn-xs h-8 w-14 bg-emerald-500 hover:bg-emerald-600 text-white disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+            <Button
+              size="sm"
+              className="disabled:cursor-not-allowed"
               type="submit"
               disabled={
                 isSubmitting ||
@@ -199,14 +195,10 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
               }
             >
               Save
-            </button>
-            <button
-              className="btn-xs h-8 w-14 bg-gray-500 hover:bg-gray-600 text-white"
-              type="button"
-              onClick={() => setEditing(false)}
-            >
+            </Button>
+            <Button size="sm" type="button" onClick={() => setEditing(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -214,49 +206,57 @@ function ProfileContainerEditor({ profile, setEditing }: ProfileContextType) {
   )
 }
 
-export default function ProfileContainer({ username }: { username: string }) {
-  const [editing, setEditing] = useState<boolean>(false)
-  const getUserQuery = trpc.users.getUser.useQuery({
-    name: username,
-  })
+type UserProfileType = RouterOutputs['users']['getUser']
+type ActualType = {
+  username: string
+  bio: string | undefined
+  image: string | undefined
+  socialLinks: string[]
+}
 
-  // TODO: Change this
-  const profile: UserResponseType = useMemo(() => {
-    const remainingSocialLinks = 4 - getUserQuery.data?.socialLinks.length
-    return {
-      ...getUserQuery.data,
-      socialLinks: getUserQuery.data?.socialLinks.concat(
-        Array(remainingSocialLinks).fill('', 0, remainingSocialLinks)
-      ),
-    }
-  }, [getUserQuery.data])
+// { username }: { username: string }
+export default function ProfileContainer() {
+  const getUserOrganizationsQuery = trpc.users.getOrganizations.useQuery()
+  const { editing, profile } = useUserProfile()
+  // const getUserQuery = trpc.users.getUser.useQuery({
+  //   name: username,
+  // })
+  // const [editing, setEditing] = useState<boolean>(false)
+  // const [profile, setProfile] = useState<ActualType>(() => {
+  //   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  //   const userData = getUserQuery.data!
+  //   const remainingSocialLinks = 4 - userData.socialLinks.length
+  //   return {
+  //     ...userData,
+  //     socialLinks: getUserQuery.data?.socialLinks.concat(
+  //       Array(remainingSocialLinks).fill('', 0, remainingSocialLinks)
+  //     ),
+  //   } as ActualType
+  // })
 
-  // TODO: Loading
-  if (getUserQuery.isLoading || !getUserQuery.data) {
-    console.log('USER COMPONENT IS LOADING')
-  }
+  // // This code is unreachable. This is fetched in getServerSideProps and is only here for type safety.
+  // if (getUserQuery.isLoading || !getUserQuery.data) {
+  //   return null
+  // }
 
   return (
     <div className="flex flex-col gap-y-3">
       <div className="flex items-center justify-center">
         <Avatar className="w-72 h-72">
-          <AvatarImage
-            src={getUserQuery.data?.image}
-            className="mb-4 rounded-full"
-          />
+          <AvatarImage src={profile.image} className="mb-4 rounded-full" />
           <AvatarFallback className="mb-4 rounded-full w-72 h-72 text-8xl border bg-slate-300">
-            {getUserQuery.data?.username.charAt(0).toUpperCase()}
+            {profile.username.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
       </div>
-      {editing ? (
-        <ProfileContainerEditor profile={profile} setEditing={setEditing} />
-      ) : (
-        <ProfileContainerViewer profile={profile} setEditing={setEditing} />
-      )}
+      {editing ? <ProfileContainerEditor1 /> : <ProfileContainerViewer1 />}
       <MemoizedUserSocialLinks links={profile.socialLinks} />
       <div className="border-gray-300 border-t mx-auto w-full pt-3 hidden md:block">
-        {/* <MemoizedUsersOrganizationsSection organizations={data.organizations} /> */}
+        {getUserOrganizationsQuery.data && (
+          <MemoizedUsersOrganizationsSection
+            organizations={getUserOrganizationsQuery.data}
+          />
+        )}
       </div>
     </div>
   )
