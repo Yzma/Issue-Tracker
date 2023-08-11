@@ -10,9 +10,26 @@ export const usersRouter = createTRPCRouter({
   getUser: publicProcedure
     .input(NamespaceSchema)
     .query(async ({ ctx, input }) => {
+      // const result = await ctx.prisma.$queryRaw<string[]>`
+      // SELECT "User".'username', "User".'bio', "User".'socialLinks', "User".'image'
+      // FROM public."User"
+      // INNER JOIN public."Namespace" ON "Namespace".id = "Project"."namespaceId"
+      // WHERE "Namespace"."name" ILIKE '${namespace}'
+      // AND (
+      //     "Project".private = 'false'
+      //     OR EXISTS (
+      //         SELECT 1
+      //         FROM public."Member"
+      //         WHERE "Member"."projectId" = "Project".id
+      //         AND "Member"."userId" = ${userId}
+      //         AND "Member"."acceptedAt" IS NOT NULL
+      //     )
+      // ) ORDER BY "Project"."updatedAt" DESC;`
+      // return result
+
       const user = await ctx.prisma.user.findFirst({
         where: {
-          name: {
+          username: {
             equals: input.name,
             mode: 'insensitive',
           },
@@ -23,18 +40,6 @@ export const usersRouter = createTRPCRouter({
           bio: true,
           socialLinks: true,
           image: true,
-          members: {
-            where: {
-              project: null,
-            },
-            select: {
-              organization: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
         },
       })
 
@@ -107,23 +112,12 @@ export const usersRouter = createTRPCRouter({
   }),
 
   getOrganizations: privateProcedure.query(async ({ ctx }) => {
-    return ctx.prisma.member.findMany({
-      where: {
-        userId: ctx.session.user.id,
-        organizationId: {
-          not: null,
-        },
-      },
-
-      select: {
-        organization: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    })
+    const userId = ctx.session.user.id
+    return ctx.prisma.$queryRaw<{ name: string }[]>`
+    SELECT "Organization".name
+    FROM public."Organization"
+    INNER JOIN public."Member" ON "Member"."organizationId" = "Organization"."id"
+    WHERE "Member"."userId" = ${userId};`
   }),
 
   getProjects: publicProcedure

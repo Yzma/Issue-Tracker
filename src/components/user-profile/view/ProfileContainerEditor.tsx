@@ -19,7 +19,7 @@ const ModifiedSocialLinksSchema = UserProfileSchema.extend({
 
 type ModifiedSocialLinksSchemaType = z.infer<typeof ModifiedSocialLinksSchema>
 
-export default function ProfileContainerEditor1() {
+export default function ProfileContainerEditor() {
   const { setEditing, setProfileData, profile } = useUserProfile()
   const {
     control,

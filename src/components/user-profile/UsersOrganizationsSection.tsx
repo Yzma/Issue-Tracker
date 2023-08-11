@@ -17,15 +17,11 @@ export default function UsersOrganizationsSection({
           <div className="flex flex-row flex-wrap gap-x-2 gap-y-2">
             {organizations.map((organization) => {
               return (
-                <div key={organization.organization?.id}>
-                  <Link
-                    href={`/${organization.organization?.name.toLowerCase()}`}
-                  >
+                <div key={organization.name}>
+                  <Link href={`/${organization.name}`}>
                     <Avatar.Root className="inline-flex hover:cursor-pointer h-[45px] w-[45px] select-none items-center justify-center overflow-hidden rounded align-middle border-gray-400 border">
                       <Avatar.Fallback className="text-violet11 leading-1 flex h-full w-full items-center justify-center bg-white text-[15px] font-medium">
-                        {organization.organization?.name
-                          .charAt(0)
-                          .toUpperCase()}
+                        {organization.name.charAt(0).toUpperCase()}
                       </Avatar.Fallback>
                     </Avatar.Root>
                   </Link>
