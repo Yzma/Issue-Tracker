@@ -97,6 +97,7 @@ model Member {
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id])
 
+  @@index([userId, inviteeId, organizationId, projectId])
   @@unique(name: "userId_organizationId", [userId, organizationId])
   @@unique(name: "userId_projectId", [userId, projectId])
 }
@@ -117,6 +118,7 @@ model Project {
   issues  Issue[]
   labels  Label[]
 
+  @@index([name, namespaceId])
   @@unique([namespaceId, name])
 }
 
@@ -141,6 +143,7 @@ model Issue {
   comments Comment[]
   labels   Label[]
 
+  @@index([name, open, createdAt, updatedAt, userId, projectId])
   @@unique([projectId, issueNumber])
 }
 
@@ -156,6 +159,8 @@ model Comment {
 
   issueId String
   issue   Issue  @relation(fields: [issueId], references: [id])
+
+  @@index([userId, issueId])
 }
 
 model Label {
@@ -169,6 +174,7 @@ model Label {
 
   issues Issue[]
 
+  @@index([projectId])
   @@unique([name, projectId])
 }
 
@@ -198,6 +204,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
