@@ -1,173 +1,203 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form'
+import React, { useMemo } from 'react'
 import { useUserProfile } from '@/hooks/useUserProfile'
-import { UserProfileSchema } from '@/lib/zod-schemas'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { trpc } from '@/lib/trpc/trpc'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
-const ModifiedSocialLinksSchema = UserProfileSchema.extend({
+// const ModifiedSocialLinksSchema = UserProfileSchema.extend({
+//   socialLinks: z.array(
+//     z.object({
+//       link: z.string().url().optional().or(z.string()),
+//     })
+//   ),
+// })
+
+// type ModifiedSocialLinksSchemaType = z.infer<typeof ModifiedSocialLinksSchema>
+
+const profileFormSchema = z.object({
+  bio: z.string().max(150, {
+    message: 'Your bio must be 150 characters or less.',
+  }),
   socialLinks: z.array(
-    z.object({
-      link: z.string().url().optional().or(z.string()),
-    })
+    z
+      .object({
+        value: z
+          .string()
+          .url({ message: 'You must enter a valid URL.' })
+          .or(z.string().length(0)),
+      })
+      .optional()
   ),
 })
 
-type ModifiedSocialLinksSchemaType = z.infer<typeof ModifiedSocialLinksSchema>
+type ProfileFormValues = z.infer<typeof profileFormSchema>
 
 export default function ProfileContainerEditor() {
   const { setEditing, setProfileData, profile } = useUserProfile()
-  const {
-    control,
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting, isDirty },
-  } = useForm<ModifiedSocialLinksSchemaType>({
-    resolver: zodResolver(ModifiedSocialLinksSchema),
+  const mappedSocialLinks = useMemo(() => {
+    const remainingSocialLinksLength = 4 - (profile.socialLinks.length || 0)
+    return profile.socialLinks
+      .map((link) => {
+        return {
+          value: link,
+        }
+      })
+      .concat(
+        Array(remainingSocialLinksLength).fill(
+          {
+            value: '',
+          },
+          0,
+          remainingSocialLinksLength
+        )
+      )
+  }, [profile])
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    mode: 'onSubmit',
     defaultValues: {
       bio: profile.bio,
-      socialLinks: profile.socialLinks.map((e) => {
-        return {
-          link: e,
-        }
-      }),
+      socialLinks: mappedSocialLinks,
     },
   })
+
   const { fields } = useFieldArray({
-    control,
     name: 'socialLinks',
+    control: form.control,
   })
 
-  const utils = trpc.useContext()
-  const updateProjectMutation = trpc.users.updateProfile.useMutation({
+  const updateProfileMutation = trpc.users.updateProfile.useMutation({
     onSuccess: (data) => {
-      // utils.namespace.getNamespace.setData(
-      //   {
-      //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      //     name: data.username!,
-      //   },
-      //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //   // @ts-ignore
-      //   (oldData) => {
-      //     return {
-      //       ...oldData,
-      //       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      //       user: {
-      //         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //         // @ts-ignore
-      //         ...oldData.user,
-      //         bio: data.bio,
-      //         socialLinks: data.socialLinks,
-      //       },
-      //     }
-      //   }
-      // )
       setProfileData((prev) => {
         return {
           ...prev,
-          bio: data.bio,
+          bio: data.bio ?? undefined,
           socialLinks: data.socialLinks,
         }
       })
       setEditing(false)
     },
+
     onError: (error) => {
-      setError('root', { type: 'custom', message: error.message })
+      console.log('ERROR: ', error)
+      form.setError('root', {
+        type: 'custom',
+        message: 'Error saving user settings. Please try again.',
+      })
     },
   })
 
-  const onSubmit: SubmitHandler<ModifiedSocialLinksSchemaType> = (formData) => {
+  const onSubmit: SubmitHandler<ProfileFormValues> = (formData) => {
     const mappedSubmitData = {
       ...formData,
       socialLinks: formData.socialLinks.map((e) => {
-        if (e.link) {
-          return e.link.length === 0 ? undefined : e.link
-        }
-        return undefined
+        return e?.value ? e.value : ''
       }),
     }
-    return updateProjectMutation.mutate(mappedSubmitData)
+    console.log('onSubmit: ', mappedSubmitData)
+    return updateProfileMutation.mutate(mappedSubmitData)
   }
 
   return (
     <div className="relative">
       <div className="flex flex-col">
-        {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <Form {...form}>
           <div className="flex flex-col gap-y-0 text-left">
-            {errors.bio?.message && (
-              <div className="py-3">
-                <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
-                  <div>You must enter a valid bio!</div>
-                </div>
-              </div>
-            )}
-            <div className="flex flex-col gap-y-3 pb-3">
-              <div>
-                <Label htmlFor="bio">
-                  Bio
-                  <Textarea
-                    className="w-full max-h-44"
-                    placeholder="Add a bio"
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...register('bio')}
-                  />
-                </Label>
-              </div>
+            <form
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-y-4"
+            >
+              <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col gap-y-3">
+                    <FormLabel>Bio</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        className="w-full max-h-44"
+                        placeholder="Add a bio"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div>
-                <Label htmlFor="socialLinks">
-                  Social Accounts
-                  <div className="flex flex-col gap-y-2">
-                    {errors.socialLinks && (
-                      <div className="py-3">
-                        <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
-                          <div>All social links must be valid URLs!</div>
-                        </div>
-                      </div>
+                {fields.map((fieldsItem, index) => (
+                  <FormField
+                    control={form.control}
+                    key={fieldsItem.id}
+                    name={`socialLinks.${index}.value`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={cn(index !== 0 && 'sr-only')}>
+                          Social Accounts
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                    {fields.map((link, index) => {
-                      return (
-                        <div key={link.id}>
-                          <Input
-                            type="text"
-                            placeholder="Link to social profile"
-                            // eslint-disable-next-line react/jsx-props-no-spreading
-                            {...register(`socialLinks.${index}.link`)}
-                          />
-                        </div>
-                      )
-                    })}
-                  </div>
-                </Label>
+                  />
+                ))}
               </div>
-            </div>
+
+              {/* <div className="flex flex-col gap-y-0 text-left">
+              {errors.bio?.message && (
+                <div className="py-3">
+                  <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                    <div>You must enter a valid bio!</div>
+                  </div>
+                </div>
+              )}
+             */}
+              <div className="flex flex-row gap-x-1">
+                <Button
+                  size="sm"
+                  className="disabled:cursor-not-allowed"
+                  type="submit"
+                  disabled={
+                    form.formState.isSubmitting ||
+                    updateProfileMutation.isLoading ||
+                    updateProfileMutation.isError ||
+                    !form.formState.isDirty
+                  }
+                >
+                  Save
+                </Button>
+                <Button
+                  size="sm"
+                  type="button"
+                  onClick={() => setEditing(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
           </div>
-          <div className="flex flex-row gap-x-1">
-            <Button
-              size="sm"
-              className="disabled:cursor-not-allowed"
-              type="submit"
-              disabled={
-                isSubmitting ||
-                updateProjectMutation.isLoading ||
-                updateProjectMutation.isError ||
-                !isDirty
-              }
-            >
-              Save
-            </Button>
-            <Button size="sm" type="button" onClick={() => setEditing(false)}>
-              Cancel
-            </Button>
-          </div>
-        </form>
+        </Form>
       </div>
     </div>
   )
 }
+
+export const MemoizedProfileContainerEditor = React.memo(ProfileContainerEditor)

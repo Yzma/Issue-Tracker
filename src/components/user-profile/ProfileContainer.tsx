@@ -5,7 +5,7 @@ import { MemoizedUserSocialLinks } from './UserSocialLinks'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { trpc } from '@/lib/trpc/trpc'
-import ProfileContainerEditor from './view/ProfileContainerEditor'
+import { MemoizedProfileContainerEditor } from './view/ProfileContainerEditor'
 import ProfileContainerViewer from './view/ProfileContainerViewer'
 
 export default function ProfileContainer() {
@@ -23,7 +23,11 @@ export default function ProfileContainer() {
         </Avatar>
       </div>
 
-      {editing ? <ProfileContainerEditor /> : <ProfileContainerViewer />}
+      {editing ? (
+        <MemoizedProfileContainerEditor />
+      ) : (
+        <ProfileContainerViewer />
+      )}
 
       <MemoizedUserSocialLinks links={profile.socialLinks} />
       <div className="border-gray-300 border-t mx-auto w-full pt-3 hidden md:block">

@@ -13,15 +13,15 @@ type UserProfileContextProviderProps = PropsWithChildren & {
 }
 
 type UserProfileContextType = {
-  profile: ActualType
-  setProfileData: Dispatch<SetStateAction<ActualType>>
+  profile: UserProfile
+  setProfileData: Dispatch<SetStateAction<UserProfile>>
   editing: boolean
   setEditing: (value: boolean) => void
 }
 
-type ActualType = {
+type UserProfile = {
   username: string
-  bio: string | null
+  bio: string | undefined
   image: string | undefined
   socialLinks: string[]
 }
@@ -37,16 +37,18 @@ export default function UserProfileContextProvider({
   const getUserQuery = trpc.users.getUser.useQuery({
     name: username,
   })
-  const [profile, setProfile] = useState<ActualType>(() => {
+  const [profile, setProfile] = useState<UserProfile>(() => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const userData = getUserQuery.data!
-    const remainingSocialLinks = 4 - userData.socialLinks.length
-    return {
-      ...userData,
-      socialLinks: getUserQuery.data?.socialLinks.concat(
-        Array(remainingSocialLinks).fill('', 0, remainingSocialLinks)
-      ),
-    } as ActualType
+    // const remainingSocialLinksLength = 4 - (userData.socialLinks.length || 0)
+    // const socialLinks = userData.socialLinks.concat(
+    //   Array(remainingSocialLinksLength).fill('', 0, remainingSocialLinksLength)
+    // )
+    // return {
+    //   ...userData,
+    // } as UserProfile
+
+    return userData as UserProfile
   })
   const [editing, setEditing] = useState(false)
   const userProfileContextValue = useMemo(
