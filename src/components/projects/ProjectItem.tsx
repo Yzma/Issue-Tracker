@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import moment from 'moment'
-import { Project } from '@/types/types'
 import { Badge } from '../ui/badge'
+import { Project } from '@/server/routers/common'
 
 type ProjectItemProps = {
   project: Project

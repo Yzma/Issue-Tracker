@@ -4,11 +4,39 @@ import { NamespaceSchema } from '@/lib/zod-schemas'
 import { OrganizationResponse, UserResponse } from '@/types/types'
 
 export const namespaceRouter = createTRPCRouter({
+  getNamespaceTEST: publicProcedure
+    .input(NamespaceSchema)
+    .query(async ({ ctx, input }) => {
+      const namespace = await ctx.prisma.namespace.findUnique({
+        where: {
+          name: input.name,
+        },
+      })
+
+      if (!namespace) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: `The provided name was not found.`,
+        })
+      }
+
+      // Check if the namespace is valid. A namespace can only have an organizationId or a userId. It can't have both, it must have one.
+      if (
+        (!namespace.organizationId && !namespace.userId) ||
+        (namespace.organizationId && namespace.userId)
+      ) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `Invalid namespace`,
+        })
+      }
+
+      return namespace
+    }),
+
   getNamespace: publicProcedure
     .input(NamespaceSchema)
     .query(async ({ ctx, input }) => {
-      const isUserViewingOwnProfile = ctx.session?.user?.name === input.name
-
       const namespace = await ctx.prisma.namespace.findUnique({
         where: {
           name: input.name,
@@ -30,6 +58,8 @@ export const namespaceRouter = createTRPCRouter({
       }
 
       if (namespace.userId) {
+        const isUserViewingOwnProfile =
+          ctx.session?.user?.id === namespace.userId
         const projectSelectionQuery = isUserViewingOwnProfile
           ? {
               where: {
@@ -110,6 +140,7 @@ export const namespaceRouter = createTRPCRouter({
           namespace: { ...namespace },
         } as UserResponse
       }
+
       if (namespace.organizationId) {
         const foundMember = !ctx.session?.user?.id
           ? null
@@ -153,6 +184,16 @@ export const namespaceRouter = createTRPCRouter({
                   },
                   ...projectSelectionQuery,
                 },
+              },
+            },
+            members: {
+              where: {
+                userId: ctx.session?.user.id,
+              },
+
+              select: {
+                id: true,
+                role: true,
               },
             },
           },

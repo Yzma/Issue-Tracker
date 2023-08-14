@@ -1,11 +1,10 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
-import Link from 'next/link'
-import { Project } from '@/types/types'
 import ProjectItem from './ProjectItem'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
+import { Project } from '@/server/routers/common'
 
 type ProjectListProps = {
   projects: Project[]
@@ -21,14 +20,7 @@ export default function ProjectList({
       {projects.length === 0 ? (
         <div className="flex flex-col gap-y-5 justify-center items-center p-10 text-4xl">
           No projects found
-          {projectCreationButton !== undefined && (
-            <button
-              className="btn-xs h-8 shrink bg-emerald-500 hover:bg-emerald-600 text-white"
-              type="button"
-            >
-              Create Project
-            </button>
-          )}
+          {projectCreationButton !== undefined && projectCreationButton}
         </div>
       ) : (
         <>

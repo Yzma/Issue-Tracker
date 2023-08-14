@@ -21,3 +21,7 @@ export default function DefaultLayout({
     </div>
   )
 }
+
+export const getLayout = (page: React.ReactElement) => {
+  return <DefaultLayout>{page}</DefaultLayout>
+}

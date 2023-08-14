@@ -1,12 +1,10 @@
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 import { TRPCError, initTRPC } from '@trpc/server'
-
 import { OrganizationRole } from '@prisma/client'
 import { GetServerSidePropsContext } from 'next'
 import { getServerSideSession } from '@/lib/sessions'
 import prisma from '@/lib/prisma/prisma'
-
 import { GetIssueSchema, ProjectNamespaceSchema } from '@/lib/zod-schemas'
 
 export const createTRPCContext = async (opts: GetServerSidePropsContext) => {
@@ -14,7 +12,7 @@ export const createTRPCContext = async (opts: GetServerSidePropsContext) => {
 
   const session = await getServerSideSession(opts)
 
-  console.log('Session fetch ran')
+  console.log('Session fetch ran ', session)
 
   return {
     session,
@@ -60,9 +58,15 @@ export const getViewableProject = publicProcedure
   .use(async ({ ctx, input, next }) => {
     const foundProject = await ctx.prisma.project.findFirst({
       where: {
-        name: input.name,
+        name: {
+          equals: input.name,
+          mode: 'insensitive',
+        },
         namespace: {
-          name: input.owner,
+          name: {
+            equals: input.name,
+            mode: 'insensitive',
+          },
         },
       },
       include: {
@@ -157,7 +161,11 @@ export const getViewableIssue = getViewableProject
 
 export const ensureUserIsProjectMember = getViewableProject.use(
   async ({ ctx, next }) => {
-    if (!ctx.member || ctx.member.role !== OrganizationRole.Owner) {
+    if (
+      !ctx.member ||
+      ctx.member.role !== OrganizationRole.Owner ||
+      !ctx.session
+    ) {
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: `The provided Project was not found.`,

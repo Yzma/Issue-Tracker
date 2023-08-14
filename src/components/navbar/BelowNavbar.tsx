@@ -8,7 +8,7 @@ export default function BelowNavbar({ children }: PropsWithChildren) {
 
 function BreadcrumbLinks({ children }: PropsWithChildren) {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 pt-7 pb-1 w-full max-w-9xl mx-auto">
+    <div className="px-4 sm:px-6 lg:px-8 pt-5 pb-1 w-full max-w-9xl mx-auto">
       <div className="flex flex-row pl-2">
         {React.Children.map(children, (child, index) => (
           <>
@@ -46,7 +46,7 @@ function MenuList({
 }: PropsWithChildren<{ selected: string }>) {
   return (
     <NavbarContext.Provider value={{ selected }}>
-      <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full max-w-9xl mx-auto border-b-2 border-gray-400 z-10">
+      <div className="px-4 sm:px-6 lg:px-8 pt-4 pb-2 w-full max-w-9xl mx-auto border-b-2 border-gray-300 z-10">
         <div className="flex flex-row gap-x-4">{children}</div>
       </div>
     </NavbarContext.Provider>
@@ -57,7 +57,6 @@ BelowNavbar.MenuList = MenuList
 
 function MenuListItem({ children, id, href }) {
   const { selected } = useContext(NavbarContext)
-  console.log(`Selected from context (${selected})`)
   return (
     <Link href={href}>
       <div className="flex flex-row px-2 py-2 rounded hover:bg-gray-300 relative">
