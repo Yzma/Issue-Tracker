@@ -30,7 +30,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { RouterOutputs, trpc } from '@/lib/trpc/trpc'
 import { GetElementType } from '@/types/types'
@@ -56,7 +55,6 @@ export const columns: ColumnDef<Invite>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
-    // cell: ({ row }) => <div className="capitalize">{row.getValue('name')}</div>,
     cell: ({ row }) =>
       row.original.organization ? (
         <Link
@@ -154,7 +152,7 @@ export default function MyInvites() {
 
       <div className="w-full">
         <div className="flex items-center py-4">
-          <Input placeholder="Filter emails..." className="max-w-sm" />
+          <p className="font-bold text-3xl">My Invites</p>
         </div>
         <div className="rounded-md border">
           <Table>

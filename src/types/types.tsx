@@ -98,3 +98,5 @@ export type SearchFilters = {
 export type Optional<T, K extends keyof T> = {
   [P in keyof T]: P extends K ? T[P] | undefined : T[P]
 }
+
+export type GetElementType<T extends any[]> = T extends (infer U)[] ? U : never
