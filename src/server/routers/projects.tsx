@@ -118,7 +118,9 @@ export const projectsRouter = createTRPCRouter({
     }),
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  getProject: getViewableProject.query(async ({ ctx }) => ctx.project),
+  getProject: getViewableProject.query(async ({ ctx }) => {
+    return { project: ctx.project, member: ctx.member }
+  }),
 
   /*
     Members
