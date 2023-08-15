@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { getLayout } from '@/components/layout/DefaultLayoutTest'
+import { getLayout } from '@/components/layout/DefaultLayout'
 
 export default function NotFound() {
   return (

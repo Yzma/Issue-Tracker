@@ -4,7 +4,7 @@ import UserPage from '@/components/namespace/UserPage'
 import ssrHelper from '@/lib/trpc/ssrHelper'
 import OrganizationPage from '@/components/namespace/OrganizationPage'
 import { getOrganizationLayout } from '@/components/layout/organization/OrganizationLayout'
-import { getLayout as getDefaultLayout } from '@/components/layout/DefaultLayoutTest'
+import { getLayout as getDefaultLayout } from '@/components/layout/DefaultLayout'
 
 export type SSRHelperReturnType = Awaited<ReturnType<typeof ssrHelper>>
 export default function NamespaceIndexRoute({

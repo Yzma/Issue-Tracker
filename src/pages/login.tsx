@@ -20,7 +20,7 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next'
 import Link from 'next/link'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { getLayout } from '@/components/layout/DefaultLayoutTest'
+import { getLayout } from '@/components/layout/DefaultLayout'
 
 type ProviderIcons = {
   [key in ClientSafeProvider['name']]: IconDefinition
