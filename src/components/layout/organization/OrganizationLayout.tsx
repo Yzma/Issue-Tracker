@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
 import { faBug, faGear, faUserGroup } from '@fortawesome/free-solid-svg-icons'
 import DefaultLayout from '@/components/ui/DefaultLayout'
-import OrganizationBelowNavbar, {
-  MenuItem,
-} from '@/components/navbar/OrganizationBelowNavbar'
 import { trpc } from '@/lib/trpc/trpc'
-import { OrganizationLayoutPageProps, OrganizationLayoutProps } from '../types'
+import { OrganizationLayoutPageProps, OrganizationLayoutProps } from './types'
+import { MenuItem } from '@/components/navbar/types'
+import OrganizationBelowNavbar from '@/components/navbar/OrganizationBelowNavbar'
 
 export default function OrganizationLayout({
   children,
@@ -17,7 +16,7 @@ export default function OrganizationLayout({
       name: organizationName,
     })
 
-  const menuItems = useMemo(() => {
+  const menuItems: MenuItem[] = useMemo(() => {
     return [
       {
         title: 'Projects',
@@ -38,7 +37,7 @@ export default function OrganizationLayout({
         icon: faGear,
         shouldRender: organizationMembersQuery.data!.members !== undefined,
       },
-    ] as MenuItem[]
+    ]
   }, [organizationMembersQuery.data, organizationName])
 
   return (
