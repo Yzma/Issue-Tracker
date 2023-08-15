@@ -1,20 +1,17 @@
 import { trpc } from '@/lib/trpc/trpc'
 import { SidebarNav } from '@/components/sidebar/MembersSidebar'
-import {
-  OrganizationLayoutPageProps,
-  OrganizationMemberLayoutProps,
-} from '../organization/types'
-import OrganizationLayout from '../organization/OrganizationLayout'
+import ProjectLayout from './ProjectLayout'
+import { ProjectLayoutPageProps, ProjectMemberLayoutProps } from './types'
 
-export default function OrganizationMembersLayout({
+export default function ProjectMembersLayout({
   children,
-  organizationName,
-}: OrganizationMemberLayoutProps) {
-  const organizationMembersQuery =
-    trpc.organizations.getOrganizationNonEnsure.useQuery({
-      name: organizationName,
-    })
-
+  namespaceName,
+  projectName,
+}: ProjectMemberLayoutProps) {
+  const getProjectQuery = trpc.projects.getProject.useQuery({
+    owner: namespaceName,
+    name: projectName,
+  })
   return (
     <div className="space-y-6 p-10 pb-16 md:block">
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
@@ -23,13 +20,12 @@ export default function OrganizationMembersLayout({
             items={[
               {
                 title: 'Members',
-                href: `/orgs/${organizationName}/members`,
+                href: `/${namespaceName}/${projectName}/members`,
               },
               {
                 title: 'Pending Invitations',
-                href: `/orgs/${organizationName}/invites`,
-                shouldRender:
-                  organizationMembersQuery.data?.members !== undefined, // organizationMembersQuery is fetched in getServerSideProps
+                href: `/${namespaceName}/${projectName}/invites`,
+                shouldRender: getProjectQuery.data?.member !== undefined, // organizationMembersQuery is fetched in getServerSideProps
               },
             ]}
           />
@@ -40,16 +36,19 @@ export default function OrganizationMembersLayout({
   )
 }
 
-export const getOrganizationMembersLayout = ({
+export const getProjectMembersLayout = ({
   page,
-  organizationName,
-  variant,
-}: OrganizationLayoutPageProps) => {
+  namespaceName,
+  projectName,
+}: ProjectLayoutPageProps) => {
   return (
-    <OrganizationLayout organizationName={organizationName} variant={variant}>
-      <OrganizationMembersLayout organizationName={organizationName}>
+    <ProjectLayout namespaceName={namespaceName} projectName={projectName}>
+      <ProjectMembersLayout
+        namespaceName={namespaceName}
+        projectName={projectName}
+      >
         {page}
-      </OrganizationMembersLayout>
-    </OrganizationLayout>
+      </ProjectMembersLayout>
+    </ProjectLayout>
   )
 }

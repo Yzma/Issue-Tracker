@@ -21,7 +21,6 @@ export default function ProjectLayout({
     name: projectName,
   })
 
-  console.log('getProjectQuery', getProjectQuery.isLoading)
   const menuItems: MenuItem[] = useMemo(() => {
     return [
       {

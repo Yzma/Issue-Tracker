@@ -16,8 +16,6 @@ export async function getProjectServerSideProps(
   )
     throw new Error('no slug')
 
-  console.log('namespaceName', namespaceName)
-  console.log('projectName', projectName)
   const helpers = await ssrHelper(context)
   return helpers.projects.getProject
     .fetch({
