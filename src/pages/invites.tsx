@@ -33,6 +33,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { RouterOutputs, trpc } from '@/lib/trpc/trpc'
 import { GetElementType } from '@/types/types'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type Invite = GetElementType<RouterOutputs['users']['getInvites']>
 
@@ -149,7 +150,6 @@ export default function MyInvites() {
       <Head>
         <title>My Invites</title>
       </Head>
-
       <div className="w-full">
         <div className="flex items-center py-4">
           <p className="font-bold text-3xl">My Invites</p>
@@ -175,7 +175,41 @@ export default function MyInvites() {
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
+              {/* eslint-disable-next-line no-nested-ternary */}
+              {getInvitesQuery.isLoading ? (
+                <>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      <div className="flex flex-row h-20 justify-between items-center">
+                        <Skeleton className="h-12 mx-4 w-full" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      <div className="flex flex-row h-20 justify-between items-center">
+                        <Skeleton className="h-12 mx-4 w-full" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      <div className="flex flex-row h-20 justify-between items-center">
+                        <Skeleton className="h-12 mx-4 w-full" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </>
+              ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
