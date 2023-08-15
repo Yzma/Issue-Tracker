@@ -17,14 +17,18 @@ const ModifyIssueSchema = GetIssueSchema.and(CreateIssueSchema).and(
   })
 )
 
-function mapIssues(labels: string[] | undefined) {
-  return (
-    labels?.map((label) => {
-      return {
+function mapIssues(projectId: string, labels: string[] | undefined) {
+  if (!labels) {
+    return []
+  }
+  return labels.map((label) => {
+    return {
+      name_projectId: {
         name: label,
-      }
-    }) ?? []
-  )
+        projectId,
+      },
+    }
+  })
 }
 
 const ensureUserIsAuthorizedForIssue = getViewableIssue
@@ -106,7 +110,7 @@ export const issuesRouter = createTRPCRouter({
   createIssue: ensureUserIsProjectMember
     .input(CreateIssueSchema)
     .mutation(async ({ ctx, input }) => {
-      const mapped = mapIssues(input.labels)
+      const mapped = mapIssues(ctx.project.id, input.labels)
 
       return ctx.prisma.issue.create({
         data: {
@@ -138,7 +142,7 @@ export const issuesRouter = createTRPCRouter({
   updateIssue: ensureUserIsAuthorizedForIssue
     .input(ModifyIssueSchema)
     .mutation(async ({ ctx, input }) => {
-      const mapped = mapIssues(input.labels)
+      const mapped = mapIssues(ctx.project.id, input.labels)
 
       return ctx.prisma.issue.update({
         where: {

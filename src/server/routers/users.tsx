@@ -100,13 +100,33 @@ export const usersRouter = createTRPCRouter({
     return ctx.prisma.member.findMany({
       where: {
         userId: ctx.session.user.id,
-        AND: [
-          {
-            NOT: {
-              acceptedAt: null,
+        acceptedAt: null,
+      },
+
+      select: {
+        id: true,
+        role: true,
+        createdAt: true,
+        inviteeUser: {
+          select: {
+            username: true,
+          },
+        },
+        organization: {
+          select: {
+            name: true,
+          },
+        },
+        project: {
+          select: {
+            name: true,
+            namespace: {
+              select: {
+                name: true,
+              },
             },
           },
-        ],
+        },
       },
     })
   }),
