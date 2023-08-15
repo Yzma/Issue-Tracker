@@ -1,6 +1,6 @@
 import { IssueList2 } from '@/components/issue-list/IssueList'
 import { Issue } from '@/components/issue-list/types'
-import DefaultLayout from '@/components/ui/DefaultLayout'
+import { getLayout } from '@/components/layout/DefaultLayout'
 import { useSearchFilters } from '@/hooks/useSearchFilters'
 
 import { trpc } from '@/lib/trpc/trpc'
@@ -16,13 +16,13 @@ export default function Issues() {
   )
 
   return (
-    <DefaultLayout>
-      <IssueList2
-        issues={globalIssuesQuery.data as Issue[]}
-        useSearchFiltersHook={searchFilters}
-        loading={globalIssuesQuery.isLoading}
-        showFullPath
-      />
-    </DefaultLayout>
+    <IssueList2
+      issues={globalIssuesQuery.data as Issue[]}
+      useSearchFiltersHook={searchFilters}
+      loading={globalIssuesQuery.isLoading}
+      showFullPath
+    />
   )
 }
+
+Issues.getLayout = getLayout

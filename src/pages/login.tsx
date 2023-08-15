@@ -7,38 +7,40 @@ import {
   faGitlab,
   faMicrosoft,
   faLinkedin,
+  IconDefinition,
 } from '@fortawesome/free-brands-svg-icons'
 
 import {
   getProviders,
   signIn,
   getSession,
-  getCsrfToken,
-  LiteralUnion,
   ClientSafeProvider,
 } from 'next-auth/react'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
-import { BuiltInProviderType } from 'next-auth/providers'
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next'
 import Link from 'next/link'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { getLayout } from '@/components/layout/DefaultLayout'
+
+type ProviderIcons = {
+  [key in ClientSafeProvider['name']]: IconDefinition
+}
+
+const providerIcons: ProviderIcons = {
+  GitHub: faGithub,
+  Google: faGoogle,
+  GitLab: faGitlab,
+  Microsoft: faMicrosoft,
+  LinkedIn: faLinkedin,
+} as const
 
 export default function SignIn({
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const providerIcons = {
-    GitHub: faGithub,
-    Google: faGoogle,
-    GitLab: faGitlab,
-    Microsoft: faMicrosoft,
-    LinkedIn: faLinkedin,
-  }
-
   return (
     <>
       <Head>
         <title>Sign In to Issue Tracker</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <div className="relative md:flex">
@@ -63,6 +65,7 @@ export default function SignIn({
                     Use an OAuth provider below to login to your account
                   </p>
                 </div>
+
                 {Object.values(providers).map((provider) => {
                   const lookupIcon = providerIcons[provider.name]
                   if (lookupIcon) {
@@ -71,6 +74,7 @@ export default function SignIn({
                         <Button
                           className="w-full"
                           type="button"
+                          // eslint-disable-next-line @typescript-eslint/no-misused-promises
                           onClick={() => signIn(provider.id)}
                         >
                           <FontAwesomeIcon icon={lookupIcon} className="mr-2" />
@@ -79,6 +83,7 @@ export default function SignIn({
                       </div>
                     )
                   }
+                  return null
                 })}
                 <div className="mx-auto justify-center space-y-6 sm:w-[350px]">
                   <div className="flex w-full flex-col px-8 text-center text-sm text-muted-foreground">
@@ -126,9 +131,9 @@ export default function SignIn({
               <p className="text-lg text-white">
                 &ldquo;Issue-Tracker has completely transformed the way my team
                 manages issues with its intuitive interface, effortless project
-                organization, and lightning-fast performance. It's a
-                game-changer that fosters collaboration, streamlines workflow,
-                and makes issue tracking a breeze, all in one centralized and
+                organization, and lightning-fast performance. Its a game-changer
+                that fosters collaboration, streamlines workflow, and makes
+                issue tracking a breeze, all in one centralized and
                 user-friendly platform.&rdquo;
               </p>
               <footer className="text-sm text-white">John Doe</footer>
@@ -140,13 +145,9 @@ export default function SignIn({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
-  providers: Record<
-    LiteralUnion<BuiltInProviderType, string>,
-    ClientSafeProvider
-  >
-  csrfToken: string
-}> = async (context) => {
+SignIn.getLayout = getLayout
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getSession(context)
   if (session) {
     return {
@@ -158,12 +159,8 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const providers = await getProviders()
-  const csrfToken = await getCsrfToken(context)
 
   return {
-    props: {
-      providers,
-      csrfToken,
-    },
+    props: { providers: providers ?? [] },
   }
 }

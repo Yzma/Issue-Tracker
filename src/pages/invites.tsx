@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { getLayout } from '@/components/layout/DefaultLayoutTest'
+import { getLayout } from '@/components/layout/DefaultLayout'
 import {
   Table,
   TableBody,
