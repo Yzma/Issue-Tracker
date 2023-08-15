@@ -57,11 +57,8 @@ export default function ProjectCreate() {
         </option>
         {userOrganizations.data.map((organization) => {
           return (
-            <option
-              key={organization.organization?.name}
-              value={organization.organization?.name}
-            >
-              {organization.organization?.name}
+            <option key={organization.name} value={organization.name}>
+              {organization.name}
             </option>
           )
         })}
