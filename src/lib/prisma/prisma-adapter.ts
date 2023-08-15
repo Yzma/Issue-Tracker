@@ -14,7 +14,7 @@ export default function CustomPrismaAdapter(prismaClient: PrismaClient) {
         },
       }),
 
-    getUserByEmail: (email: User['email']) =>
+    getUserByEmail: (email: string | undefined) =>
       prismaClient.user.findUnique({
         where: { email },
         include: {
