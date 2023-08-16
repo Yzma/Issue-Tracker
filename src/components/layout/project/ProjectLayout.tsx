@@ -27,6 +27,10 @@ export default function ProjectLayout({
         title: 'Issues',
         href: `/${namespaceName}/${projectName}`,
         icon: faBug,
+        isActive: (pathname) =>
+          pathname === `/${namespaceName}/${projectName}` ||
+          pathname === `/${namespaceName}/${projectName}/new` ||
+          pathname.startsWith(`/${namespaceName}/${projectName}/issues`),
       },
       {
         title: 'Labels',
