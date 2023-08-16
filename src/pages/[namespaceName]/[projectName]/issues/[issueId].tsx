@@ -20,12 +20,14 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 import axios from 'axios'
-
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next'
 import { useSession } from 'next-auth/react'
 import IssueComment from '@/components/comment-api/IssueComment'
-import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
+
 import Header from '@/components/Header'
-import prisma from '@/lib/prisma/prisma'
+
+import { getProjectServerSideProps } from '@/lib/layout/projects'
+import { getProjectLayout } from '@/components/layout/project/ProjectLayout'
 
 function FormButton(props) {
   return (
@@ -43,7 +45,7 @@ function FormButton(props) {
   )
 }
 
-export default function IssuesView(props) {
+export default function IssueView(props) {
   const { data: session } = useSession()
   const router = useRouter()
   const { namespaceName, projectName, issueId } = router.query
@@ -52,9 +54,9 @@ export default function IssuesView(props) {
   const [issueState, setIssueState] = useState(props.issuesData)
 
   // TODO: Sort this client side?
-  issueState.comments.sort((a, b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt)
-  })
+  // issueState.comments.sort((a, b) => {
+  //   return new Date(b.createdAt) - new Date(a.createdAt)
+  // })
   console.log('ISSUE STATE: ', issueState)
 
   const [showEditTitle, setShowEditTitle] = useState(false)
@@ -82,9 +84,9 @@ export default function IssuesView(props) {
     return true
   }
 
-  const [defaultLabels, setDefaultLabels] = useState(issueState.labels)
+  // const [defaultLabels, setDefaultLabels] = useState(issueState.labels)
 
-  const [labels, setLabels] = useState(issueState.labels)
+  // const [labels, setLabels] = useState(issueState.labels)
 
   // TODO: Schema doesn't validate label ids - figure out a way to check them
   const onLabelClick = (label) => {
@@ -166,6 +168,8 @@ export default function IssuesView(props) {
     }
     return document.execCommand('copy', true, link)
   }
+
+  return <div>asd</div>
 
   return (
     <>
@@ -412,11 +416,11 @@ export default function IssuesView(props) {
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <Header />
 
-          <ProjectBelowNavbar
+          {/* <ProjectBelowNavbar
             namespaceName={namespaceName}
             projectName={projectName}
             selected="issues"
-          />
+          /> */}
 
           <main>
             <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
@@ -1189,85 +1193,101 @@ export default function IssuesView(props) {
   )
 }
 
-export async function getServerSideProps(context) {
-  const { namespaceName, projectName, issueId } = context.query
-
-  console.log('issueId', issueId)
-  const issuesData = await prisma.issue.findFirst({
-    where: {
-      id: issueId,
-    },
-
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      open: true,
-
-      createdAt: true,
-      updatedAt: true,
-      issueNumber: true,
-
-      pinned: true,
-      user: {
-        select: {
-          id: true,
-          username: true,
-        },
-      },
-
-      project: {
-        select: {
-          labels: true,
-        },
-      },
-
-      labels: true,
-      comments: {
-        select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-          description: true,
-          user: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-        },
-      },
-    },
+IssueView.getLayout = function getLayout(
+  page: React.ReactElement<
+    InferGetServerSidePropsType<typeof getServerSideProps>
+  >
+) {
+  return getProjectLayout({
+    page,
+    namespaceName: page.props.namespaceName,
+    projectName: page.props.projectName,
   })
-
-  console.log(issuesData)
-
-  if (!issuesData) {
-    return {
-      redirect: {
-        destination: '/404',
-        permanent: false,
-      },
-    }
-  }
-
-  const mappedComments = issuesData.comments.map((e) => {
-    return {
-      ...e,
-      createdAt: e.createdAt.toISOString(),
-      updatedAt: e.updatedAt.toISOString(),
-    }
-  })
-
-  return {
-    props: {
-      now: Date.now(),
-      issuesData: {
-        ...issuesData,
-        comments: mappedComments,
-        createdAt: issuesData.createdAt.toISOString(),
-        updatedAt: issuesData.updatedAt.toISOString(),
-      },
-    },
-  }
 }
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  return getProjectServerSideProps(context)
+}
+
+// export async function getServerSideProps(context) {
+//   const { namespaceName, projectName, issueId } = context.query
+
+//   console.log('issueId', issueId)
+//   const issuesData = await prisma.issue.findFirst({
+//     where: {
+//       id: issueId,
+//     },
+
+//     select: {
+//       id: true,
+//       name: true,
+//       description: true,
+//       open: true,
+
+//       createdAt: true,
+//       updatedAt: true,
+//       issueNumber: true,
+
+//       pinned: true,
+//       user: {
+//         select: {
+//           id: true,
+//           username: true,
+//         },
+//       },
+
+//       project: {
+//         select: {
+//           labels: true,
+//         },
+//       },
+
+//       labels: true,
+//       comments: {
+//         select: {
+//           id: true,
+//           createdAt: true,
+//           updatedAt: true,
+//           description: true,
+//           user: {
+//             select: {
+//               id: true,
+//               username: true,
+//             },
+//           },
+//         },
+//       },
+//     },
+//   })
+
+//   console.log(issuesData)
+
+//   if (!issuesData) {
+//     return {
+//       redirect: {
+//         destination: '/404',
+//         permanent: false,
+//       },
+//     }
+//   }
+
+//   const mappedComments = issuesData.comments.map((e) => {
+//     return {
+//       ...e,
+//       createdAt: e.createdAt.toISOString(),
+//       updatedAt: e.updatedAt.toISOString(),
+//     }
+//   })
+
+//   return {
+//     props: {
+//       now: Date.now(),
+//       issuesData: {
+//         ...issuesData,
+//         comments: mappedComments,
+//         createdAt: issuesData.createdAt.toISOString(),
+//         updatedAt: issuesData.updatedAt.toISOString(),
+//       },
+//     },
+//   }
+// }
