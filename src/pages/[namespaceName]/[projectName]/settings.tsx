@@ -18,8 +18,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { NAMESPACE } from '@/lib/zod-schemas'
-import { getOrganizationServerSideProps } from '@/lib/layout/organizations'
-import { getOrganizationLayout } from '@/components/layout/organization/OrganizationLayout'
 import { getProjectLayout } from '@/components/layout/project/ProjectLayout'
 import { getProjectServerSideProps } from '@/lib/layout/projects'
 
