@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Head from 'next/head'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -28,11 +27,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useToast } from '@/components/ui/use-toast'
 
-type ResponseError = {
-  error?: string | null
-  success?: string | null
-}
-
 const projectFormSchema = z.object({
   name: NAMESPACE,
   description: z.string().max(160),
@@ -46,8 +40,6 @@ export default function ProjectSettings({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { toast } = useToast()
-  const [response, setResponse] = useState<ResponseError>({})
-  const utils = trpc.useContext()
   const getProjectQuery = trpc.projects.getProject.useQuery({
     owner: namespaceName,
     name: projectName,
@@ -88,7 +80,6 @@ export default function ProjectSettings({
   })
 
   function onSubmit(data: ProfileFormValues) {
-    console.log('submit?')
     return updateProjectMutation.mutate({
       name: projectName,
       owner: namespaceName,
@@ -101,7 +92,6 @@ export default function ProjectSettings({
 
   function deleteProject() {}
 
-  console.log('errors: ', form.formState.errors)
   return (
     <>
       <Head>
