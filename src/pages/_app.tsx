@@ -11,6 +11,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css'
 
 import '@/styles/globals.css'
 import '@/styles/popover-styles.css'
+import { Toaster } from '@/components/ui/toaster'
 
 config.autoAddCss = false
 
@@ -36,6 +37,7 @@ function MyApp({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {layout}
+      <Toaster />
     </SessionProvider>
   )
 }
