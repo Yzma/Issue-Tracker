@@ -40,7 +40,7 @@ export default function ProjectSettings({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { toast } = useToast()
-  const getProjectQuery = trpc.projects.getProject.useQuery({
+  const { data } = trpc.projects.getProject.useQuery({
     owner: namespaceName,
     name: projectName,
   })
@@ -48,29 +48,30 @@ export default function ProjectSettings({
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
-      name: getProjectQuery.data?.project.name,
-      description: getProjectQuery.data?.project.description,
+      name: data?.project.name,
+      description: data?.project.description,
     },
     mode: 'onChange',
   })
 
   const updateProjectMutation = trpc.projects.updateProject.useMutation({
-    onSuccess(data) {
-      // If the name has been updated, redirect the user back to the main page with the updated name
-      if (data.name !== getProjectQuery.data?.project.name) {
-        router.push(`/${namespaceName}/${data.name}`)
+    onSuccess(updatedProject) {
+      // Check if the project name has changed, and if it did, redirect the user back to the main page with the updated name
+      if (updatedProject.name !== data?.project.name) {
+        router.push(`/${namespaceName}/${updatedProject.name}`)
         return
       }
 
+      // Otherwise let the user know the settings where updated and reset the form to the updated values
       toast({
         title: 'Project settings updated',
         description: 'Your changes have been saved successfully.',
       })
       form.reset({
-        description: data.description,
+        description: updatedProject.description,
       })
     },
-    onError(error) {
+    onError() {
       toast({
         title: 'Failed to update project settings',
         description: 'Failed to save your project changes. Please try again.',
@@ -79,12 +80,12 @@ export default function ProjectSettings({
     },
   })
 
-  function onSubmit(data: ProfileFormValues) {
+  function onSubmit(formData: ProfileFormValues) {
     return updateProjectMutation.mutate({
       name: projectName,
       owner: namespaceName,
-      newName: data.name,
-      description: data.description,
+      newName: formData.name,
+      description: formData.description,
     })
   }
 
@@ -98,9 +99,9 @@ export default function ProjectSettings({
         <title>Settings</title>
       </Head>
 
-      <div className="flex flex-col items-center  pb-16">
-        <div className="md:w-4/5 space-y-6">
-          <div className="space-y-0.5 w-full">
+      <div className="flex flex-col items-center">
+        <div className="md:w-11/12 space-y-6">
+          <div className="space-y-0.5 w-full pb-2 border-b">
             <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
             <p className="text-muted-foreground">
               Manage your project settings
@@ -162,11 +163,7 @@ export default function ProjectSettings({
                   <p>
                     The project is currently{' '}
                     <span className="font-bold">
-                      {getProjectQuery.data?.project.private ? (
-                        <>private</>
-                      ) : (
-                        <>public</>
-                      )}
+                      {data?.project.private ? <>private</> : <>public</>}
                     </span>
                     .
                   </p>
