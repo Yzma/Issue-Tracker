@@ -37,8 +37,9 @@ export const ProjectNamespaceSchema = NamespaceSchema.and(
 
 export const ProjectCreationSchema = ProjectNamespaceSchema.and(
   z.object({
-    description: SHORT_DESCRIPTION,
-    visibility: z.union([z.literal('public'), z.literal('private')]),
+    newName: NAMESPACE.optional(),
+    description: SHORT_DESCRIPTION.optional(),
+    visibility: z.union([z.literal('public'), z.literal('private')]).optional(),
   })
 )
 
