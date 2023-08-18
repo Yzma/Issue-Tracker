@@ -2,7 +2,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
-import { faBookmark } from '@fortawesome/free-regular-svg-icons'
 import {
   NavigationMenu,
   NavigationMenuItem,
