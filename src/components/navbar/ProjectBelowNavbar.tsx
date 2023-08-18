@@ -1,12 +1,15 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
+import { faBookmark } from '@fortawesome/free-regular-svg-icons'
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuList,
 } from '../ui/navigation-menu'
 import { MenuItem } from './types'
+import { Badge } from '../ui/badge'
 
 export type ProjectBelowNavbarProps = {
   namespaceName: string
@@ -27,19 +30,25 @@ function ProjectBelowNavbar({
         {/* TODO: Clean this up */}
 
         <div className="sm:px-6 lg:px-8 w-full mx-auto space-y-4">
-          <div className="flex flex-row pl-2">
-            <Link href={`/${namespaceName}`}>
-              <p className="text-2xl text-blue-600 hover:text-blue-900 hover:underline">
-                {namespaceName}
-              </p>
-            </Link>
+          <div className="flex flex-row px-2 space-x-2">
+            <FontAwesomeIcon icon={faBookBookmark} className="pt-1" />
+            <div className="flex">
+              <Link href={`/${namespaceName}`}>
+                <p className="text-2xl text-blue-600 hover:text-blue-900 hover:underline">
+                  {namespaceName}
+                </p>
+              </Link>
 
-            <p className="text-2xl px-1 font-light">/</p>
-            <Link href={`/${namespaceName}/${projectName}`}>
-              <p className="text-2xl font-semibold text-blue-600 hover:text-blue-900 hover:underline">
-                {projectName}
-              </p>
-            </Link>
+              <p className="text-2xl px-1">/</p>
+              <Link href={`/${namespaceName}/${projectName}`}>
+                <p className="text-2xl font-semibold text-blue-600 hover:text-blue-900 hover:underline">
+                  {projectName}
+                </p>
+              </Link>
+            </div>
+            <Badge variant="outline" className="border-gray-300 h-6">
+              Public
+            </Badge>
           </div>
           <NavigationMenu>
             <NavigationMenuList>
