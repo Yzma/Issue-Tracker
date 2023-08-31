@@ -11,7 +11,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { getProjectLayout } from '@/components/layout/project/ProjectLayout'
@@ -25,18 +24,18 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import { trpc } from '@/lib/trpc/trpc'
+import { RouterOutputs, trpc } from '@/lib/trpc/trpc'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { GetElementType } from '@/types/types'
 
-type Label = {
-  name: string
-  color: string
-  description: string
-}
+type LabelOutput = Omit<
+  GetElementType<RouterOutputs['projects']['getLabels']>,
+  'id' | 'projectId'
+>
 
-export const columns: ColumnDef<Label>[] = [
+export const columns: ColumnDef<LabelOutput>[] = [
   {
     accessorKey: 'index',
     header: '#',
@@ -91,6 +90,7 @@ export default function ProjectLabels({
     name: projectName,
     owner: namespaceName,
   })
+
   const table = useReactTable({
     data: labelsQuery.data || [],
     columns,
@@ -100,7 +100,6 @@ export default function ProjectLabels({
     getFilteredRowModel: getFilteredRowModel(),
   })
 
-  console.log('data: ', labelsQuery.data)
   return (
     <>
       <Head>
