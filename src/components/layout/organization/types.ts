@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react'
-import { OrganizationBelowNavbarProps } from '../navbar/OrganizationBelowNavbar'
+import { OrganizationBelowNavbarProps } from '../../navbar/OrganizationBelowNavbar'
 
 export type OrganizationLayoutPageProps = {
   page: React.ReactElement

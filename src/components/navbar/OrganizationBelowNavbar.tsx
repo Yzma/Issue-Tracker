@@ -1,5 +1,4 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Avatar, AvatarFallback } from '../ui/avatar'
@@ -8,6 +7,7 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
 } from '../ui/navigation-menu'
+import { MenuItem } from './types'
 
 export type OrganizationBelowNavbarProps = {
   namespaceName: string
@@ -15,14 +15,7 @@ export type OrganizationBelowNavbarProps = {
   menuItems: MenuItem[]
 }
 
-export type MenuItem = {
-  title: string
-  href: string
-  icon: IconDefinition
-  isActive?: (pathname: string) => boolean
-  shouldRender?: boolean
-}
-
+// TODO: Make this reusable
 function OrganizationBelowNavbar({
   namespaceName,
   variant,

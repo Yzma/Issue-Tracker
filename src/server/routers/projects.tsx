@@ -9,8 +9,8 @@ import {
 } from '../trpc'
 import {
   NamespaceSchema,
-  ProjectCreationSchema,
   LabelCreationSchema,
+  ProjectCreationSchema,
 } from '@/lib/zod-schemas'
 import { MemberAffiliation } from '@/lib/zod-types'
 
@@ -110,7 +110,7 @@ export const projectsRouter = createTRPCRouter({
           id: ctx.project.id,
         },
         data: {
-          name: input.name,
+          name: input.newName,
           description: input.description,
           private: input.visibility === 'private',
         },
@@ -118,7 +118,9 @@ export const projectsRouter = createTRPCRouter({
     }),
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  getProject: getViewableProject.query(async ({ ctx }) => ctx.project),
+  getProject: getViewableProject.query(async ({ ctx }) => {
+    return { project: ctx.project, member: ctx.member }
+  }),
 
   /*
     Members

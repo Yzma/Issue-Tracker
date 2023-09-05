@@ -4,7 +4,7 @@ import OrganizationLayout from './OrganizationLayout'
 import {
   OrganizationLayoutPageProps,
   OrganizationMemberLayoutProps,
-} from '../types'
+} from './types'
 
 export default function OrganizationMembersLayout({
   children,

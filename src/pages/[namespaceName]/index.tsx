@@ -51,7 +51,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     .fetch({
       name: namespaceName,
     })
-    .then((res) => {
+    .then(async (res) => {
       if (res.userId) {
         // User
         return helpers.users.getUser
