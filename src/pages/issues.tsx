@@ -1,7 +1,9 @@
+import { GetServerSidePropsContext } from 'next'
 import { IssueList2 } from '@/components/issue-list/IssueList'
 import { Issue } from '@/components/issue-list/types'
 import { getLayout } from '@/components/layout/DefaultLayout'
 import { useSearchFilters } from '@/hooks/useSearchFilters'
+import { getProtectedServerSideProps } from '@/lib/layout/protected'
 
 import { trpc } from '@/lib/trpc/trpc'
 import { SearchFilters } from '@/types/types'
@@ -26,3 +28,7 @@ export default function Issues() {
 }
 
 Issues.getLayout = getLayout
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  return getProtectedServerSideProps(context)
+}
