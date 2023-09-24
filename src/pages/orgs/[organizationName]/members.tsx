@@ -45,7 +45,7 @@ export default function OrganizationMembers({
         </div>
 
         {!organizationMembersQuery.isLoading && (
-          <div className="bg-white rounded-sm border">
+          <div className="rounded-sm border bg-white">
             <div className="px-5 py-4">
               <h2 className="font-semibold text-slate-800">
                 {organizationName} Members (
@@ -54,35 +54,35 @@ export default function OrganizationMembers({
             </div>
 
             <div>
-              <table className="table-auto w-full rounded-xl shadow-lg">
-                <thead className="text-xs font-semibold uppercase text-slate-500 border-t border-b border-slate-200">
+              <table className="w-full table-auto rounded-xl shadow-lg">
+                <thead className="border-t border-b border-slate-200 text-xs font-semibold uppercase text-slate-500">
                   <tr>
-                    <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
-                      <div className="font-semibold text-left">#</div>
+                    <th className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
+                      <div className="text-left font-semibold">#</div>
                     </th>
-                    <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                    <th className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
                       <div className="font-semibold">User</div>
                     </th>
-                    <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                    <th className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
                       <div className="font-semibold">Join Date</div>
                     </th>
-                    <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                    <th className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
                       <div className="font-semibold">Role</div>
                     </th>
-                    <th className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                    <th className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
                       <span className="sr-only">Menu</span>
                     </th>
                   </tr>
                 </thead>
-                <tbody className="text-sm divide-y divide-slate-200">
+                <tbody className="divide-y divide-slate-200 text-sm">
                   {organizationMembersQuery.data?.map((member, index) => (
                     <tr key={member.id}>
-                      <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                      <td className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
                         <div className="text-left">{index + 1}</div>
                       </td>
 
-                      <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
-                        <div className="text-center space-x-1">
+                      <td className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
+                        <div className="space-x-1 text-center">
                           <Link
                             className="text-sky-400 hover:text-sky-700"
                             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -99,23 +99,23 @@ export default function OrganizationMembers({
                         </div>
                       </td>
 
-                      <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                      <td className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
                         <div className="text-center">
                           {moment(member.acceptedAt).format('MMM Do YY')}
                         </div>
                       </td>
 
-                      <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                      <td className="whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
                         <div className="text-center">{member.role}</div>
                       </td>
 
-                      <td className="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px">
+                      <td className="w-px whitespace-nowrap px-2 py-3 first:pl-5 last:pr-5">
                         {session &&
                           session.user.username === member.user.username && (
                             <DropdownMenu.Root>
                               <DropdownMenu.Trigger asChild>
                                 <svg
-                                  className="w-8 h-8 fill-current "
+                                  className="h-8 w-8 fill-current "
                                   viewBox="0 0 32 32"
                                 >
                                   <circle cx="16" cy="16" r="2" />
@@ -132,7 +132,7 @@ export default function OrganizationMembers({
                                   <DropdownMenu.Item
                                     className="DropdownMenuItem"
                                     onClick={
-                                      () => {}
+                                      () => { }
                                       // setOpen({
                                       //   id: member.id,
                                       //   name: member.user.username,
@@ -158,7 +158,7 @@ export default function OrganizationMembers({
     </>
   )
 }
-// { selected: 'members', variant: 'full' }
+
 OrganizationMembers.getLayout = function getLayout(
   page: React.ReactElement<
     InferGetServerSidePropsType<typeof getServerSideProps>

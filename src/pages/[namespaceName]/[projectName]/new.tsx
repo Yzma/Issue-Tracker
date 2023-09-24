@@ -85,11 +85,11 @@ export default function CreateNewIssue({
 
       {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-8 px-4 sm:px-6 lg:px-8 py-8 gap-6">
-          <div className="col-start-2 col-span-6">
+        <div className="grid grid-cols-8 gap-6 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="col-span-6 col-start-2">
             {errors.title && (
               <div className="py-3">
-                <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
                   <div>You must enter a valid issue title!</div>
                 </div>
               </div>
@@ -97,23 +97,23 @@ export default function CreateNewIssue({
 
             {errors.description && (
               <div className="py-3">
-                <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
                   <div>You must enter a valid description!</div>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="col-start-2 col-span-4">
+          <div className="col-span-4 col-start-2">
             {/* Start Main Content */}
 
             <main>
               <div className="row g-5">
                 <section>
-                  <section className="flex flex-row mb-4">
-                    <div className="sm:w-1/3 grow">
+                  <section className="mb-4 flex flex-row">
+                    <div className="grow sm:w-1/3">
                       <label
-                        className="block text-sm font-medium mb-1"
+                        className="mb-1 block text-sm font-medium"
                         htmlFor="name"
                       >
                         Title <span className="text-rose-500">*</span>
@@ -132,7 +132,7 @@ export default function CreateNewIssue({
                   <div className="flex flex-row">
                     <section className="mt-4 grow">
                       <label
-                        className="block text-sm font-medium mb-1"
+                        className="mb-1 block text-sm font-medium"
                         htmlFor="name"
                       >
                         Description <span className="text-rose-500">*</span>
@@ -143,7 +143,7 @@ export default function CreateNewIssue({
                           // setFieldValue("description", text)
                           setValue('description', text)
                         }
-                        onSubmit={() => {}}
+                        onSubmit={() => { }}
                         editing
                         showButtons={false}
                       />
@@ -152,10 +152,10 @@ export default function CreateNewIssue({
 
                   <hr />
 
-                  <div className="flex flex-col py-5 border-t border-slate-200">
+                  <div className="flex flex-col border-t border-slate-200 py-5">
                     <div className="flex self-start">
                       <button
-                        className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                        className="btn bg-indigo-500 text-white hover:bg-indigo-600"
                         type="submit"
                         disabled={isSubmitting}
                       >
@@ -170,14 +170,14 @@ export default function CreateNewIssue({
           </div>
 
           {/* Issue Actions */}
-          <div className="flex flex-col gap-y-2 col-md-4 col-span-2">
+          <div className="col-md-4 col-span-2 flex flex-col gap-y-2">
             {/* Asignees Action */}
             <div>
               <div className="flex justify-between">
                 <span className="font-bold">Asignees </span>
               </div>
               <Link
-                className="text-blue-600 hover:text-gray-900 hover:underline hover:cursor-pointer"
+                className="text-blue-600 hover:cursor-pointer hover:text-gray-900 hover:underline"
                 href={session ? `/${session.user.username}/` : ''}
               >
                 {session && session.user.username}
@@ -189,7 +189,7 @@ export default function CreateNewIssue({
 
             {/* Labels Actions */}
             <div className="">
-              <div className="flex justify-between align-self-center">
+              <div className="align-self-center flex justify-between">
                 <span className="font-bold">Labels</span>
                 {/* {data.length !== 0 && (
                   <DropdownMenu.Root>

@@ -68,7 +68,7 @@ export default function OrganizationSettings() {
     control: form.control,
   })
 
-  function onSubmit(data: ProfileFormValues) {}
+  function onSubmit(data: ProfileFormValues) { }
 
   return (
     <>

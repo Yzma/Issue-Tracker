@@ -42,8 +42,8 @@ export default function Issues({
       <Head>
         <title>{projectName}</title>
       </Head>
-      <div className="container mx-auto px-4 max-w-3/4">
-        <div className="flex justify-between w-full items-center my-4">
+      <div className="max-w-3/4 container mx-auto px-4">
+        <div className="my-4 flex w-full items-center justify-between">
           <div className="flex w-5/6 items-center space-x-2">
             <Input type="search" placeholder="Search for an issue" />
             <Button type="button">Search</Button>

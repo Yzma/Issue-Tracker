@@ -28,7 +28,7 @@ export default function ProjectInvites() {
       </Head>
 
       <div className="flex h-screen overflow-hidden">
-        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <Header />
           <ProjectBelowNavbar
             namespaceName={namespaceName}
@@ -36,13 +36,13 @@ export default function ProjectInvites() {
             selected="invites"
           />
           <main>
-            <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+            <div className="max-w-9xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
               <div className="mb-8">
-                <div className="flex flex-col md:flex-row md:-mr-px">
+                <div className="flex flex-col md:-mr-px md:flex-row">
                   <div className="grow">
-                    <div className="p-6 space-y-6">
+                    <div className="space-y-6 p-6">
                       <section>
-                        <h2 className="text-3xl leading-snug text-slate-800 font-bold mb-1">
+                        <h2 className="mb-1 text-3xl font-bold leading-snug text-slate-800">
                           Invite a user to join {projectName}
                         </h2>
                         <div className="">
@@ -108,7 +108,7 @@ export default function ProjectInvites() {
                               >
                                 {response && response.error && (
                                   <div className="py-3">
-                                    <div className="flex w-1/3 px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                                    <div className="flex w-1/3 rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
                                       <div>{response.error}</div>
                                     </div>
                                   </div>
@@ -116,16 +116,16 @@ export default function ProjectInvites() {
 
                                 {response && response.success && (
                                   <div className="py-3">
-                                    <div className="flex w-1/3 px-4 py-2 rounded-sm text-sm border bg-emerald-100 border-emerald-200 text-emerald-600">
+                                    <div className="flex w-1/3 rounded-sm border border-emerald-200 bg-emerald-100 px-4 py-2 text-sm text-emerald-600">
                                       <div>{response.success}</div>
                                     </div>
                                   </div>
                                 )}
 
-                                <section className="flex flex-row mb-4 gap-x-4">
+                                <section className="mb-4 flex flex-row gap-x-4">
                                   <div className="sm:w-1/3">
                                     <label
-                                      className="block text-sm font-medium mb-1"
+                                      className="mb-1 block text-sm font-medium"
                                       htmlFor="name"
                                     >
                                       Username{' '}
@@ -140,7 +140,7 @@ export default function ProjectInvites() {
 
                                   <div className="w-1/6">
                                     <label
-                                      className="block text-sm font-medium mb-1"
+                                      className="mb-1 block text-sm font-medium"
                                       htmlFor="owner"
                                     >
                                       Role{' '}
@@ -164,10 +164,10 @@ export default function ProjectInvites() {
 
                                 <hr />
 
-                                <div className="flex flex-col py-5 border-t border-slate-200">
+                                <div className="flex flex-col border-t border-slate-200 py-5">
                                   <div className="flex self-start">
                                     <button
-                                      className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
+                                      className="btn bg-indigo-500 text-white hover:bg-indigo-600"
                                       type="submit"
                                       disabled={isSubmitting}
                                     >
