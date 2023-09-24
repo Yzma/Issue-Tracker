@@ -75,7 +75,7 @@
     "@types/node": "^18.15.11",
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.59.9",
-    "@typescript-eslint/parser": "^5.59.9",
+    "@typescript-eslint/parser": "^6.7.2",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.50.0",
     "eslint-config-airbnb": "^19.0.4",

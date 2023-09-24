@@ -13,6 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { GetServerSidePropsContext } from 'next'
 import { getLayout } from '@/components/layout/DefaultLayout'
 import {
   Table,
@@ -34,6 +35,7 @@ import { Badge } from '@/components/ui/badge'
 import { RouterOutputs, trpc } from '@/lib/trpc/trpc'
 import { GetElementType } from '@/types/types'
 import { Skeleton } from '@/components/ui/skeleton'
+import { getProtectedServerSideProps } from '@/lib/layout/protected'
 
 type Invite = GetElementType<RouterOutputs['users']['getInvites']>
 
@@ -59,14 +61,14 @@ export const columns: ColumnDef<Invite>[] = [
     cell: ({ row }) =>
       row.original.organization ? (
         <Link
-          className="text-blue-500 hover:text-blue-900 hover:cursor-pointer hover:underline pr-1"
+          className="pr-1 text-blue-500 hover:cursor-pointer hover:text-blue-900 hover:underline"
           href={`/${row.original.organization.name}`}
         >
           {row.original.organization.name}
         </Link>
       ) : (
         <Link
-          className="text-blue-500 hover:text-blue-900 hover:cursor-pointer hover:underline pr-1"
+          className="pr-1 text-blue-500 hover:cursor-pointer hover:text-blue-900 hover:underline"
           // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           href={`/${row.original.project?.namespace.name}/${row.original.project?.name}`}
         >
@@ -81,7 +83,7 @@ export const columns: ColumnDef<Invite>[] = [
       return (
         <div className="capitalize">
           <Link
-            className="text-blue-500 hover:text-blue-900 hover:cursor-pointer hover:underline pr-1"
+            className="pr-1 text-blue-500 hover:cursor-pointer hover:text-blue-900 hover:underline"
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             href={`/${row.original.inviteeUser?.username}`}
           >
@@ -152,7 +154,7 @@ export default function MyInvites() {
       </Head>
       <div className="w-full">
         <div className="flex items-center py-4">
-          <p className="font-bold text-3xl">My Invites</p>
+          <p className="text-3xl font-bold">My Invites</p>
         </div>
         <div className="rounded-md border">
           <Table>
@@ -162,12 +164,11 @@ export default function MyInvites() {
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                        {!header.isPlaceholder &&
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     )
                   })}
@@ -183,8 +184,8 @@ export default function MyInvites() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      <div className="flex flex-row h-20 justify-between items-center">
-                        <Skeleton className="h-12 mx-4 w-full" />
+                      <div className="flex h-20 flex-row items-center justify-between">
+                        <Skeleton className="mx-4 h-12 w-full" />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -193,8 +194,8 @@ export default function MyInvites() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      <div className="flex flex-row h-20 justify-between items-center">
-                        <Skeleton className="h-12 mx-4 w-full" />
+                      <div className="flex h-20 flex-row items-center justify-between">
+                        <Skeleton className="mx-4 h-12 w-full" />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -203,8 +204,8 @@ export default function MyInvites() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      <div className="flex flex-row h-20 justify-between items-center">
-                        <Skeleton className="h-12 mx-4 w-full" />
+                      <div className="flex h-20 flex-row items-center justify-between">
+                        <Skeleton className="mx-4 h-12 w-full" />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -245,14 +246,6 @@ export default function MyInvites() {
 
 MyInvites.getLayout = getLayout
 
-// TODO: Check if user is logged in
-// export async function getServerSideProps(context) {
-//   const session = await getServerSession(context.req, context.res)
-//   if (!session) {
-//     return {
-//       redirect: {
-//         destination: '/',
-//         permanent: false,
-//       },
-//     }
-//   }
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  return getProtectedServerSideProps(context)
+}
