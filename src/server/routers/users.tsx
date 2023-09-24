@@ -10,23 +10,6 @@ export const usersRouter = createTRPCRouter({
   getUser: publicProcedure
     .input(NamespaceSchema)
     .query(async ({ ctx, input }) => {
-      // const result = await ctx.prisma.$queryRaw<string[]>`
-      // SELECT "User".'username', "User".'bio', "User".'socialLinks', "User".'image'
-      // FROM public."User"
-      // INNER JOIN public."Namespace" ON "Namespace".id = "Project"."namespaceId"
-      // WHERE "Namespace"."name" ILIKE '${namespace}'
-      // AND (
-      //     "Project".private = 'false'
-      //     OR EXISTS (
-      //         SELECT 1
-      //         FROM public."Member"
-      //         WHERE "Member"."projectId" = "Project".id
-      //         AND "Member"."userId" = ${userId}
-      //         AND "Member"."acceptedAt" IS NOT NULL
-      //     )
-      // ) ORDER BY "Project"."updatedAt" DESC;`
-      // return result
-
       const user = await ctx.prisma.user.findFirst({
         where: {
           username: {

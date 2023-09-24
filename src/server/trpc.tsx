@@ -9,10 +9,7 @@ import { GetIssueSchema, ProjectNamespaceSchema } from '@/lib/zod-schemas'
 
 export const createTRPCContext = async (opts: GetServerSidePropsContext) => {
   const { req, res } = opts
-
   const session = await getServerSideSession(opts)
-
-  console.log('Session fetch ran ', session)
 
   return {
     session,
@@ -119,7 +116,6 @@ export const getViewableProject = publicProcedure
     if (foundProject.private) {
       // If the user isn't logged in or isn't a part of the project, deny them
       if (!foundMember) {
-        console.log('Found member was null here')
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: `The provided Project was not found.`,
@@ -184,20 +180,5 @@ export const ensureUserIsProjectMember = getViewableProject.use(
     }
 
     return next({ ctx: updatedCtx })
-
-    //   return next({ ctx: {
-    //     ...ctx,
-    //     session: ctx.session!,
-    //     member: ctx.member!,
-    //   } });
-    // })
   }
 )
-
-/*
-SELECT "public"."Project"."id", "public"."Project"."name", "public"."Project"."description", "public"."Project"."private", "public"."Project"."createdAt", "public"."Project"."updatedAt", "public"."Project"."namespaceId" 
-FROM "public"."Project" 
-WHERE ("public"."Project"."name" = $1 AND ("public"."Project"."id") IN (SELECT "t0"."id" FROM "public"."Project" AS "t0" INNER JOIN "public"."Namespace" AS "j0" ON ("j0"."id") = ("t0"."namespaceId") WHERE ("j0"."name" = $2 AND "t0"."id" IS NOT NULL))) LIMIT $3 OFFSET $4
-
-Params: ["Andrew","AndrewPublic",1,0]
-*/

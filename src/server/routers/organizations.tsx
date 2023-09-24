@@ -177,48 +177,6 @@ export const organizationsRouter = createTRPCRouter({
       // This had to manually be written as the old implementation produced over 15 SELECT statements.
       // Here, we return public projects, and projects the user was invited to
       return getProjectsWithInvitations(input.name, ctx.session.user.id)
-      // return ctx.prisma.$queryRaw`
-      // SELECT "Project".*, "Namespace"."name" as namespaceName
-      // FROM public."Project"
-      // INNER JOIN public."Namespace" ON "Namespace".id = "Project"."namespaceId"
-      // WHERE LOWER("Namespace"."name") = LOWER(${input.name})
-      // AND (
-      //     "Project".private = 'false'
-      //     OR EXISTS (
-      //         SELECT 1
-      //         FROM public."Member"
-      //         WHERE "Member"."projectId" = "Project".id
-      //         AND "Member"."userId" = ${ctx.session.user.id}
-      //         AND "Member"."acceptedAt" IS NOT NULL
-      //     )
-      // );
-      // `
-      // return ctx.prisma.project.findMany({
-      //   where: {
-      //     namespace: {
-      //       name: {
-      //         equals: input.name,
-      //         mode: 'insensitive',
-      //       },
-      //     },
-      //     OR: [
-      //       {
-      //         private: false,
-      //       },
-
-      //       {
-      //         members: {
-      //           some: {
-      //             acceptedAt: {
-      //               not: null,
-      //             },
-      //             userId: ctx.session.user.id,
-      //           },
-      //         },
-      //       },
-      //     ],
-      //   },
-      // })
     }),
 
   getMembers: publicProcedure
