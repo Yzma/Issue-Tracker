@@ -11,8 +11,8 @@ export default function NotFound() {
         <meta name="description" content="404 - Page not found" />
       </Head>
 
-      <div className="text-center px-4">
-        <div className="inline-flex mb-8">
+      <div className="px-4 text-center">
+        <div className="mb-8 inline-flex">
           <p className="text-9xl font-light text-gray-500">404</p>
         </div>
         <div className="mb-6">The requested page does not exist...</div>

@@ -20,7 +20,6 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next'
 import Link from 'next/link'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { getLayout } from '@/components/layout/DefaultLayout'
 
 type ProviderIcons = {
   [key in ClientSafeProvider['name']]: IconDefinition
@@ -44,24 +43,24 @@ export default function SignIn({
       </Head>
 
       <div className="relative md:flex">
-        <div className="md:w-1/2 relative">
+        <div className="relative md:w-1/2">
           <Link
             href="/"
             className={cn(
               buttonVariants({ variant: 'default' }),
-              'absolute left-10 top-4 md:left-8 md:top-8 w-20'
+              'absolute left-10 top-4 w-20 md:left-8 md:top-8'
             )}
           >
             Home
           </Link>
-          <div className="flex flex-col min-h-screen h-full">
-            <div className="flex-1 flex justify-center items-center">
-              <div className="mx-auto flex w-full flex-col justify-center text-center space-y-5 sm:w-[350px]">
-                <div className="flex flex-col space-y-3 text-center mb-4">
-                  <h1 className="text-3xl text-gray-800 font-semibold">
+          <div className="flex h-full min-h-screen flex-col">
+            <div className="flex flex-1 items-center justify-center">
+              <div className="mx-auto flex w-full flex-col justify-center space-y-5 text-center sm:w-[350px]">
+                <div className="mb-4 flex flex-col space-y-3 text-center">
+                  <h1 className="text-3xl font-semibold text-gray-800">
                     Sign in to Issue Tracker
                   </h1>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Use an OAuth provider below to login to your account
                   </p>
                 </div>
@@ -86,19 +85,19 @@ export default function SignIn({
                   return null
                 })}
                 <div className="mx-auto justify-center space-y-6 sm:w-[350px]">
-                  <div className="flex w-full flex-col px-8 text-center text-sm text-muted-foreground">
+                  <div className="text-muted-foreground flex w-full flex-col px-8 text-center text-sm">
                     By clicking continue, you agree to our{' '}
                     <div>
                       <Link
                         href="/terms"
-                        className="underline underline-offset-4 hover:text-primary"
+                        className="hover:text-primary underline underline-offset-4"
                       >
                         Terms of Service
                       </Link>{' '}
                       and{' '}
                       <Link
                         href="/privacy"
-                        className="underline underline-offset-4 hover:text-primary"
+                        className="hover:text-primary underline underline-offset-4"
                       >
                         Privacy Policy
                       </Link>
@@ -111,7 +110,7 @@ export default function SignIn({
           </div>
         </div>
 
-        <div className="relative flex flex-col md:w-1/2 p-9">
+        <div className="relative flex flex-col p-9 md:w-1/2">
           <Image
             className="absolute"
             src="/images/signinpage.jpg"
@@ -122,7 +121,7 @@ export default function SignIn({
               objectPosition: 'center',
             }}
           />
-          <div className="relative z-20 flex items-center text-lg text-green-400 font-bold mb-auto">
+          <div className="relative z-20 mb-auto flex items-center text-lg font-bold text-green-400">
             Issue Tracker
           </div>
 
@@ -144,8 +143,6 @@ export default function SignIn({
     </>
   )
 }
-
-SignIn.getLayout = getLayout
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getSession(context)

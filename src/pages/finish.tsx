@@ -7,6 +7,8 @@ import { useState } from 'react'
 import ConfettiExplosion from 'react-confetti-explosion'
 import { trpc } from '@/lib/trpc/trpc'
 import { NamespaceSchema } from '@/lib/zod-schemas'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 type SignUpSchemaType = z.infer<typeof NamespaceSchema>
 
@@ -46,16 +48,16 @@ export default function FinishUserCreation() {
         <div className="relative flex">
           {/* Content */}
           <div className="w-full">
-            <div className="min-h-screen h-full flex flex-col after:flex-1">
+            <div className="flex h-full min-h-screen flex-col after:flex-1">
               <div className="flex-3">
                 {/* Header */}
                 {!finishedSetupUsername && (
-                  <div className="flex items-center justify-end h-16 px-4 sm:px-6 lg:px-8">
+                  <div className="flex h-16 items-center justify-end px-4 sm:px-6 lg:px-8">
                     <div className="text-sm">
                       Have an account?{' '}
                       <Link
-                        className="font-medium text-indigo-500 hover:text-indigo-600"
-                        href="/"
+                        className="font-medium text-green-500 "
+                        href="/login"
                       >
                         Sign In
                       </Link>
@@ -65,30 +67,33 @@ export default function FinishUserCreation() {
 
                 {/* Progress bar */}
                 <div className="px-4 pt-12 pb-8">
-                  <div className="max-w-md mx-auto w-full">
+                  <div className="mx-auto w-full max-w-md">
                     <div className="relative">
                       <div
-                        className="absolute left-0 top-1/2 -mt-px w-full h-0.5 bg-slate-200"
+                        className="absolute left-0 top-1/2 -mt-px h-0.5 w-full bg-slate-200"
                         aria-hidden="true"
                       />
-                      <ul className="relative flex justify-between w-full">
+                      <ul className="relative flex w-full justify-between">
                         <li>
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold bg-indigo-500 text-white">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-800 text-xs font-semibold text-white">
                             1
                           </div>
                         </li>
                         <li>
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold bg-indigo-500 text-white">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-800 text-xs font-semibold text-white">
                             2
                           </div>
                         </li>
                         <li>
                           <div
-                            className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${
-                              !finishedSetupUsername
-                                ? 'bg-slate-300'
-                                : 'bg-indigo-500 text-white'
-                            }  text-slate-500`}
+                            className={cn(
+                              'flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold text-slate-500',
+                              {
+                                [`bg-gray-800 text-white`]:
+                                  finishedSetupUsername,
+                                [`bg-slate-300`]: !finishedSetupUsername,
+                              }
+                            )}
                           >
                             3
                           </div>
@@ -100,10 +105,10 @@ export default function FinishUserCreation() {
               </div>
 
               <div className="px-4 py-8">
-                <div className="max-w-md mx-auto">
+                <div className="mx-auto max-w-md">
                   {finishedSetupUsername ? (
                     <>
-                      <h1 className="text-3xl text-slate-800 font-bold mb-5 text-center">
+                      <h1 className="mb-5 text-center text-3xl font-bold text-slate-800">
                         Welcome to Issue Tracker, {finishedSetupUsername}!
                       </h1>
                       <div className="text-center">
@@ -113,17 +118,19 @@ export default function FinishUserCreation() {
                             href="/"
                             onClick={() => window.location.reload()}
                           >
-                            <span className="btn bg-indigo-500 hover:bg-indigo-600 text-white ml-auto mt-5 text">
-                              <ConfettiExplosion />
-                              Finished!
-                            </span>
+                            <Button className="mt-6" asChild>
+                              <div>
+                                Finished!
+                                <ConfettiExplosion />
+                              </div>
+                            </Button>
                           </Link>
                         </div>
                       </div>
                     </>
                   ) : (
                     <>
-                      <h1 className="text-3xl text-slate-800 font-bold mb-9 text-center">
+                      <h1 className="mb-9 text-center text-3xl font-bold text-slate-800">
                         Finalize Profile
                       </h1>
 
@@ -131,27 +138,27 @@ export default function FinishUserCreation() {
                       <form onSubmit={handleSubmit(onSubmit)}>
                         {errors.name?.message && (
                           <div className="py-3">
-                            <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                            <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
                               <div>You must enter a valid username!</div>
                             </div>
                           </div>
                         )}
                         {errors.root && (
                           <div className="py-3">
-                            <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                            <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
                               <div>{errors.root.message}</div>
                             </div>
                           </div>
                         )}
                         <div>
                           <label
-                            className="block text-sm font-medium mb-1"
+                            className="mb-1 block text-sm font-medium"
                             htmlFor="name"
                           >
                             Username
                             <span className="text-rose-500">*</span>
                             <input
-                              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                              className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
                               type="text"
                               // eslint-disable-next-line react/jsx-props-no-spreading
                               {...register('name')}
@@ -168,13 +175,9 @@ export default function FinishUserCreation() {
                           </Link>
 
                           <div className="mt-3">
-                            <button
-                              className="btn bg-indigo-500 hover:bg-indigo-600 text-white ml-auto"
-                              type="submit"
-                              disabled={isSubmitting}
-                            >
+                            <Button type="submit" disabled={isSubmitting}>
                               Finish Registration
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </form>
