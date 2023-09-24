@@ -41,7 +41,7 @@ export default function ProjectCreate() {
       )
       .catch((error) => {
         setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
-        console.log('ERROR:', error) // TODO: remove this
+        // console.log('ERROR:', error) // TODO: remove this
       })
   }
 
@@ -73,10 +73,10 @@ export default function ProjectCreate() {
       </Head>
 
       <DefaultLayout>
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col items-center justify-center">
           <div>
             <div className="border-b border-gray-300 pb-2">
-              <h2 className="text-3xl leading-snug text-slate-800 font-bold mb-1">
+              <h2 className="mb-1 text-3xl font-bold leading-snug text-slate-800">
                 Create a new project
               </h2>
               <div className="font-semibold">
@@ -84,21 +84,21 @@ export default function ProjectCreate() {
               </div>
             </div>
 
-            <div className="sm:flex sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <div className="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-4">
               {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
               <form onSubmit={handleSubmit(onSubmit)}>
                 {errors.name?.message && (
                   <div className="py-3">
-                    <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                    <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
                       <div>You must enter a valid username!</div>
                     </div>
                   </div>
                 )}
 
-                <section className="flex flex-row py-4 border-b border-gray-300">
+                <section className="flex flex-row border-b border-gray-300 py-4">
                   <div className="sm:w-1/3">
                     <label
-                      className="block text-sm font-medium mb-1"
+                      className="mb-1 block text-sm font-medium"
                       htmlFor="owner"
                     >
                       Owner <span className="text-rose-500">*</span>
@@ -112,13 +112,13 @@ export default function ProjectCreate() {
                     </label>
                   </div>
 
-                  <div className="auto-cols-auto pt-6 font-semibold text-2xl px-3">
+                  <div className="auto-cols-auto px-3 pt-6 text-2xl font-semibold">
                     /
                   </div>
 
-                  <div className="sm:w-1/3 grow">
+                  <div className="grow sm:w-1/3">
                     <label
-                      className="block text-sm font-medium mb-1"
+                      className="mb-1 block text-sm font-medium"
                       htmlFor="name"
                     >
                       Project Name <span className="text-rose-500">*</span>
@@ -132,15 +132,15 @@ export default function ProjectCreate() {
                   </div>
                 </section>
 
-                <section className="py-4 border-b border-gray-300">
-                  <div className="flex align-middle mb-1 leading-snug gap-x-1">
-                    <h2 className="text-xl text-slate-800 font-bold">
+                <section className="border-b border-gray-300 py-4">
+                  <div className="mb-1 flex gap-x-1 align-middle leading-snug">
+                    <h2 className="text-xl font-bold text-slate-800">
                       Description
                     </h2>
                     <p className="pt-1 font-thin">(optional)</p>
                   </div>
 
-                  <div className="flex flex-wrap mt-5 grow">
+                  <div className="mt-5 flex grow flex-wrap">
                     <div className="mr-2 grow">
                       <input
                         className="form-input w-full"
@@ -152,12 +152,12 @@ export default function ProjectCreate() {
                   </div>
                 </section>
 
-                <section className="py-4 border-b border-gray-300">
-                  <h2 className="text-xl leading-snug text-slate-800 font-bold mb-4">
+                <section className="border-b border-gray-300 py-4">
+                  <h2 className="mb-4 text-xl font-bold leading-snug text-slate-800">
                     Visibility
                   </h2>
 
-                  <div className="flex flew-row gap-x-4 items-center pb-3">
+                  <div className="flew-row flex items-center gap-x-4 pb-3">
                     <input
                       // eslint-disable-next-line react/jsx-props-no-spreading
                       {...register('visibility')}
@@ -174,7 +174,7 @@ export default function ProjectCreate() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex flew-row gap-x-4 items-center">
+                  <div className="flew-row flex items-center gap-x-4">
                     <input
                       // eslint-disable-next-line react/jsx-props-no-spreading
                       {...register('visibility')}
@@ -194,7 +194,7 @@ export default function ProjectCreate() {
                   </div>
                 </section>
 
-                <div className="flex flex-col py-5 border-t border-slate-200">
+                <div className="flex flex-col border-t border-slate-200 py-5">
                   <div className="flex self-end">
                     <Button type="submit" disabled={isSubmitting}>
                       Create Project

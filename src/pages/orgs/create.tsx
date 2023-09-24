@@ -35,7 +35,7 @@ export default function OrganizationCreate() {
       .then((response) => router.push(`/${response.name}`))
       .catch((error) => {
         // setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
-        console.log('ERROR:', error)
+        // console.log('ERROR:', error)
       })
   }
   return (
@@ -44,20 +44,20 @@ export default function OrganizationCreate() {
         <title>Create a new Organization</title>
       </Head>
       <DefaultLayout>
-        <main className="flex flex-col justify-center items-center pt-6 mt-6">
-          <div className="text-center mb-6">
+        <main className="mt-6 flex flex-col items-center justify-center pt-6">
+          <div className="mb-6 text-center">
             <div className="text-sm">Tell us about your organization</div>
-            <h1 className="text-3xl leading-snug text-slate-800 font-semibold mb-2">
+            <h1 className="mb-2 text-3xl font-semibold leading-snug text-slate-800">
               Set up your organization
             </h1>
           </div>
 
-          <div className="w-2/5 space-y-4 mt-4">
+          <div className="mt-4 w-2/5 space-y-4">
             {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
             <form onSubmit={handleSubmit(onSubmit)}>
               {errors.name?.message && (
                 <div className="py-3">
-                  <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
+                  <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
                     <div>You must enter a valid organization name!</div>
                   </div>
                 </div>
@@ -65,12 +65,12 @@ export default function OrganizationCreate() {
 
               <div>
                 <label
-                  className="block text-sm font-medium mb-1"
+                  className="mb-1 block text-sm font-medium"
                   htmlFor="name"
                 >
                   Organization Name <span className="text-rose-500">*</span>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
                     type="text"
                     // eslint-disable-next-line react/jsx-props-no-spreading
                     {...register('name')}
@@ -78,7 +78,7 @@ export default function OrganizationCreate() {
                 </label>
               </div>
 
-              <div className="text-sm pt-2">
+              <div className="pt-2 text-sm">
                 <p>This will be the name of your account on Issue Tracker.</p>
                 <p>
                   Your URL will be: https://issue-tracker.com/{organizationName}

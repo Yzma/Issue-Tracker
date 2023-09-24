@@ -89,9 +89,9 @@ export default function ProjectSettings({
     })
   }
 
-  function toggleVisibility() {}
+  function toggleVisibility() { }
 
-  function deleteProject() {}
+  function deleteProject() { }
 
   return (
     <>
@@ -100,8 +100,8 @@ export default function ProjectSettings({
       </Head>
 
       <div className="flex flex-col items-center">
-        <div className="md:w-11/12 space-y-6">
-          <div className="space-y-0.5 w-full pb-2 border-b">
+        <div className="space-y-6 md:w-11/12">
+          <div className="w-full space-y-0.5 border-b pb-2">
             <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
             <p className="text-muted-foreground">
               Manage your project settings
@@ -159,7 +159,7 @@ export default function ProjectSettings({
             <div className="flex flex-col space-y-6">
               <div className="flex flex-row justify-between">
                 <div>
-                  <p className="font-bold text-2xl">Change Visibility</p>
+                  <p className="text-2xl font-bold">Change Visibility</p>
                   <p>
                     The project is currently{' '}
                     <span className="font-bold">
@@ -188,7 +188,7 @@ export default function ProjectSettings({
 
               <div className="flex flex-row justify-between">
                 <div>
-                  <p className="font-bold text-2xl">Delete Project</p>
+                  <p className="text-2xl font-bold">Delete Project</p>
                   <p>Delete the project and all issues associated with it.</p>
                 </div>
                 <DropdownMenu>
