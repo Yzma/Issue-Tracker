@@ -1,4 +1,4 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=fallback'); */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,3 +6,7 @@
 @import 'utility-patterns.css';
 
 @tailwind utilities;
+
+html {
+  font-family: Inter, system-ui, sans-serif;
+}
