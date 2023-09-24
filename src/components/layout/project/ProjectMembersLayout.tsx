@@ -1,5 +1,5 @@
 import { trpc } from '@/lib/trpc/trpc'
-import { SidebarNav } from '@/components/sidebar/MembersSidebar'
+import { SidebarNav } from '@/components/sidebar/SidebarNav'
 import ProjectLayout from './ProjectLayout'
 import { ProjectLayoutPageProps, ProjectMemberLayoutProps } from './types'
 
@@ -15,7 +15,7 @@ export default function ProjectMembersLayout({
   return (
     <div className="space-y-6 p-10 pb-16 md:block">
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-        <aside className="flex flex-col gap-y-4 -mx-4 lg:w-1/5">
+        <aside className="-mx-4 flex flex-col gap-y-4 lg:w-1/5">
           <SidebarNav
             items={[
               {
