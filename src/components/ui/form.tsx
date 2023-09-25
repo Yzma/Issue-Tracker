@@ -19,7 +19,7 @@ const Form = FormProvider
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
   name: TName
 }
@@ -38,7 +38,7 @@ const FormItemContext = React.createContext<FormItemContextValue>(
 
 function FormField<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({ ...props }: ControllerProps<TFieldValues, TName>) {
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
@@ -167,6 +167,24 @@ const FormMessage = React.forwardRef<
 })
 FormMessage.displayName = 'FormMessage'
 
+const FormRequiredField = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className }, ref) => {
+  return (
+    <span
+      ref={ref}
+      className={cn(
+        'text-sm font-medium text-red-500 dark:text-red-900',
+        className
+      )}
+    >
+      *
+    </span>
+  )
+})
+FormRequiredField.displayName = 'FormRequiredField'
+
 export {
   useFormField,
   Form,
@@ -176,4 +194,5 @@ export {
   FormDescription,
   FormMessage,
   FormField,
+  FormRequiredField,
 }
