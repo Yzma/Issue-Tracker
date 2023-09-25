@@ -9,21 +9,29 @@ import { trpc } from '@/lib/trpc/trpc'
 import { NamespaceSchema } from '@/lib/zod-schemas'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormRequiredField,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
 type SignUpSchemaType = z.infer<typeof NamespaceSchema>
 
 export default function FinishUserCreation() {
   const [finishedSetupUsername, setFinishedSetupUsername] = useState<
     string | undefined
-  >(undefined)
+  >()
 
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<SignUpSchemaType>({
+  const form = useForm<SignUpSchemaType>({
     resolver: zodResolver(NamespaceSchema),
+    defaultValues: {
+      name: '',
+    },
   })
 
   const submitUserMutation = trpc.onboarding.submitUsername.useMutation({
@@ -31,7 +39,7 @@ export default function FinishUserCreation() {
       setFinishedSetupUsername(data.username)
     },
     onError: (error) => {
-      setError('root', { type: 'custom', message: error.message })
+      form.setError('name', { type: 'custom', message: error.message })
     },
   })
 
@@ -133,54 +141,49 @@ export default function FinishUserCreation() {
                       <h1 className="mb-9 text-center text-3xl font-bold text-slate-800">
                         Finalize Profile
                       </h1>
+                      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+                      <Form {...form}>
+                        {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
+                        <form onSubmit={form.handleSubmit(onSubmit)}>
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem className="w-full">
+                                <FormLabel>
+                                  Username <FormRequiredField />
+                                </FormLabel>
+                                <FormControl>
+                                  {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+                                  <Input {...field} className="py-0" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                      {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-                      <form onSubmit={handleSubmit(onSubmit)}>
-                        {errors.name?.message && (
-                          <div className="py-3">
-                            <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
-                              <div>You must enter a valid username!</div>
+                          <div className="flex items-center justify-between">
+                            <Link
+                              className="text-sm underline hover:no-underline"
+                              href="/"
+                            >
+                              &lt;- Exit
+                            </Link>
+
+                            <div className="mt-3">
+                              <Button
+                                type="submit"
+                                disabled={
+                                  form.formState.isSubmitting ||
+                                  submitUserMutation.isSuccess
+                                }
+                              >
+                                Finish Registration
+                              </Button>
                             </div>
                           </div>
-                        )}
-                        {errors.root && (
-                          <div className="py-3">
-                            <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
-                              <div>{errors.root.message}</div>
-                            </div>
-                          </div>
-                        )}
-                        <div>
-                          <label
-                            className="mb-1 block text-sm font-medium"
-                            htmlFor="name"
-                          >
-                            Username
-                            <span className="text-rose-500">*</span>
-                            <input
-                              className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                              type="text"
-                              // eslint-disable-next-line react/jsx-props-no-spreading
-                              {...register('name')}
-                            />
-                          </label>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <Link
-                            className="text-sm underline hover:no-underline"
-                            href="/"
-                          >
-                            &lt;- Exit
-                          </Link>
-
-                          <div className="mt-3">
-                            <Button type="submit" disabled={isSubmitting}>
-                              Finish Registration
-                            </Button>
-                          </div>
-                        </div>
-                      </form>
+                        </form>
+                      </Form>
                     </>
                   )}
                 </div>
