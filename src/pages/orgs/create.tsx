@@ -8,6 +8,16 @@ import { trpc } from '@/lib/trpc/trpc'
 import { NamespaceSchema } from '@/lib/zod-schemas'
 import DefaultLayout from '@/components/ui/DefaultLayout'
 import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormRequiredField,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
 type OrganizationCreationType = z.infer<typeof NamespaceSchema>
 
@@ -15,17 +25,16 @@ export default function OrganizationCreate() {
   const router = useRouter()
   const createOrganizationMutation =
     trpc.organizations.createOrganization.useMutation()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    control,
-  } = useForm<OrganizationCreationType>({
+
+  const form = useForm<OrganizationCreationType>({
     resolver: zodResolver(NamespaceSchema),
+    defaultValues: {
+      name: '',
+    },
   })
 
   const organizationName = useWatch({
-    control,
+    control: form.control,
     name: 'name',
   })
 
@@ -33,9 +42,12 @@ export default function OrganizationCreate() {
     createOrganizationMutation
       .mutateAsync(data)
       .then((response) => router.push(`/${response.name}`))
-      .catch((error) => {
-        // setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
-        // console.log('ERROR:', error)
+      .catch(() => {
+        form.setError('name', {
+          type: 'custom',
+          message:
+            'Failed to create project. Please contact support if the error persists.',
+        })
       })
   }
   return (
@@ -46,51 +58,58 @@ export default function OrganizationCreate() {
       <DefaultLayout>
         <main className="mt-6 flex flex-col items-center justify-center pt-6">
           <div className="mb-6 text-center">
-            <div className="text-sm">Tell us about your organization</div>
+            <p>Tell us about your organization</p>
             <h1 className="mb-2 text-3xl font-semibold leading-snug text-slate-800">
               Set up your organization
             </h1>
           </div>
 
           <div className="mt-4 w-2/5 space-y-4">
-            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-            <form onSubmit={handleSubmit(onSubmit)}>
-              {errors.name?.message && (
-                <div className="py-3">
-                  <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
-                    <div>You must enter a valid organization name!</div>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label
-                  className="mb-1 block text-sm font-medium"
-                  htmlFor="name"
-                >
-                  Organization Name <span className="text-rose-500">*</span>
-                  <input
-                    className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-                    type="text"
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...register('name')}
+            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+            <Form {...form}>
+              {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>
+                          Organization Name <FormRequiredField />
+                        </FormLabel>
+                        <FormControl>
+                          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+                          <Input {...field} className="py-0" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </label>
-              </div>
+                </div>
 
-              <div className="pt-2 text-sm">
-                <p>This will be the name of your account on Issue Tracker.</p>
-                <p>
-                  Your URL will be: https://issue-tracker.com/{organizationName}
-                </p>
-              </div>
+                <div className="pt-2 text-sm">
+                  <p>This will be the name of your account on Issue Tracker.</p>
+                  <p>
+                    Your URL will be: https://issue-tracker.com/
+                    {organizationName}
+                  </p>
+                </div>
 
-              <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={isSubmitting}>
-                  Create Organization
-                </Button>
-              </div>
-            </form>
+                <div className="flex justify-end pt-4">
+                  <Button
+                    type="submit"
+                    disabled={
+                      form.formState.isSubmitting ||
+                      createOrganizationMutation.isLoading ||
+                      createOrganizationMutation.isSuccess
+                    }
+                  >
+                    Create Organization
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </div>
         </main>
       </DefaultLayout>
