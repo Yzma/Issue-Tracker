@@ -114,6 +114,40 @@ export const usersRouter = createTRPCRouter({
     })
   }),
 
+  acceptInvite: privateProcedure
+    .input(
+      z.object({
+        inviteId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.member.update({
+        where: {
+          id: input.inviteId,
+          userId: ctx.session.user.id,
+        },
+
+        data: {
+          acceptedAt: new Date(),
+        },
+      })
+    }),
+
+  deleteInvite: privateProcedure
+    .input(
+      z.object({
+        inviteId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.member.delete({
+        where: {
+          id: input.inviteId,
+          userId: ctx.session.user.id,
+        },
+      })
+    }),
+
   getOrganizations: privateProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id
     return ctx.prisma.$queryRaw<{ name: string }[]>`
