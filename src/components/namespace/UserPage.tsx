@@ -15,7 +15,7 @@ export default function UserPage({ username }: { username: string }) {
   })
 
   return (
-    <div className="md:flex gap-x-7 px-2">
+    <div className="gap-x-7 px-2 md:flex">
       <UserProfileContextProvider username={username}>
         <MemoizedProfileContainer />
       </UserProfileContextProvider>

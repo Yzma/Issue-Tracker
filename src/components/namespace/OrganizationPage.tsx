@@ -17,7 +17,7 @@ function OrganizationPage({ organizationName }: { organizationName: string }) {
   })
 
   return (
-    <div className="md:flex gap-x-7 px-3 ">
+    <div className="gap-x-7 px-3 md:flex ">
       <div className="w-full">
         {getOrganizationProjectsQuery.isLoading ||
         !getOrganizationProjectsQuery.data ? (

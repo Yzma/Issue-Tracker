@@ -9,17 +9,17 @@ type ProjectItemProps = {
 
 export default function ProjectItem({ project }: ProjectItemProps) {
   return (
-    <div className="flex flex-col gap-y-1 py-6 border-gray-300 border-b mx-auto w-full">
+    <div className="mx-auto flex w-full flex-col gap-y-1 border-b border-gray-300 py-6">
       <div className="flex gap-x-1.5">
         <Link
           href={`/${project.namespace}/${project.name}`}
-          className="inline text-2xl text-blue-600 hover:text-blue-900 hover:cursor-pointer hover:underline pr-1"
+          className="inline pr-1 text-2xl text-blue-600 hover:cursor-pointer hover:text-blue-900 hover:underline"
         >
           {project.name}
         </Link>
 
-        <div className="flex align-middle pt-2">
-          <Badge className="bg-gray-700 h-5">
+        <div className="flex pt-2 align-middle">
+          <Badge className="h-5 bg-gray-700">
             {project.private ? <>Private</> : <>Public</>}
           </Badge>
         </div>
