@@ -15,9 +15,9 @@ export default function ProfileContainer() {
   return (
     <div className="flex flex-col gap-y-3">
       <div className="flex items-center justify-center">
-        <Avatar className="w-72 h-72">
+        <Avatar className="h-72 w-72">
           <AvatarImage src={profile.image} className="mb-4 rounded-full" />
-          <AvatarFallback className="mb-4 rounded-full w-72 h-72 text-8xl border bg-slate-300">
+          <AvatarFallback className="mb-4 h-72 w-72 rounded-full border bg-slate-300 text-8xl">
             {profile.username.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -30,7 +30,7 @@ export default function ProfileContainer() {
       )}
 
       <MemoizedUserSocialLinks links={profile.socialLinks} />
-      <div className="border-gray-300 border-t mx-auto w-full pt-3 hidden md:block">
+      <div className="mx-auto hidden w-full border-t border-gray-300 pt-3 md:block">
         {getUserOrganizationsQuery.data && (
           <MemoizedUsersOrganizationsSection
             organizations={getUserOrganizationsQuery.data}

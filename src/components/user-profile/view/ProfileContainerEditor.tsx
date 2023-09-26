@@ -18,16 +18,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
-// const ModifiedSocialLinksSchema = UserProfileSchema.extend({
-//   socialLinks: z.array(
-//     z.object({
-//       link: z.string().url().optional().or(z.string()),
-//     })
-//   ),
-// })
-
-// type ModifiedSocialLinksSchemaType = z.infer<typeof ModifiedSocialLinksSchema>
-
 const profileFormSchema = z.object({
   bio: z.string().max(150, {
     message: 'Your bio must be 150 characters or less.',
@@ -92,8 +82,7 @@ export default function ProfileContainerEditor() {
       setEditing(false)
     },
 
-    onError: (error) => {
-      console.log('ERROR: ', error)
+    onError: () => {
       form.setError('root', {
         type: 'custom',
         message: 'Error saving user settings. Please try again.',
@@ -108,7 +97,6 @@ export default function ProfileContainerEditor() {
         return e?.value ? e.value : ''
       }),
     }
-    console.log('onSubmit: ', mappedSubmitData)
     return updateProfileMutation.mutate(mappedSubmitData)
   }
 
@@ -130,7 +118,7 @@ export default function ProfileContainerEditor() {
                     <FormLabel>Bio</FormLabel>
                     <FormControl>
                       <Textarea
-                        className="w-full max-h-44"
+                        className="max-h-44 w-full"
                         placeholder="Add a bio"
                         {...field}
                       />
@@ -160,16 +148,6 @@ export default function ProfileContainerEditor() {
                   />
                 ))}
               </div>
-
-              {/* <div className="flex flex-col gap-y-0 text-left">
-              {errors.bio?.message && (
-                <div className="py-3">
-                  <div className="flex w-full px-4 py-2 rounded-sm text-sm border bg-rose-100 border-rose-200 text-rose-600">
-                    <div>You must enter a valid bio!</div>
-                  </div>
-                </div>
-              )}
-             */}
               <div className="flex flex-row gap-x-1">
                 <Button
                   size="sm"
