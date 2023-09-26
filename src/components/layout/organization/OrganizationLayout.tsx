@@ -45,6 +45,7 @@ export default function OrganizationLayout({
       underHeader={
         <OrganizationBelowNavbar
           namespaceName={organizationName}
+          creationDate={organizationMembersQuery.data?.createdAt as Date}
           menuItems={menuItems}
           variant={variant}
         />
