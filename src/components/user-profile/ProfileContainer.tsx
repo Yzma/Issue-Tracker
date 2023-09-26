@@ -9,8 +9,12 @@ import { MemoizedProfileContainerEditor } from './view/ProfileContainerEditor'
 import ProfileContainerViewer from './view/ProfileContainerViewer'
 
 export default function ProfileContainer() {
-  const getUserOrganizationsQuery = trpc.users.getOrganizations.useQuery()
   const { editing, profile } = useUserProfile()
+  const getUserOrganizationsQuery = trpc.users.getUsersOrganizations.useQuery({
+    name: profile.username,
+  })
+
+  console.log('Profile: ', profile)
 
   return (
     <div className="flex flex-col gap-y-3">

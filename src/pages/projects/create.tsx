@@ -41,7 +41,7 @@ export default function ProjectCreate() {
   const router = useRouter()
 
   const createProjectMutation = trpc.projects.create.useMutation()
-  const userOrganizations = trpc.users.getOrganizations.useQuery()
+  const userOrganizations = trpc.users.getOwnOrganizations.useQuery()
   const { data: session } = useSession()
 
   const form = useForm<ProjectCreationType>({
@@ -282,7 +282,7 @@ export default function ProjectCreate() {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const helpers = await ssrHelper(context)
-  return helpers.users.getOrganizations
+  return helpers.users.getOwnOrganizations
     .prefetch()
     .then(() => {
       return {

@@ -150,7 +150,7 @@ export const usersRouter = createTRPCRouter({
       })
     }),
 
-  getOrganizations: privateProcedure.query(async ({ ctx }) => {
+  getOwnOrganizations: privateProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id
     return ctx.prisma.$queryRaw<{ name: string }[]>`
     SELECT "Organization".name
@@ -158,6 +158,17 @@ export const usersRouter = createTRPCRouter({
     INNER JOIN public."Member" ON "Member"."organizationId" = "Organization"."id"
     WHERE "Member"."userId" = ${userId};`
   }),
+
+  getUsersOrganizations: publicProcedure
+    .input(NamespaceSchema)
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.$queryRaw<{ name: string }[]>`
+        SELECT "Organization".name
+        FROM public."Organization"
+        INNER JOIN public."Member" ON "Member"."organizationId" = "Organization"."id"
+        INNER JOIN public."User" ON "Member"."userId" = "User"."id"
+        WHERE "User"."username" = ${input.name}`
+    }),
 
   getProjects: publicProcedure
     .input(
