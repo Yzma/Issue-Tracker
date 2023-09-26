@@ -40,14 +40,6 @@ export default function UserProfileContextProvider({
   const [profile, setProfile] = useState<UserProfile>(() => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const userData = getUserQuery.data!
-    // const remainingSocialLinksLength = 4 - (userData.socialLinks.length || 0)
-    // const socialLinks = userData.socialLinks.concat(
-    //   Array(remainingSocialLinksLength).fill('', 0, remainingSocialLinksLength)
-    // )
-    // return {
-    //   ...userData,
-    // } as UserProfile
-
     return userData as UserProfile
   })
   const [editing, setEditing] = useState(false)

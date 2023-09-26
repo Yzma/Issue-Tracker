@@ -1,8 +1,10 @@
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { useUserProfile } from '@/hooks/useUserProfile'
 
 export default function ProfileContainerViewer() {
   const { setEditing, profile } = useUserProfile()
+  const { data: session, status } = useSession()
   return (
     <div className="relative">
       <div className="flex flex-col">
@@ -12,27 +14,21 @@ export default function ProfileContainerViewer() {
           </div>
 
           <div className="flex flex-col gap-y-2">
-            <p className="text-gray-500 py-2">
+            <p className="py-2 text-gray-500">
               {profile.bio ||
                 'This is a random bio, nothing of value here. Move on.'}
             </p>
 
-            <Button
-              type="button"
-              variant="default"
-              onClick={() => setEditing(true)}
-            >
-              Edit Profile
-            </Button>
-            {/* {session?.user.namespace.name === profile.username && (
-              <Button
-                type="button"
-                variant="default"
-                onClick={() => setEditing(true)}
-              >
-                Edit Profile
-              </Button>
-            )} */}
+            {status === 'authenticated' &&
+              session.user.namespace.name === profile.username && (
+                <Button
+                  type="button"
+                  variant="default"
+                  onClick={() => setEditing(true)}
+                >
+                  Edit Profile
+                </Button>
+              )}
           </div>
         </div>
       </div>

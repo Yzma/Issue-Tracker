@@ -68,7 +68,7 @@ export default function UserSocialLinks({ links }: SocialLinks) {
   }
 
   return (
-    <div className="flex flex-col space-y-2 mb-2">
+    <div className="mb-2 flex flex-col space-y-2">
       {links
         .filter((e) => e) // TODO: Is this needed?
         .map((link) => {
