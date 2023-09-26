@@ -125,6 +125,7 @@ export const usersRouter = createTRPCRouter({
         where: {
           id: input.inviteId,
           userId: ctx.session.user.id,
+          acceptedAt: null,
         },
 
         data: {
@@ -144,6 +145,7 @@ export const usersRouter = createTRPCRouter({
         where: {
           id: input.inviteId,
           userId: ctx.session.user.id,
+          acceptedAt: null,
         },
       })
     }),
