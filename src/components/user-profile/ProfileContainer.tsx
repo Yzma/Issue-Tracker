@@ -14,8 +14,6 @@ export default function ProfileContainer() {
     name: profile.username,
   })
 
-  console.log('Profile: ', profile)
-
   return (
     <div className="flex flex-col gap-y-3">
       <div className="flex items-center justify-center">
