@@ -11,10 +11,10 @@ export default function DefaultLayout({
 }: DefaultLayoutProps) {
   return (
     <div className="flex h-screen overflow-hidden">
-      <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
         <Header />
         {underHeader !== undefined && underHeader}
-        <main className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+        <main className="max-w-9xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
           {children}
         </main>
       </div>
