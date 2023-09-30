@@ -103,11 +103,13 @@ export default function Header() {
                       sideOffset={5}
                       side="top"
                     >
-                      <Link href={`/${session.user.namespace.name}`}>
+                      {/* There doesn't seem to be a way to full refresh when redirecting, Next.js serves a cached version.
+                      If your on a users profile and use this button, the data from the last profile will be displayed. */}
+                      <a href={`/${session.user.namespace.name}`}>
                         <DropdownMenuItem className="group relative flex h-[25px] select-none items-center rounded-[3px] px-[5px] pl-[25px] text-[13px] leading-none outline-none hover:cursor-pointer">
                           Profile
                         </DropdownMenuItem>
-                      </Link>
+                      </a>
                       <Link href="/issues">
                         <DropdownMenuItem className="group relative flex h-[25px] select-none items-center rounded-[3px] px-[5px] pl-[25px] text-[13px] leading-none outline-none hover:cursor-pointer">
                           Issues
