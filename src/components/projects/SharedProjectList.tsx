@@ -90,6 +90,19 @@ export default function SharedProjectList({
                   </DropdownMenuContent>
                 </DropdownMenuPortal>
               </DropdownMenu>
+
+              {createProjectLink && (
+                <ProjectListInputButton asChild>
+                  <Link href={createProjectLink}>
+                    <FontAwesomeIcon
+                      size="lg"
+                      icon={faBookBookmark}
+                      className="pr-3"
+                    />
+                    New
+                  </Link>
+                </ProjectListInputButton>
+              )}
             </ProjectListHeader>
           )}
           {projects &&
