@@ -24,7 +24,7 @@ export default function UserPage({ username }: UserPageProps) {
         <SharedProjectList
           loading={getUsersProjectsQuery.isLoading}
           createProjectLink={
-            username === session?.user.name ? '/new' : undefined
+            username === session?.user.name ? '/projects/create' : undefined
           }
           projects={getUsersProjectsQuery.data as ProjectListProjectItem[]}
         />

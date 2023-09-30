@@ -25,7 +25,7 @@ export default function OrganizationPage({
           loading={getOrganizationProjectsQuery.isLoading}
           createProjectLink={
             getOrganizationQuery.data?.members !== undefined
-              ? `/new?owner=${getOrganizationQuery.data?.name}`
+              ? `/projects/create?owner=${getOrganizationQuery.data?.name}`
               : undefined
           }
           projects={
