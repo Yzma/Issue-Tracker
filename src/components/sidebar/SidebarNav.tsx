@@ -4,14 +4,7 @@ import { usePathname } from 'next/navigation'
 import { Slot } from '@radix-ui/react-slot'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
-
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
-  items: {
-    href: string
-    title: string
-    shouldRender?: boolean
-  }[]
-}
+import { SidebarNavProps } from './types'
 
 export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
   const pathname = usePathname()
