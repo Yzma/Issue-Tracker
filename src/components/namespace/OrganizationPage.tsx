@@ -1,10 +1,12 @@
 import React from 'react'
-import Link from 'next/link'
-import ProjectList from '../projects/ProjectList'
-import { Button } from '../ui/button'
 import { trpc } from '@/lib/trpc/trpc'
+import { OrganizationPageProps } from './types'
+import SharedProjectList from '../projects/SharedProjectList'
+import { ProjectListProjectItem } from '../projects/types'
 
-function OrganizationPage({ organizationName }: { organizationName: string }) {
+export default function OrganizationPage({
+  organizationName,
+}: OrganizationPageProps) {
   // This was fetched in getServerSideProps and will be available from the start
   const getOrganizationQuery =
     trpc.organizations.getOrganizationNonEnsure.useQuery({
@@ -19,25 +21,18 @@ function OrganizationPage({ organizationName }: { organizationName: string }) {
   return (
     <div className="gap-x-7 px-3 md:flex ">
       <div className="w-full">
-        {getOrganizationProjectsQuery.isLoading ||
-        !getOrganizationProjectsQuery.data ? (
-          // TODO: Loading
-          <>Loading organization projects...</>
-        ) : (
-          <ProjectList
-            projects={getOrganizationProjectsQuery.data}
-            projectCreationButton={
-              getOrganizationQuery.data?.members !== undefined ? (
-                <Button size="sm" asChild className="flex w-[7.5rem]">
-                  <Link href="/projects/create">Create Project</Link>
-                </Button>
-              ) : undefined
-            }
-          />
-        )}
+        <SharedProjectList
+          loading={getOrganizationProjectsQuery.isLoading}
+          createProjectLink={
+            getOrganizationQuery.data?.members !== undefined
+              ? `/new?owner=${getOrganizationQuery.data?.name}`
+              : undefined
+          }
+          projects={
+            getOrganizationProjectsQuery.data as ProjectListProjectItem[]
+          }
+        />
       </div>
     </div>
   )
 }
-
-export default OrganizationPage
