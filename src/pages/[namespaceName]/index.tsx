@@ -45,9 +45,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const helpers = await ssrHelper(context)
 
-  // TODO: Rename getNamespaceTEST
   // TODO: Do we even need to call getNamespace: Technically no, we can just fetch getUser first, if thats not found, fetch getOrganization. And if that isn't found, then 404.
-  return helpers.namespace.getNamespaceTEST
+  return helpers.namespace.getNamespace
     .fetch({
       name: namespaceName,
     })
@@ -75,7 +74,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       }
 
       // Organization
-      // TODO: Rename getOrganizationLayout
       return helpers.organizations.getOrganization
         .fetch({
           name: namespaceName,
