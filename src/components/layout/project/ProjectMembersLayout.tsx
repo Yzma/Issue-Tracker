@@ -1,14 +1,14 @@
-import { trpc } from '@/lib/trpc/trpc'
 import { SidebarNav } from '@/components/sidebar/SidebarNav'
 import ProjectLayout from './ProjectLayout'
 import { ProjectLayoutPageProps, ProjectMemberLayoutProps } from './types'
+import { useGetProject } from '@/hooks/useGetProject'
 
 export default function ProjectMembersLayout({
   children,
   namespaceName,
   projectName,
 }: ProjectMemberLayoutProps) {
-  const getProjectQuery = trpc.projects.getProject.useQuery({
+  const getProjectQuery = useGetProject({
     owner: namespaceName,
     name: projectName,
   })

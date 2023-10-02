@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useToast } from '@/components/ui/use-toast'
+import { useGetProject } from '@/hooks/useGetProject'
 
 const projectFormSchema = z.object({
   name: NAMESPACE,
@@ -40,7 +41,7 @@ export default function ProjectSettings({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
   const { toast } = useToast()
-  const { data } = trpc.projects.getProject.useQuery({
+  const { data } = useGetProject({
     owner: namespaceName,
     name: projectName,
   })
@@ -89,9 +90,9 @@ export default function ProjectSettings({
     })
   }
 
-  function toggleVisibility() { }
+  function toggleVisibility() {}
 
-  function deleteProject() { }
+  function deleteProject() {}
 
   return (
     <>
