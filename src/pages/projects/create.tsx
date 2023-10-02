@@ -148,7 +148,7 @@ export default function ProjectCreate() {
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            value={selectedOwnerOrganization}
+                            defaultValue={selectedOwnerOrganization}
                           >
                             <FormControl>
                               <SelectTrigger className="w-64">
