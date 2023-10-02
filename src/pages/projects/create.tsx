@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -103,6 +103,11 @@ export default function ProjectCreate() {
     return undefined
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userOrganizations.status])
+
+  useEffect(() => {
+    form.setValue('owner', selectedOwnerOrganization || '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedOwnerOrganization])
 
   return (
     <>
