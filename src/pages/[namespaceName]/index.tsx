@@ -6,7 +6,6 @@ import OrganizationPage from '@/components/namespace/OrganizationPage'
 import { getOrganizationLayout } from '@/components/layout/organization/OrganizationLayout'
 import { getLayout as getDefaultLayout } from '@/components/layout/DefaultLayout'
 
-export type SSRHelperReturnType = Awaited<ReturnType<typeof ssrHelper>>
 export default function NamespaceIndexRoute({
   namespaceName,
   type,
@@ -35,8 +34,8 @@ NamespaceIndexRoute.getLayout = (
   })
 }
 
-// This page is special since its the only one that conditions fetches and renders the page depending if it's a User or an Organization.
-// NextJS does'nt support being able to call "next" on a route, unlike something like ExpressJS, so were stuck with these if statements.
+// This page is special because it's the only one that conditionally fetches and renders the page depending on whether it's a User or an Organization.
+// Next.js doesn't support the ability to call 'next' on a route, unlike something like Express.js, so we're stuck with these 'if' statements
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const namespaceName = context.params?.namespaceName
 
@@ -44,58 +43,35 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     throw new Error('no slug')
 
   const helpers = await ssrHelper(context)
-
-  // TODO: Do we even need to call getNamespace: Technically no, we can just fetch getUser first, if thats not found, fetch getOrganization. And if that isn't found, then 404.
-  return helpers.namespace.getNamespace
+  return helpers.users.getUser
     .fetch({
       name: namespaceName,
     })
-    .then(async (res) => {
-      if (res.userId) {
-        // User
-        return helpers.users.getUser
-          .fetch({
-            name: namespaceName,
-          })
-          .then(() => {
-            return {
-              props: {
-                trpcState: helpers.dehydrate(),
-                namespaceName,
-                type: 'User',
-              },
-            }
-          })
-          .catch(() => {
-            return {
-              notFound: true,
-            }
-          })
+    .then(() => {
+      return {
+        props: {
+          trpcState: helpers.dehydrate(),
+          namespaceName,
+          type: 'User',
+        },
       }
-
-      // Organization
-      return helpers.organizations.getOrganization
-        .fetch({
+    })
+    .catch(async () => {
+      try {
+        await helpers.organizations.getOrganization.fetch({
           name: namespaceName,
         })
-        .then(() => {
-          return {
-            props: {
-              trpcState: helpers.dehydrate(),
-              namespaceName,
-              type: 'Organization',
-            },
-          }
-        })
-        .catch(() => {
-          return {
-            notFound: true,
-          }
-        })
-    })
-    .catch(() => {
-      return {
-        notFound: true,
+        return {
+          props: {
+            trpcState: helpers.dehydrate(),
+            namespaceName,
+            type: 'Organization',
+          },
+        }
+      } catch {
+        return {
+          notFound: true,
+        }
       }
     })
 }
