@@ -1,7 +1,6 @@
 import { GetServerSidePropsContext } from 'next'
 import ssrHelper from '../trpc/ssrHelper'
 
-// TODO: This could be moved once we change the context creation
 export async function getProjectServerSideProps(
   context: GetServerSidePropsContext
 ) {

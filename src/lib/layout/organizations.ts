@@ -3,7 +3,6 @@ import { getCookie } from 'cookies-next'
 import ssrHelper from '../trpc/ssrHelper'
 import { NEXT_AUTH_SESSION_COOKIE } from '../constants'
 
-// TODO: This could be moved once we change the context creation
 export async function getOrganizationServerSideProps(
   context: GetServerSidePropsContext,
   ensureIsMember: boolean
