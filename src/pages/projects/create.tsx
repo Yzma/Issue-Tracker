@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { GetServerSidePropsContext } from 'next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBookBookmark, faLock } from '@fortawesome/free-solid-svg-icons'
+import { useSearchParams } from 'next/navigation'
 import { ProjectCreationSchema } from '@/lib/zod-schemas'
 import { trpc } from '@/lib/trpc/trpc'
 import ssrHelper from '@/lib/trpc/ssrHelper'
@@ -39,10 +40,7 @@ type ProjectCreationType = z.infer<typeof ProjectCreationSchema>
 
 export default function ProjectCreate() {
   const router = useRouter()
-
-  const createProjectMutation = trpc.projects.create.useMutation()
-  const userOrganizations = trpc.users.getOwnOrganizations.useQuery()
-  const { data: session } = useSession()
+  const searchParams = useSearchParams()
 
   const form = useForm<ProjectCreationType>({
     resolver: zodResolver(ProjectCreationSchema),
@@ -52,6 +50,10 @@ export default function ProjectCreate() {
       visibility: 'public',
     },
   })
+
+  const createProjectMutation = trpc.projects.create.useMutation()
+  const userOrganizations = trpc.users.getOwnOrganizations.useQuery()
+  const { data: session } = useSession()
 
   const onSubmit: SubmitHandler<ProjectCreationType> = (data) => {
     createProjectMutation
@@ -88,6 +90,24 @@ export default function ProjectCreate() {
       </>
     )
   }, [session, userOrganizations.data])
+
+  const selectedOwnerOrganization = useMemo(() => {
+    if (userOrganizations.status === 'success' && searchParams.has('owner')) {
+      const ownerSearchParam = searchParams.get('owner') as string
+      if (
+        userOrganizations.data.find((owner) => owner.name === ownerSearchParam)
+      ) {
+        return ownerSearchParam
+      }
+    }
+    return undefined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userOrganizations.status])
+
+  useEffect(() => {
+    form.setValue('owner', selectedOwnerOrganization || '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedOwnerOrganization])
 
   return (
     <>
@@ -126,13 +146,16 @@ export default function ProjectCreate() {
                           <FormLabel>
                             Owner <FormRequiredField />
                           </FormLabel>
-                          <Select onValueChange={field.onChange}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={selectedOwnerOrganization}
+                          >
                             <FormControl>
                               <SelectTrigger className="w-64">
                                 <SelectValue placeholder="Chose an owner" />
                               </SelectTrigger>
                             </FormControl>
-                            {!options && (
+                            {!options ? (
                               <SelectContent>
                                 <SelectItem disabled value="1">
                                   <Skeleton className="h-3.5 w-52" />
@@ -144,8 +167,7 @@ export default function ProjectCreate() {
                                   <Skeleton className="h-3.5 w-52" />
                                 </SelectItem>
                               </SelectContent>
-                            )}
-                            {options && (
+                            ) : (
                               <SelectContent>{options}</SelectContent>
                             )}
                           </Select>
