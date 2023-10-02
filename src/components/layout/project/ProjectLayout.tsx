@@ -6,17 +6,17 @@ import {
   faUserGroup,
 } from '@fortawesome/free-solid-svg-icons'
 import DefaultLayout from '@/components/ui/DefaultLayout'
-import { trpc } from '@/lib/trpc/trpc'
 import ProjectBelowNavbar from '@/components/navbar/ProjectBelowNavbar'
 import { ProjectLayoutPageProps, ProjectLayoutProps } from './types'
 import { MenuItem } from '@/components/navbar/types'
+import { useGetProject } from '@/hooks/useGetProject'
 
 export default function ProjectLayout({
   children,
   namespaceName,
   projectName,
 }: ProjectLayoutProps) {
-  const getProjectQuery = trpc.projects.getProject.useQuery({
+  const getProjectQuery = useGetProject({
     owner: namespaceName,
     name: projectName,
   })
