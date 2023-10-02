@@ -3,15 +3,13 @@ import { trpc } from '@/lib/trpc/trpc'
 import { OrganizationPageProps } from './types'
 import SharedProjectList from '../projects/SharedProjectList'
 import { ProjectListProjectItem } from '../projects/types'
+import { useGetOrganization } from '@/hooks/useGetOrganization'
 
 export default function OrganizationPage({
   organizationName,
 }: OrganizationPageProps) {
   // This was fetched in getServerSideProps and will be available from the start
-  const getOrganizationQuery =
-    trpc.organizations.getOrganizationNonEnsure.useQuery({
-      name: organizationName,
-    })
+  const getOrganizationQuery = useGetOrganization({ name: organizationName })
 
   const getOrganizationProjectsQuery = trpc.organizations.getProjects.useQuery({
     name: organizationName,

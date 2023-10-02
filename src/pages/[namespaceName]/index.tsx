@@ -76,7 +76,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
       // Organization
       // TODO: Rename getOrganizationLayout
-      return helpers.organizations.getOrganizationNonEnsure
+      return helpers.organizations.getOrganization
         .fetch({
           name: namespaceName,
         })

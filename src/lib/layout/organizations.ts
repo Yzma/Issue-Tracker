@@ -24,7 +24,7 @@ export async function getOrganizationServerSideProps(
   }
 
   const helpers = await ssrHelper(context)
-  return helpers.organizations.getOrganizationNonEnsure
+  return helpers.organizations.getOrganization
     .fetch({
       name: organizationName,
     })
