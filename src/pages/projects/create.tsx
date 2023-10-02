@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -91,17 +91,16 @@ export default function ProjectCreate() {
     )
   }, [session, userOrganizations.data])
 
-  useEffect(() => {
+  const selectedOwnerOrganization = useMemo(() => {
     if (userOrganizations.status === 'success' && searchParams.has('owner')) {
       const ownerSearchParam = searchParams.get('owner') as string
       if (
         userOrganizations.data.find((owner) => owner.name === ownerSearchParam)
       ) {
-        // TODO: Update owner field for form
-        // console.log('here')
-        // form.setValue('owner', '1234', { shouldValidate: false })
+        return ownerSearchParam
       }
     }
+    return undefined
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userOrganizations.status])
 
@@ -142,13 +141,16 @@ export default function ProjectCreate() {
                           <FormLabel>
                             Owner <FormRequiredField />
                           </FormLabel>
-                          <Select onValueChange={field.onChange}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={selectedOwnerOrganization}
+                          >
                             <FormControl>
                               <SelectTrigger className="w-64">
                                 <SelectValue placeholder="Chose an owner" />
                               </SelectTrigger>
                             </FormControl>
-                            {!options && (
+                            {!options ? (
                               <SelectContent>
                                 <SelectItem disabled value="1">
                                   <Skeleton className="h-3.5 w-52" />
@@ -160,8 +162,7 @@ export default function ProjectCreate() {
                                   <Skeleton className="h-3.5 w-52" />
                                 </SelectItem>
                               </SelectContent>
-                            )}
-                            {options && (
+                            ) : (
                               <SelectContent>{options}</SelectContent>
                             )}
                           </Select>
