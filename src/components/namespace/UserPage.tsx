@@ -3,9 +3,9 @@ import { useSession } from 'next-auth/react'
 import { MemoizedProfileContainer } from '@/components/user-profile/ProfileContainer'
 import { trpc } from '@/lib/trpc/trpc'
 import UserProfileContextProvider from '../user-profile/UserProfileContext'
-import { UserPageProps } from './types'
 import SharedProjectList from '../projects/SharedProjectList'
-import { ProjectListProjectItem } from '../projects/types'
+
+import { UserPageProps } from './types'
 
 export default function UserPage({ username }: UserPageProps) {
   const { data: session } = useSession()
@@ -22,11 +22,11 @@ export default function UserPage({ username }: UserPageProps) {
       </UserProfileContextProvider>
       <div className="w-full">
         <SharedProjectList
-          loading={getUsersProjectsQuery.isLoading}
+          status={getUsersProjectsQuery.status}
           createProjectLink={
             username === session?.user.name ? '/projects/create' : undefined
           }
-          projects={getUsersProjectsQuery.data as ProjectListProjectItem[]}
+          projects={getUsersProjectsQuery.data}
         />
       </div>
     </div>

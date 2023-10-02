@@ -22,7 +22,7 @@ export async function getProjectsWithInvitations(
   namespace: string,
   userId: string
 ) {
-  if (getProjectsWithInvitationsSchema.parse({ namespace, userId })) {
+  if (!getProjectsWithInvitationsSchema.parse({ namespace, userId })) {
     throw new Error('Invalid namespace or userId provided')
   }
 

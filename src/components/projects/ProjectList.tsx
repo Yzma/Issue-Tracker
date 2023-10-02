@@ -2,7 +2,10 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
+import {
+  faBookBookmark,
+  faTriangleExclamation,
+} from '@fortawesome/free-solid-svg-icons'
 import moment from 'moment'
 import { cn } from '@/lib/utils'
 import { Badge } from '../ui/badge'
@@ -125,6 +128,27 @@ const ProjectListEmpty = React.forwardRef<
 })
 ProjectListEmpty.displayName = 'ProjectListEmpty'
 
+const ProjectListError = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, children, ...props }, ref) => {
+  return (
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center gap-y-5 p-10 text-2xl',
+        className
+      )}
+      ref={ref}
+      {...props}
+    >
+      <FontAwesomeIcon size="lg" icon={faTriangleExclamation} />
+      <p>There was an error loading these projects!</p>
+      <p>Please open an issue on GitHub if this issue persists</p>
+    </div>
+  )
+})
+ProjectListError.displayName = 'ProjectListError'
+
 export {
   ProjectList,
   ProjectListHeader,
@@ -132,4 +156,5 @@ export {
   ProjectListEmpty,
   ProjectListInputSearch,
   ProjectListInputButton,
+  ProjectListError,
 }
