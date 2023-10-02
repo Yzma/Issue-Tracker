@@ -1,19 +1,18 @@
-import { trpc } from '@/lib/trpc/trpc'
 import { SidebarNav } from '@/components/sidebar/SidebarNav'
 import OrganizationLayout from './OrganizationLayout'
 import {
   OrganizationLayoutPageProps,
   OrganizationMemberLayoutProps,
 } from './types'
+import { useGetOrganization } from '@/hooks/useGetOrganization'
 
 export default function OrganizationMembersLayout({
   children,
   organizationName,
 }: OrganizationMemberLayoutProps) {
-  const organizationMembersQuery =
-    trpc.organizations.getOrganizationNonEnsure.useQuery({
-      name: organizationName,
-    })
+  const organizationMembersQuery = useGetOrganization({
+    name: organizationName,
+  })
 
   return (
     <div className="space-y-6 p-10 pb-16 md:block">

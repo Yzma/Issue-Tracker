@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {
   ProjectList,
   ProjectListEmpty,
+  ProjectListError,
   ProjectListHeader,
   ProjectListInputButton,
   ProjectListInputSearch,
@@ -21,17 +22,17 @@ import {
 import { Button } from '../ui/button'
 
 export default function SharedProjectList({
-  loading,
+  status,
   createProjectLink,
   projects,
 }: SharedProjectListProps) {
   return (
     <div>
-      {loading ? (
-        <ProjectListLoading />
-      ) : (
+      {status === 'error' && <ProjectListError />}
+      {status === 'loading' && <ProjectListLoading />}
+      {status === 'success' && (
         <ProjectList>
-          {projects.length === 0 ? (
+          {projects && projects.length === 0 ? (
             <ProjectListEmpty>
               {createProjectLink && (
                 <Button className="flex w-48" size="lg" asChild>

@@ -92,7 +92,7 @@ export const organizationsRouter = createTRPCRouter({
       })
     }),
 
-  getOrganizationNonEnsure: publicProcedure
+  getOrganization: publicProcedure
     .input(NamespaceSchema)
     .query(async ({ ctx, input }) => {
       const signedInUserSelect =

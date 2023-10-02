@@ -1,20 +1,19 @@
 import { useMemo } from 'react'
 import { faBug, faGear, faUserGroup } from '@fortawesome/free-solid-svg-icons'
 import DefaultLayout from '@/components/ui/DefaultLayout'
-import { trpc } from '@/lib/trpc/trpc'
 import { OrganizationLayoutPageProps, OrganizationLayoutProps } from './types'
 import { MenuItem } from '@/components/navbar/types'
 import OrganizationBelowNavbar from '@/components/navbar/OrganizationBelowNavbar'
+import { useGetOrganization } from '@/hooks/useGetOrganization'
 
 export default function OrganizationLayout({
   children,
   organizationName,
   variant,
 }: OrganizationLayoutProps) {
-  const organizationMembersQuery =
-    trpc.organizations.getOrganizationNonEnsure.useQuery({
-      name: organizationName,
-    })
+  const organizationMembersQuery = useGetOrganization({
+    name: organizationName,
+  })
 
   const menuItems: MenuItem[] = useMemo(() => {
     return [

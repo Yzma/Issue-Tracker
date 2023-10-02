@@ -1,4 +1,4 @@
-import { Project } from '@/types/types'
+import { Project } from '@/server/routers/common'
 
 export type ProjectListProjectItem = Pick<
   Project,
@@ -10,7 +10,7 @@ export type ProjectItemType = {
 }
 
 export type SharedProjectListProps = {
-  loading: boolean
+  status: 'success' | 'loading' | 'error'
   createProjectLink: string | undefined
-  projects: ProjectListProjectItem[]
+  projects: Project[] | undefined
 }

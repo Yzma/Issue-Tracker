@@ -70,7 +70,7 @@ export default function UserSocialLinks({ links }: SocialLinks) {
   return (
     <div className="mb-2 flex flex-col space-y-2">
       {links
-        .filter((e) => e) // TODO: Is this needed?
+        .filter((e) => e)
         .map((link) => {
           const icon = lookupLinkIconDefinition(link)
           return (
