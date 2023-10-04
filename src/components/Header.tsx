@@ -15,7 +15,7 @@ import { Skeleton } from './ui/skeleton'
 export default function Header() {
   const { data: session, status } = useSession()
   return (
-    <div className="sticky top-0 z-10 border-b border-gray-200 bg-green-300">
+    <div className="sticky top-0 z-50 border-b border-gray-200 bg-green-300">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="-mb-px flex h-16 items-center justify-between">
           <div className="flex items-center space-x-3">
