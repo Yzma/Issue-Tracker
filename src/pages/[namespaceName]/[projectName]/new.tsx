@@ -8,6 +8,8 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
+import dynamic from 'next/dynamic'
+import ReactMarkdown from 'react-markdown'
 import { CreateIssueSchema } from '@/lib/zod-schemas'
 import { getProjectLayout } from '@/components/layout/project/ProjectLayout'
 import { getProjectServerSideProps } from '@/lib/layout/projects'
@@ -23,10 +25,21 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { CustomLink } from '@/components/ui/common'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import 'react-markdown-editor-lite/lib/index.css'
+import { Separator } from '@/components/ui/separator'
 
+const MdEditor = dynamic(() => import('react-markdown-editor-lite'), {
+  ssr: false,
+})
 type IssueCreationType = z.infer<typeof CreateIssueSchema>
 
 export default function CreateNewIssue({
@@ -59,7 +72,7 @@ export default function CreateNewIssue({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="flex items-center justify-center [&>div]:w-full">
             <Card>
-              <CardHeader className="space-y-1">
+              <CardHeader className="space-y-1 p-2 px-4">
                 <FormField
                   control={form.control}
                   name="title"
@@ -80,39 +93,53 @@ export default function CreateNewIssue({
 
               {/* <div className="w-full border-b"> */}
 
-              <Tabs defaultValue="account">
-                <div className="">
-                  <TabsList className="z-40  flex w-full justify-start space-x-2 rounded-none border-b bg-white pl-6">
-                    <TabsTrigger
-                      value="account"
-                      className="z-10 -mb-[-5px] rounded-none rounded-t-lg border-[0.0625rem] p-3 outline-none ring-0 ring-offset-0 transition-none focus-visible:outline-none
+              <Tabs defaultValue="write">
+                <TabsList className="z-40 flex w-full justify-start space-x-2 rounded-none border-b bg-white p-2 px-4">
+                  <TabsTrigger
+                    value="write"
+                    className="z-10 -mb-[-5px] w-20 rounded-none rounded-t-lg border-[0.0625rem] p-3 outline-none ring-0 ring-offset-0 transition-none focus-visible:outline-none
                       data-[state=inactive]:border-transparent
+                      data-[state=active]:border-b-white
                       data-[state=active]:bg-white
                       data-[state=active]:shadow-none"
-                    >
-                      Account
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="password"
-                      className="z-10 -mb-[-5px] rounded-none rounded-t-lg border-[0.0625rem] p-3 outline-none ring-0 ring-offset-0 transition-none focus-visible:outline-none
-                      data-[state=inactive]:border-transparent
-                      data-[state=active]:bg-white
-                      data-[state=active]:shadow-none"
-                    >
-                      Password
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
+                  >
+                    Write
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="preview"
+                    className="z-10 -mb-[-5px] w-20 rounded-none rounded-t-lg border-[0.0625rem] p-3 outline-none ring-0 ring-offset-0 transition-none focus-visible:outline-none
+                    data-[state=inactive]:border-transparent
+                    data-[state=active]:border-b-white
+                    data-[state=active]:bg-white
+                    data-[state=active]:shadow-none"
+                  >
+                    Preview
+                  </TabsTrigger>
+                </TabsList>
 
-                <TabsContent value="account">
-                  Make changes to your account here.
-                </TabsContent>
-                <TabsContent value="password">
-                  Change your password here.
-                </TabsContent>
+                <CardContent className="px-4 py-3">
+                  <TabsContent value="write">
+                    <MdEditor
+                      style={{ minHeight: '300px', maxHeight: '500px' }}
+                      renderHTML={(text) => <ReactMarkdown source={text} />}
+                      view={{ menu: true, md: true, html: false }}
+                      canView={{
+                        fullScreen: false,
+                        hideMenu: true,
+                        html: false,
+                        both: false,
+                      }}
+                    />
+                  </TabsContent>
+                  <TabsContent value="preview">
+                    Change your password here.
+                  </TabsContent>
+                </CardContent>
               </Tabs>
 
-              <CardFooter className="flex justify-between">
+              <Separator />
+
+              <CardFooter className="flex justify-between p-2 px-4 pt-3">
                 <CustomLink
                   href="/"
                   className="flex items-center gap-x-1 text-sm"
@@ -120,7 +147,7 @@ export default function CreateNewIssue({
                   <FontAwesomeIcon icon={faMarkdown} />
                   Styling with Markdown is supported
                 </CustomLink>
-                <Button>Submit</Button>
+                <Button>Submit new Issue</Button>
               </CardFooter>
             </Card>
           </div>
