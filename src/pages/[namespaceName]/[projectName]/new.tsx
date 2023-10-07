@@ -10,10 +10,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 import dynamic from 'next/dynamic'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { CreateIssueSchema } from '@/lib/zod-schemas'
 import { getProjectLayout } from '@/components/layout/project/ProjectLayout'
 import { getProjectServerSideProps } from '@/lib/layout/projects'
-
 import {
   Form,
   FormControl,
@@ -91,8 +91,6 @@ export default function CreateNewIssue({
                 />
               </CardHeader>
 
-              {/* <div className="w-full border-b"> */}
-
               <Tabs defaultValue="write">
                 <TabsList className="z-40 flex w-full justify-start space-x-2 rounded-none border-b bg-white p-2 px-4">
                   <TabsTrigger
@@ -120,7 +118,7 @@ export default function CreateNewIssue({
                 <CardContent className="px-4 py-3">
                   <TabsContent value="write">
                     <MdEditor
-                      style={{ minHeight: '300px', maxHeight: '500px' }}
+                      style={{ height: '400px' }}
                       renderHTML={(text) => <ReactMarkdown source={text} />}
                       view={{ menu: true, md: true, html: false }}
                       canView={{
@@ -132,12 +130,17 @@ export default function CreateNewIssue({
                     />
                   </TabsContent>
                   <TabsContent value="preview">
-                    Change your password here.
+                    <ReactMarkdown
+                      className="prose"
+                      remarkPlugins={[remarkGfm]}
+                    >
+                      # Hello
+                    </ReactMarkdown>
                   </TabsContent>
                 </CardContent>
               </Tabs>
 
-              <Separator />
+              <Separator className="bg-slate-200" />
 
               <CardFooter className="flex justify-between p-2 px-4 pt-3">
                 <CustomLink
