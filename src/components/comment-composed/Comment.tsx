@@ -30,6 +30,7 @@ const CommentMarkdownMessage = React.forwardRef<
   React.HTMLAttributes<HTMLDivElement>
 >(({ className }) => (
   <CustomLink
+    target="_blank"
     href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
     className={cn('flex items-center gap-x-1 text-sm', className)}
   >
