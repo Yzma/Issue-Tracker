@@ -1,21 +1,23 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable react/jsx-props-no-spreading */
-import Link from 'next/link'
+import Link, { LinkProps } from 'next/link'
 import React from 'react'
 import { cn } from '@/lib/utils'
 
-interface LinkRefProps {
-  href: string
-  className?: string
-  children: React.ReactNode
-}
+type CustomLinkProps = Omit<
+  React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  keyof LinkProps
+> &
+  LinkProps & {
+    children?: React.ReactNode
+  } & React.RefAttributes<HTMLAnchorElement>
 
-const CustomLink: React.FC<LinkRefProps> = ({
+const CustomLink = ({
   className,
   children,
   href,
   ...props
-}) => (
+}: CustomLinkProps) => (
   <Link
     href={href}
     className={cn(
