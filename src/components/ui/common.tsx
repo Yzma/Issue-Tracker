@@ -4,7 +4,7 @@ import Link, { LinkProps } from 'next/link'
 import React from 'react'
 import { cn } from '@/lib/utils'
 
-type CustomLinkProps = Omit<
+export type CustomLinkProps = Omit<
   React.AnchorHTMLAttributes<HTMLAnchorElement>,
   keyof LinkProps
 > &
