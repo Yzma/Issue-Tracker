@@ -1,36 +1,37 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import Head from 'next/head'
-
 import { useSession } from 'next-auth/react'
-
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import dynamic from 'next/dynamic'
 import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { CreateIssueSchema } from '@/lib/zod-schemas'
 import { getProjectLayout } from '@/components/layout/project/ProjectLayout'
 import { getProjectServerSideProps } from '@/lib/layout/projects'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { CardContent } from '@/components/ui/card'
+import { TabsContent } from '@/components/ui/tabs'
 import 'react-markdown-editor-lite/lib/index.css'
 import {
+  Comment,
   CommentButton,
   CommentFooter,
+  CommentHeader,
   CommentMarkdownMessage,
+  CommentMarkdownRender,
+  CommentTabTrigger,
+  CommentTabs,
+  CommentTabsList,
 } from '@/components/comment-composed/Comment'
 
 const MdEditor = dynamic(() => import('react-markdown-editor-lite'), {
@@ -38,10 +39,15 @@ const MdEditor = dynamic(() => import('react-markdown-editor-lite'), {
 })
 type IssueCreationType = z.infer<typeof CreateIssueSchema>
 
+// TODO: Remove @typescript-eslint/no-unused-vars
+
 export default function CreateNewIssue({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   namespaceName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   projectName,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: session } = useSession()
 
   const form = useForm<IssueCreationType>({
@@ -65,9 +71,9 @@ export default function CreateNewIssue({
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <Form {...form}>
         {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card>
-            <CardHeader className="space-y-1 p-2 px-4">
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Comment value="# tESTING">
+            <CommentHeader>
               <FormField
                 control={form.control}
                 name="title"
@@ -75,40 +81,19 @@ export default function CreateNewIssue({
                   <FormItem>
                     <FormLabel />
                     <FormControl>
-                      <CardTitle className="text-2xl">
-                        <Input placeholder="Title" {...field} />
-                      </CardTitle>
+                      <Input placeholder="Title" {...field} />
                     </FormControl>
-                    <FormDescription />
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </CardHeader>
+            </CommentHeader>
 
-            <Tabs defaultValue="write">
-              <TabsList className="z-40 flex w-full justify-start space-x-2 rounded-none border-b bg-white p-2 px-4">
-                <TabsTrigger
-                  value="write"
-                  className="z-10 -mb-[-5px] w-20 rounded-none rounded-t-lg border-[0.0625rem] p-3 outline-none ring-0 ring-offset-0 transition-none focus-visible:outline-none
-                      data-[state=inactive]:border-transparent
-                      data-[state=active]:border-b-white
-                      data-[state=active]:bg-white
-                      data-[state=active]:shadow-none"
-                >
-                  Write
-                </TabsTrigger>
-                <TabsTrigger
-                  value="preview"
-                  className="z-10 -mb-[-5px] w-20 rounded-none rounded-t-lg border-[0.0625rem] p-3 outline-none ring-0 ring-offset-0 transition-none focus-visible:outline-none
-                    data-[state=inactive]:border-transparent
-                    data-[state=active]:border-b-white
-                    data-[state=active]:bg-white
-                    data-[state=active]:shadow-none"
-                >
-                  Preview
-                </TabsTrigger>
-              </TabsList>
+            <CommentTabs defaultValue="write">
+              <CommentTabsList>
+                <CommentTabTrigger value="write">Write</CommentTabTrigger>
+                <CommentTabTrigger value="preview">Preview</CommentTabTrigger>
+              </CommentTabsList>
 
               <CardContent className="px-4 py-3">
                 <TabsContent value="write">
@@ -125,18 +110,16 @@ export default function CreateNewIssue({
                   />
                 </TabsContent>
                 <TabsContent value="preview">
-                  <ReactMarkdown className="prose" remarkPlugins={[remarkGfm]}>
-                    # Hello
-                  </ReactMarkdown>
+                  <CommentMarkdownRender>## Hello</CommentMarkdownRender>
                 </TabsContent>
               </CardContent>
-            </Tabs>
+            </CommentTabs>
 
             <CommentFooter>
               <CommentMarkdownMessage />
               <CommentButton>Submit new Issue</CommentButton>
             </CommentFooter>
-          </Card>
+          </Comment>
         </form>
       </Form>
     </>
