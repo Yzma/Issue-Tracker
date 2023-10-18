@@ -1,81 +1,70 @@
-import { useEffect, useState } from 'react'
+/* eslint-disable react/jsx-props-no-spreading */
 import Head from 'next/head'
-
-import Link from 'next/link'
-
-import { useSession } from 'next-auth/react'
-
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter } from 'next/router'
-import Labels from '@/components/labels/Labels'
 import { CreateIssueSchema } from '@/lib/zod-schemas'
-import IssueComment from '@/components/comment-api/IssueComment'
 import { getProjectLayout } from '@/components/layout/project/ProjectLayout'
 import { getProjectServerSideProps } from '@/lib/layout/projects'
-
-type LabelProps = {
-  id: string
-  name: string
-  color: string
-}
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import 'react-markdown-editor-lite/lib/index.css'
+import {
+  Comment,
+  CommentContent,
+  CommentFooter,
+  CommentHeader,
+  CommentMarkdownEditor,
+  CommentMarkdownMessage,
+  CommentMarkdownRender,
+  CommentTabTrigger,
+  CommentTabs,
+  CommentTabsContent,
+  CommentTabsList,
+} from '@/components/comment-composed/Comment'
+import { Button } from '@/components/ui/button'
+import { trpc } from '@/lib/trpc/trpc'
 
 type IssueCreationType = z.infer<typeof CreateIssueSchema>
-
 export default function CreateNewIssue({
   namespaceName,
   projectName,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
-
-  const [labels, setLabels] = useState<LabelProps[]>([])
-  const { data: session } = useSession()
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<IssueCreationType>({
+  const createIssueMutation = trpc.issues.createIssue.useMutation()
+  const form = useForm<IssueCreationType>({
     resolver: zodResolver(CreateIssueSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+    },
   })
 
-  // TODO: Move to tRPC
   const onSubmit: SubmitHandler<IssueCreationType> = (data) => {
-    const labelIds = labels.map((e) => e.id)
-    axios
-      .post(`/api/${namespaceName}/${projectName}/issues`, {
-        name: data.title,
-        description: data.description,
-        labels: labelIds,
-      })
-      .then((response) =>
-        router.push(
-          `/${namespaceName}/${projectName}/issues/${response.data.result.id}`
+    createIssueMutation
+      .mutateAsync({ owner: namespaceName, name: projectName, ...data })
+      .then(async (response) => {
+        await router.push(
+          `/${response.project.namespace.name}/${response.project.name}/issues/${response.id}`
         )
-      )
-      .catch((error) => {
-        // setError('name', { type: 'custom', message: 'custom message' }) // TODO: Set proper error message
-        console.log('ERROR:', error) // TODO: remove this
+      })
+      .catch(() => {
+        form.setError('root', {
+          type: 'custom',
+          message:
+            'Failed to create issue. Please contact support if the error persists.',
+        })
       })
   }
-
-  const onLabelClick = (label: LabelProps) => {
-    if (labels.find((e) => e.id === label.id)) {
-      setLabels(labels.filter((item) => item.id !== label.id))
-    } else {
-      setLabels([...labels, label])
-    }
-  }
-
-  useEffect(() => {
-    setValue(
-      'labels',
-      labels.map((e) => e.id)
-    )
-  }, [labels, setValue])
 
   return (
     <>
@@ -83,159 +72,54 @@ export default function CreateNewIssue({
         <title>Create new issue</title>
       </Head>
 
-      {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-8 gap-6 px-4 py-8 sm:px-6 lg:px-8">
-          <div className="col-span-6 col-start-2">
-            {errors.title && (
-              <div className="py-3">
-                <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
-                  <div>You must enter a valid issue title!</div>
-                </div>
-              </div>
-            )}
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <Form {...form}>
+        {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Comment
+            onValueChange={(data) => {
+              form.setValue('description', data)
+            }}
+          >
+            <CommentHeader>
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel />
+                    <FormControl>
+                      <Input placeholder="Title" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CommentHeader>
 
-            {errors.description && (
-              <div className="py-3">
-                <div className="flex w-full rounded-sm border border-rose-200 bg-rose-100 px-4 py-2 text-sm text-rose-600">
-                  <div>You must enter a valid description!</div>
-                </div>
-              </div>
-            )}
-          </div>
+            <CommentTabs defaultValue="write">
+              <CommentTabsList>
+                <CommentTabTrigger value="write">Write</CommentTabTrigger>
+                <CommentTabTrigger value="preview">Preview</CommentTabTrigger>
+              </CommentTabsList>
 
-          <div className="col-span-4 col-start-2">
-            {/* Start Main Content */}
+              <CommentContent>
+                <CommentTabsContent value="write">
+                  <CommentMarkdownEditor />
+                </CommentTabsContent>
+                <CommentTabsContent value="preview">
+                  <CommentMarkdownRender />
+                </CommentTabsContent>
+              </CommentContent>
+            </CommentTabs>
 
-            <main>
-              <div className="row g-5">
-                <section>
-                  <section className="mb-4 flex flex-row">
-                    <div className="grow sm:w-1/3">
-                      <label
-                        className="mb-1 block text-sm font-medium"
-                        htmlFor="name"
-                      >
-                        Title <span className="text-rose-500">*</span>
-                        <input
-                          className="form-input w-full"
-                          type="text"
-                          // eslint-disable-next-line react/jsx-props-no-spreading
-                          {...register('title')}
-                        />
-                      </label>
-                    </div>
-                  </section>
-
-                  <hr />
-
-                  <div className="flex flex-row">
-                    <section className="mt-4 grow">
-                      <label
-                        className="mb-1 block text-sm font-medium"
-                        htmlFor="name"
-                      >
-                        Description <span className="text-rose-500">*</span>
-                      </label>
-                      <IssueComment
-                        text=""
-                        onChange={(text: string) =>
-                          // setFieldValue("description", text)
-                          setValue('description', text)
-                        }
-                        onSubmit={() => { }}
-                        editing
-                        showButtons={false}
-                      />
-                    </section>
-                  </div>
-
-                  <hr />
-
-                  <div className="flex flex-col border-t border-slate-200 py-5">
-                    <div className="flex self-start">
-                      <button
-                        className="btn bg-indigo-500 text-white hover:bg-indigo-600"
-                        type="submit"
-                        disabled={isSubmitting}
-                      >
-                        Submit Issue
-                      </button>
-                    </div>
-                  </div>
-                </section>
-              </div>
-            </main>
-            {/* End Main Content */}
-          </div>
-
-          {/* Issue Actions */}
-          <div className="col-md-4 col-span-2 flex flex-col gap-y-2">
-            {/* Asignees Action */}
-            <div>
-              <div className="flex justify-between">
-                <span className="font-bold">Asignees </span>
-              </div>
-              <Link
-                className="text-blue-600 hover:cursor-pointer hover:text-gray-900 hover:underline"
-                href={session ? `/${session.user.username}/` : ''}
-              >
-                {session && session.user.username}
-              </Link>
-            </div>
-            {/* End Asignees Action */}
-
-            <hr />
-
-            {/* Labels Actions */}
-            <div className="">
-              <div className="align-self-center flex justify-between">
-                <span className="font-bold">Labels</span>
-                {/* {data.length !== 0 && (
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger asChild>
-                      <FontAwesomeIcon
-                        className="mr-4 align-self-center align-middle"
-                        icon={faGear}
-                      />
-                    </DropdownMenu.Trigger>
-
-                    <DropdownMenu.Portal>
-                      <DropdownMenu.Content
-                        className="DropdownMenuContent"
-                        sideOffset={5}
-                      >
-                        {data.map((label) => (
-                          <DropdownMenu.Item
-                            key={label.id}
-                            className="DropdownMenuItem"
-                            onClick={() => onLabelClick(label)}
-                          >
-                            <span>
-                              <FontAwesomeIcon
-                                className="mr-4 align-self-center align-middle"
-                                style={{
-                                  color: `#${label.color}`,
-                                }}
-                                icon={faCircle}
-                              />
-                            </span>
-                            {label.name}
-                          </DropdownMenu.Item>
-                        ))}
-                      </DropdownMenu.Content>
-                    </DropdownMenu.Portal>
-                  </DropdownMenu.Root>
-                )} */}
-              </div>
-              <div className="flex gap-x-1 pt-2">
-                <Labels labels={labels} />
-              </div>
-            </div>
-            {/* End Labels Actions */}
-          </div>
-        </div>
-      </form>
+            <CommentFooter>
+              <CommentMarkdownMessage />
+              <Button type="submit">Submit new Issue</Button>
+            </CommentFooter>
+          </Comment>
+        </form>
+      </Form>
     </>
   )
 }
@@ -255,32 +139,3 @@ CreateNewIssue.getLayout = function getLayout(
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return getProjectServerSideProps(context)
 }
-
-// export const getServerSideProps: GetServerSideProps<{
-//   data: LabelProps[]
-// }> = async (context) => {
-//   const { namespaceName, projectName } = context.query
-//   const labels = (await prisma.label.findMany({
-//     where: {
-//       project: {
-//         // @ts-ignore
-//         name: projectName,
-//         namespace: {
-//           // @ts-ignore
-//           name: namespaceName,
-//         },
-//       },
-//     },
-//     select: {
-//       id: true,
-//       name: true,
-//       color: true,
-//     },
-//   })) as LabelProps[]
-
-//   return {
-//     props: {
-//       data: labels,
-//     },
-//   }
-// }
