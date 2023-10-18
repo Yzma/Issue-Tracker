@@ -122,6 +122,20 @@ export const issuesRouter = createTRPCRouter({
             connect: mapped,
           },
         },
+        select: {
+          id: true,
+          name: true,
+          project: {
+            select: {
+              namespace: {
+                select: {
+                  name: true,
+                },
+              },
+              name: true,
+            },
+          },
+        },
       })
     }),
 
