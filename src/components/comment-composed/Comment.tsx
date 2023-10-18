@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/prop-types */
 import * as React from 'react'
@@ -11,17 +12,21 @@ import {
 import remarkGfm from 'remark-gfm'
 import { Scope, createContextScope } from '@radix-ui/react-context'
 import { useControllableState } from '@radix-ui/react-use-controllable-state'
+import dynamic from 'next/dynamic'
 import { cn } from '@/lib/utils'
 import { CustomLink } from '../ui/common'
-import { Button, ButtonProps } from '../ui/button'
-import { Card, CardFooter, CardHeader } from '../ui/card'
+import { Card, CardContent, CardFooter, CardHeader } from '../ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+import { EditorProps } from './types'
+
+const MdEditor = dynamic(() => import('react-markdown-editor-lite'), {
+  ssr: false,
+})
 
 const COMMENTS_NAME = 'Comment'
 
-type ScopedProps<P> = P & { __scopeTabs?: Scope }
-const [createCommentContext, createCommentScope] =
-  createContextScope(COMMENTS_NAME)
+type ScopedProps<P> = P & { __scopeComment?: Scope }
+const [createCommentContext] = createContextScope(COMMENTS_NAME)
 
 type CommentContextValue = {
   baseId: string
@@ -38,14 +43,11 @@ type CommentProps = React.HTMLAttributes<HTMLDivElement> & {
   onValueChange?: (value: string) => void
 }
 
-// const Comment = Card
-
-// T, Props
 const Comment = React.forwardRef<HTMLDivElement, CommentProps>(
   (props: ScopedProps<CommentProps>, ref) => {
     const {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      __scopeTabs,
+      __scopeComment,
       value: valueProp,
       onValueChange,
       defaultValue,
@@ -59,7 +61,7 @@ const Comment = React.forwardRef<HTMLDivElement, CommentProps>(
 
     return (
       <CommentProvider
-        scope={__scopeTabs}
+        scope={__scopeComment}
         baseId={React.useId()}
         value={value}
         onValueChange={setValue}
@@ -116,6 +118,14 @@ const CommentTabTrigger = React.forwardRef<
 CommentTabTrigger.displayName = 'CommentTabTrigger'
 
 const CommentContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <CardContent ref={ref} className={cn('px-4 py-3', className)} {...props} />
+))
+CommentContent.displayName = 'CommentContent'
+
+const CommentTabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => (
@@ -128,7 +138,7 @@ const CommentContent = React.forwardRef<
     {...props}
   />
 ))
-CommentContent.displayName = 'CommentContent'
+CommentTabsContent.displayName = 'CommentTabsContent'
 
 const CommentFooter = React.forwardRef<
   HTMLDivElement,
@@ -160,31 +170,62 @@ function CommentMarkdownMessage({ className }: { className?: string }) {
   )
 }
 
-const CommentButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <Button
-        className={cn(className)}
-        ref={ref}
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...props}
-      />
-    )
-  }
-)
-CommentButton.displayName = 'CommentButton'
-
-function CommentMarkdownRender({ className, ...props }: ReactMarkdownOptions) {
-  const { __scopeTabs, value } = props
-  const context = useCommentContext(COMMENTS_NAME, __scopeTabs)
+function CommentMarkdownEditor({
+  ...props
+}: ScopedProps<Omit<EditorProps, 'renderHTML'>>) {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const { __scopeComment, onChange } = props
+  const context = useCommentContext(COMMENTS_NAME, __scopeComment)
   return (
-    <ReactMarkdown
-      className={cn('prose', className)}
-      remarkPlugins={[remarkGfm]}
+    <MdEditor
+      value={context.value}
+      style={{ height: '400px' }}
+      view={{ menu: true, md: true, html: false }}
+      canView={{
+        md: false,
+        menu: true,
+        fullScreen: false,
+        hideMenu: true,
+        html: false,
+        both: false,
+      }}
+      onChange={(e) => {
+        if (onChange) {
+          onChange(e)
+        }
+        if (context && context.onValueChange) {
+          context.onValueChange(e.text)
+        }
+      }}
       {...props}
-    >
-      {context.value}
-    </ReactMarkdown>
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      renderHTML={() => <ReactMarkdown>{context.value}</ReactMarkdown>}
+    />
+  )
+}
+
+function CommentMarkdownRender({
+  className,
+  ...props
+}: ScopedProps<Omit<ReactMarkdownOptions, 'children'>>) {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const { __scopeComment } = props
+  const context = useCommentContext(COMMENTS_NAME, __scopeComment)
+  return (
+    <div>
+      {!context.value ? (
+        <div>There is nothing to preview.</div>
+      ) : (
+        <ReactMarkdown
+          className={cn('prose', className)}
+          remarkPlugins={[remarkGfm]}
+          {...props}
+        >
+          {context.value}
+        </ReactMarkdown>
+      )}
+    </div>
   )
 }
 
@@ -195,8 +236,9 @@ export {
   CommentTabsList,
   CommentTabTrigger,
   CommentContent,
+  CommentTabsContent,
   CommentFooter,
   CommentMarkdownMessage,
   CommentMarkdownRender,
-  CommentButton,
+  CommentMarkdownEditor,
 }
